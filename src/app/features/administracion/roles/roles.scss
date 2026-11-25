@@ -1,0 +1,72 @@
+@use '../../../shared/ag-grid/tabla-skeleton';
+
+:host {
+  display: block;
+}
+
+.roles-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__header {
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.5rem;
+      color: var(--brand-ink);
+    }
+
+    p {
+      margin: 0;
+      color: var(--brand-muted);
+      font-size: 0.92rem;
+    }
+  }
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    color: var(--brand-primary);
+  }
+}
+
+.hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}
+
+.permisos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.88rem;
+    color: var(--brand-ink);
+  }
+
+  span {
+    color: var(--brand-muted);
+    font-size: 0.78rem;
+  }
+}

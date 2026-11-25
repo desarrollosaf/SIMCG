@@ -1,0 +1,84 @@
+<div class="file-upload">
+  <input
+    #entrada
+    type="file"
+    class="file-upload__nativo"
+    tabindex="-1"
+    [id]="idEntrada"
+    [accept]="accept()"
+    [disabled]="deshabilitado()"
+    (change)="alElegir($event)"
+  />
+
+  @if (archivo(); as actual) {
+    <div class="file-upload__archivo">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linejoin="round"
+        />
+        <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+      </svg>
+      <span class="file-upload__texto">
+        <span class="file-upload__nombre">{{ actual.name }}</span>
+        <span class="file-upload__meta">{{ tamano() }}</span>
+      </span>
+      <button
+        type="button"
+        class="file-upload__quitar"
+        [disabled]="deshabilitado()"
+        [attr.aria-label]="'Quitar ' + actual.name"
+        (click)="limpiar()"
+      >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M6 6l12 12M18 6L6 18"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  } @else {
+    <div
+      class="file-upload__zona"
+      role="button"
+      [attr.tabindex]="deshabilitado() ? -1 : 0"
+      [attr.aria-disabled]="deshabilitado()"
+      [attr.aria-describedby]="idEntrada + '-ayuda'"
+      [class.file-upload__zona--activa]="arrastrando()"
+      [class.file-upload__zona--deshabilitada]="deshabilitado()"
+      (click)="abrir()"
+      (keydown)="alTeclado($event)"
+      (dragover)="alArrastrar($event)"
+      (dragleave)="arrastrando.set(false)"
+      (drop)="alSoltar($event)"
+    >
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M12 15V4M8 8l4-4 4 4"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <span class="file-upload__etiqueta">{{ etiqueta() }}</span>
+      <span class="file-upload__ayuda" [id]="idEntrada + '-ayuda'">{{ ayuda() }}</span>
+    </div>
+  }
+
+  @if (error(); as mensaje) {
+    <p class="file-upload__error" role="alert">{{ mensaje }}</p>
+  }
+</div>

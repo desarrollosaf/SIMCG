@@ -1,0 +1,40 @@
+<section class="roles-page">
+  <header class="roles-page__header">
+    <h1>Roles</h1>
+    <p>Roles del sistema y los permisos que tiene cada uno. Solo lectura.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="tabla-skeleton">
+      <div class="tabla-skeleton__header"></div>
+      @for (n of [1, 2, 3, 4, 5]; track n) {
+        <div class="tabla-skeleton__row"></div>
+      }
+    </div>
+  } @else {
+    <div class="roles-grid">
+      @for (rol of roles(); track rol.id) {
+        <article class="card">
+          <h2>{{ rol.nombre }}</h2>
+          @if (rol.descripcion) {
+            <p class="hint">{{ rol.descripcion }}</p>
+          }
+          @if (rol.permisos.length === 0) {
+            <p class="hint">Sin permisos asignados.</p>
+          } @else {
+            <ul class="permisos">
+              @for (permiso of rol.permisos; track permiso.id) {
+                <li>
+                  <strong>{{ permiso.nombre }}</strong>
+                  @if (permiso.descripcion) {
+                    <span>{{ permiso.descripcion }}</span>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

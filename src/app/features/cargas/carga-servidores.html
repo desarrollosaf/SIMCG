@@ -1,0 +1,117 @@
+<section class="carga-page">
+  <div class="card">
+    <div class="tabla-header">
+      <div>
+        <h2>Cargar registros con CSV</h2>
+        <p>
+          Descarga el layout, llénalo y súbelo para dar de alta servidores públicos de forma masiva.
+          Antes de cargar verás una previsualización con los errores por renglón.
+        </p>
+      </div>
+      <button type="button" class="btn btn--outline" (click)="descargarLayout()">
+        Descargar layout
+      </button>
+    </div>
+
+    <div class="ayuda">
+      <button
+        type="button"
+        class="ayuda__toggle"
+        [attr.aria-expanded]="ayudaAbierta()"
+        aria-controls="ayuda-columnas"
+        (click)="alternarAyuda()"
+      >
+        {{ ayudaAbierta() ? 'Ocultar' : 'Ver' }} descripción de las columnas
+      </button>
+      @if (ayudaAbierta()) {
+        <table class="ayuda__tabla" id="ayuda-columnas">
+          <thead>
+            <tr>
+              <th scope="col">Columna</th>
+              <th scope="col">Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (col of columnasAyuda; track col.nombre) {
+              <tr>
+                <td>
+                  <code>{{ col.nombre }}</code>
+                </td>
+                <td>{{ col.descripcion }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    <app-file-upload
+      [archivo]="archivo()"
+      [extensiones]="extensiones"
+      [maxBytes]="maxBytes"
+      [deshabilitado]="cargando()"
+      etiqueta="Arrastra el archivo CSV aquí o haz clic para elegirlo"
+      (archivoChange)="alCambiarArchivo($event)"
+    />
+
+    <div class="acciones">
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!archivo() || cargando()"
+        (click)="previsualizar()"
+      >
+        {{ cargando() && !vista() ? 'Procesando…' : 'Previsualizar' }}
+      </button>
+    </div>
+  </div>
+
+  @if (vista(); as v) {
+    <div class="card">
+      <div class="resumen">
+        <span class="chip">Total: {{ v.total }}</span>
+        <span class="chip chip--ok">Válidos: {{ v.validas }}</span>
+        <span class="chip chip--error">Con errores: {{ v.conErrores }}</span>
+
+        <label class="resumen__filtro">
+          <input
+            type="checkbox"
+            [checked]="soloErrores()"
+            [disabled]="v.conErrores === 0"
+            (change)="alternarSoloErrores($event)"
+          />
+          Solo con errores
+        </label>
+      </div>
+
+      @if (filasVisibles().length === 0) {
+        <p class="hint">No hay renglones para mostrar.</p>
+      } @else {
+        <ag-grid-angular
+          class="grid"
+          [theme]="gridTheme"
+          [localeText]="localeText"
+          [rowData]="filasVisibles()"
+          [columnDefs]="columnas"
+          [enableCellTextSelection]="true"
+          [ensureDomOrder]="true"
+          [tooltipShowDelay]="300"
+        />
+      }
+
+      <div class="acciones">
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="v.validas === 0 || cargando()"
+          (click)="confirmar()"
+        >
+          {{ cargando() ? 'Cargando…' : 'Cargar ' + v.validas + ' registros válidos' }}
+        </button>
+        @if (v.validas === 0) {
+          <span class="hint">No hay renglones válidos para cargar.</span>
+        }
+      </div>
+    </div>
+  }
+</section>

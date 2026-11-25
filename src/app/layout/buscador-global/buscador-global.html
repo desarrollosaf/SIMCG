@@ -1,0 +1,155 @@
+<div class="bg" [class.exp]="expandido()">
+  <button
+    #icono
+    type="button"
+    class="ico"
+    (click)="abrir()"
+    aria-label="Buscar (Ctrl K)"
+    title="Buscar (Ctrl K)"
+    [attr.aria-expanded]="expandido()"
+  >
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </svg>
+  </button>
+
+  @if (expandido()) {
+    <div class="caja" [style.top.px]="topCaja()">
+      <svg
+        class="lupa"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.3-4.3" />
+      </svg>
+      <input
+        #entrada
+        type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        aria-label="Buscar módulo, servidor público o CURP"
+        aria-controls="bg-listbox"
+        [attr.aria-expanded]="abierto()"
+        [attr.aria-activedescendant]="activoId()"
+        placeholder="Buscar módulo, servidor público o CURP…"
+        autocomplete="off"
+        spellcheck="false"
+        [value]="texto()"
+        (input)="escribir($any($event.target).value)"
+        (keydown)="teclado($event)"
+        (focus)="alEnfocar()"
+        (blur)="alDesenfocar()"
+      />
+      <kbd aria-hidden="true">Esc</kbd>
+
+      @if (abierto()) {
+        <div class="panel" id="bg-listbox" role="listbox" aria-label="Resultados de búsqueda">
+          @if (modulos().length) {
+            <div class="grupo" role="presentation">Módulos</div>
+            @for (r of modulos(); track r.id) {
+              <div
+                class="op"
+                [id]="r.id"
+                role="option"
+                [attr.aria-selected]="indice(r) === seleccion()"
+                [class.sel]="indice(r) === seleccion()"
+                (mousedown)="$event.preventDefault()"
+                tabindex="-1"
+                (click)="ir(r)"
+                (keydown.enter)="ir(r)"
+                (mousemove)="seleccion.set(indice(r))"
+              >
+                <span class="t">
+                  @for (s of r.titulo; track $index) {
+                    @if (s.resaltado) {
+                      <mark>{{ s.texto }}</mark>
+                    } @else {
+                      {{ s.texto }}
+                    }
+                  }
+                </span>
+                <small>
+                  @for (s of r.detalle; track $index) {
+                    @if (s.resaltado) {
+                      <mark>{{ s.texto }}</mark>
+                    } @else {
+                      {{ s.texto }}
+                    }
+                  }
+                </small>
+              </div>
+            }
+          }
+
+          @if (servidoresVisibles().length) {
+            <div class="grupo" role="presentation">Servidores públicos</div>
+            @for (r of servidoresVisibles(); track r.id) {
+              <div
+                class="op"
+                [id]="r.id"
+                role="option"
+                [attr.aria-selected]="indice(r) === seleccion()"
+                [class.sel]="indice(r) === seleccion()"
+                (mousedown)="$event.preventDefault()"
+                tabindex="-1"
+                (click)="ir(r)"
+                (keydown.enter)="ir(r)"
+                (mousemove)="seleccion.set(indice(r))"
+              >
+                <span class="t">
+                  @for (s of r.titulo; track $index) {
+                    @if (s.resaltado) {
+                      <mark>{{ s.texto }}</mark>
+                    } @else {
+                      {{ s.texto }}
+                    }
+                  }
+                </span>
+                <small>
+                  @for (s of r.detalle; track $index) {
+                    @if (s.resaltado) {
+                      <mark>{{ s.texto }}</mark>
+                    } @else {
+                      {{ s.texto }}
+                    }
+                  }
+                </small>
+              </div>
+            }
+          }
+
+          @if (cargando()) {
+            <div class="est" role="status">
+              <span class="spin" aria-hidden="true"></span>Buscando servidores públicos…
+            </div>
+          } @else if (pocosCaracteres()) {
+            <div class="est" role="status">
+              @if (!modulos().length) {
+                Sin módulos coincidentes.
+              }
+              Escribe al menos 3 caracteres para buscar servidores públicos.
+            </div>
+          } @else if (sinResultados()) {
+            <div class="est" role="status">Sin resultados</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

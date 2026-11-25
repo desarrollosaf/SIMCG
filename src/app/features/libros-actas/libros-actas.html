@@ -1,0 +1,237 @@
+<section class="libros-page">
+  <div class="card">
+    <div class="tabla-header">
+      <div class="tabla-header__titulo">
+        <h2>Libros de cierres</h2>
+        <p>Declaraciones enviadas por año y tipo de movimiento.</p>
+      </div>
+
+      <div class="acciones">
+        <label class="campo">
+          Año
+          <select [disabled]="anios().length === 0" aria-label="Año" (change)="cambiarAnio($event)">
+            @for (a of anios(); track a) {
+              <option [value]="a" [selected]="a === anio()">{{ a }}</option>
+            }
+          </select>
+        </label>
+        <button
+          type="button"
+          class="btn btn--outline"
+          [disabled]="anio() === null"
+          (click)="abrirPanel()"
+        >
+          Actas de cierre
+        </button>
+      </div>
+    </div>
+
+    @if (anios().length === 0 && !cargando()) {
+      <p class="hint">No hay años con declaraciones enviadas.</p>
+    } @else {
+      <div class="pestanas" role="tablist" aria-label="Tipo de movimiento">
+        @for (p of pestanas; track p.clave; let i = $index) {
+          <button
+            type="button"
+            role="tab"
+            class="pestanas__tab"
+            [id]="'tab-' + p.clave"
+            [attr.aria-selected]="tipo() === p.clave"
+            [attr.aria-controls]="'panel-libro'"
+            [attr.tabindex]="tipo() === p.clave ? 0 : -1"
+            [class.pestanas__tab--activa]="tipo() === p.clave"
+            (click)="seleccionarTipo(p.clave)"
+            (keydown)="alTeclaPestana($event, i)"
+          >
+            {{ p.etiqueta }}
+          </button>
+        }
+      </div>
+
+      <div id="panel-libro" role="tabpanel" [attr.aria-labelledby]="'tab-' + tipo()">
+        @if (resumenActual(); as r) {
+          <p class="resumen-linea">
+            Total: {{ r.total }} declaraciones · {{ r.fiscal }} con documento fiscal ·
+            {{ r.aclaraciones }} aclaraciones
+          </p>
+        }
+
+        <div class="tabla-header__busqueda busqueda">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path
+              d="m20 20-3.5-3.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por nombre, CURP o dependencia"
+            aria-label="Buscar declaraciones"
+            autocomplete="off"
+            [value]="buscar()"
+            (input)="alEscribir($event)"
+          />
+          @if (buscar()) {
+            <button
+              type="button"
+              class="limpiar-busqueda"
+              aria-label="Limpiar búsqueda"
+              (click)="limpiarBusqueda()"
+            >
+              ×
+            </button>
+          }
+        </div>
+
+        @if (cargando() && filas().length === 0) {
+          <div class="tabla-skeleton">
+            <div class="tabla-skeleton__header"></div>
+            @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+              <div class="tabla-skeleton__row"></div>
+            }
+          </div>
+        } @else if (total() === 0) {
+          <p class="hint">No se encontraron declaraciones.</p>
+        } @else {
+          <ag-grid-angular
+            class="grid"
+            [class.grid--cargando]="cargando()"
+            [theme]="gridTheme"
+            [localeText]="localeText"
+            [rowData]="filas()"
+            [columnDefs]="columnas"
+            [domLayout]="'autoHeight'"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+          />
+
+          <div class="paginador">
+            <span class="paginador__info"> {{ desde() }}–{{ hasta() }} de {{ total() }} </span>
+
+            <label class="paginador__tamano">
+              Filas
+              <select (change)="cambiarLimite($event)">
+                @for (n of tamanosPagina; track n) {
+                  <option [value]="n" [selected]="n === limite()">{{ n }}</option>
+                }
+              </select>
+            </label>
+
+            <div class="paginador__nav">
+              <button
+                type="button"
+                class="btn btn--outline"
+                [disabled]="pagina() === 0 || cargando()"
+                (click)="irAPagina(pagina() - 1)"
+              >
+                Anterior
+              </button>
+              <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
+              <button
+                type="button"
+                class="btn btn--outline"
+                [disabled]="pagina() + 1 >= paginas() || cargando()"
+                (click)="irAPagina(pagina() + 1)"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (panelAbierto()) {
+    <div class="modal" tabindex="-1" (click)="cerrarPanel()" (keydown.escape)="cerrarPanel()">
+      <div
+        class="modal__caja"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-actas"
+        tabindex="-1"
+        (click)="$event.stopPropagation()"
+        (keydown.escape)="cerrarPanel()"
+      >
+        <div class="modal__cabecera">
+          <h3 id="titulo-actas">Actas de cierre {{ anio() }}</h3>
+          <button type="button" class="modal__cerrar" aria-label="Cerrar" (click)="cerrarPanel()">
+            ×
+          </button>
+        </div>
+
+        @if (cargandoActas()) {
+          <div class="tabla-skeleton">
+            @for (n of [1, 2, 3]; track n) {
+              <div class="tabla-skeleton__row"></div>
+            }
+          </div>
+        } @else {
+          <div class="actas-scroll">
+            <table class="actas">
+              <thead>
+                <tr>
+                  <th scope="col">Movimiento</th>
+                  <th scope="col">Acta</th>
+                  <th scope="col">Soporte</th>
+                  <th scope="col">Última actualización</th>
+                  <th scope="col">Nueva acta (PDF o TIFF)</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of actas(); track a.tipo) {
+                  <tr>
+                    <th scope="row">{{ etiquetaTipo(a.tipo) }}</th>
+                    <td>
+                      @if (a.tieneActa) {
+                        <button type="button" class="enlace" (click)="descargar(a, 'acta')">
+                          {{ a.nombreActa ?? 'Descargar acta' }}
+                        </button>
+                      } @else {
+                        <span class="tenue">Sin acta</span>
+                      }
+                    </td>
+                    <td>
+                      @if (a.tieneSoporte) {
+                        <button type="button" class="enlace" (click)="descargar(a, 'soporte')">
+                          Descargar soporte
+                        </button>
+                      } @else {
+                        <span class="tenue">—</span>
+                      }
+                    </td>
+                    <td>{{ a.actualizado ? formatearFecha(a.actualizado) : '—' }}</td>
+                    <td>
+                      <div class="actas__subida">
+                        <app-file-upload
+                          [archivo]="archivosActa()[a.tipo] ?? null"
+                          [extensiones]="extensionesActa"
+                          [maxBytes]="maxBytesActa"
+                          [deshabilitado]="guardando() !== null"
+                          etiqueta="Elegir archivo"
+                          (archivoChange)="elegirArchivoActa(a.tipo, $event)"
+                        />
+                        <button
+                          type="button"
+                          class="btn btn--primary"
+                          [disabled]="!archivosActa()[a.tipo] || guardando() !== null"
+                          (click)="guardarActa(a)"
+                        >
+                          {{ guardando() === a.tipo ? 'Guardando…' : 'Guardar' }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="tenue nota">La generación del soporte llegará en una fase posterior.</p>
+        }
+      </div>
+    </div>
+  }
+</section>

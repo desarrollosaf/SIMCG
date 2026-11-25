@@ -1,0 +1,294 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+  /* Enlaces de Bootstrap: guinda en lugar del azul por defecto (también en :hover). */
+  --bs-link-color-rgb: 150, 0, 72;
+  --bs-link-hover-color-rgb: 90, 0, 43;
+  --brand-primary: rgb(150, 0, 72);
+  --brand-primary-dark: #5a002b;
+  --brand-primary-soft: rgba(150, 0, 72, 0.08);
+  --brand-ink: #4b4b4d;
+  --brand-muted: #767679;
+  --brand-border: #e4e2e3;
+  --brand-bg: #f3f4f6;
+  --brand-danger: #b3261e;
+  --brand-danger-bg: #fdecea;
+  --brand-green: #79b037;
+  --brand-lime: #d6ed70;
+
+  /* Tokens semánticos (tema claro). El tema oscuro los redefine abajo. */
+  --page-bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f6f5;
+  --border: #ececee;
+  --border-strong: #d6d6d9;
+  --ink: #2f2f32;
+  --muted: #767679;
+  --hover: rgba(150, 0, 72, 0.08);
+  --accent-text: rgb(150, 0, 72);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --shadow-header: 0 2px 14px rgba(0, 0, 0, 0.06);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.08);
+  --overlay: rgba(20, 20, 25, 0.25);
+  --success-bg: #eef7e4;
+  --success-ink: #3c5a1c;
+  --success-strong: #1a8a4a;
+  --success-soft: #e4f6ea;
+  --success-hover: #eafaf0;
+  --danger-soft: #fbeceb;
+  --danger-hover: #fdf2f1;
+  --info-bg: #f8e9f0;
+  --info-ink: #5a002b;
+  --skeleton-shine: #e9ece2;
+  --placeholder: #9aa0a3;
+  --logo-filter: none;
+  --logo-blend: normal;
+  --logo-plate: transparent;
+  color-scheme: light;
+}
+
+:root[data-bs-theme='dark'] {
+  /* Enlaces de Bootstrap en tema oscuro: rosa guinda legible, nunca azul. */
+  --bs-link-color-rgb: 224, 86, 154;
+  --bs-link-hover-color-rgb: 240, 140, 190;
+  --brand-ink: #ececef;
+  --brand-muted: #a0a0a8;
+  --brand-border: #2e2e34;
+  --brand-bg: #232328;
+  --brand-danger: #f0766e;
+  --brand-danger-bg: #3a1d1b;
+  --brand-primary-soft: rgba(224, 86, 154, 0.16);
+
+  --page-bg: #121214;
+  --surface: #1b1b1f;
+  --surface-2: #232328;
+  --border: #2e2e34;
+  --border-strong: #3e3e46;
+  --ink: #ececef;
+  --muted: #a0a0a8;
+  --hover: rgba(224, 86, 154, 0.16);
+  --accent-text: #e0569a;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-header: 0 2px 14px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --overlay: rgba(0, 0, 0, 0.55);
+  --success-bg: #1d2a14;
+  --success-ink: #b5dc8a;
+  --success-strong: #5fcf8a;
+  --success-soft: #1b3325;
+  --success-hover: #1f3a2b;
+  --danger-soft: #3a1d1b;
+  --danger-hover: #46221f;
+  --info-bg: #34121f;
+  --info-ink: #f2a9cb;
+  --skeleton-shine: #2c2c33;
+  --placeholder: #6f6f78;
+  /* Logos con texto de color sobre transparente: se pasan a blanco monocromo. */
+  --logo-filter: grayscale(1) invert(1) contrast(2) brightness(1.6) drop-shadow(0 0 0.5px #fff);
+  --logo-blend: screen;
+  --logo-opacity: 1;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ag-grid renders its own DOM outside Angular's style encapsulation,
+   so header alignment has to be set globally rather than per-component. */
+ag-grid-angular .ag-header-cell-label {
+  justify-content: center;
+}
+
+ag-grid-angular .ag-header-cell-label .ag-header-cell-text {
+  text-overflow: clip;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    Roboto,
+    sans-serif;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  // Mismo tamaño que las opciones de la isla de navegación (referencia visual).
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    border-color 0.15s,
+    opacity 0.12s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  &--primary {
+    // Bootstrap 5 cambia color/fondo en :hover/:active/:focus mediante --bs-btn-*;
+    // si no se fijan, el texto se vuelve del color del cuerpo (negro).
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-bg: transparent;
+    --bs-btn-hover-bg: transparent;
+    --bs-btn-active-bg: transparent;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-border-color: transparent;
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+  }
+
+  &--outline {
+    --bs-btn-color: var(--brand-ink);
+    --bs-btn-hover-color: var(--accent-text);
+    --bs-btn-active-color: var(--accent-text);
+    --bs-btn-bg: var(--surface);
+    --bs-btn-hover-bg: var(--surface);
+    --bs-btn-active-bg: var(--surface);
+    --bs-btn-hover-border-color: var(--brand-primary);
+    --bs-btn-active-border-color: var(--brand-primary);
+    background: var(--surface);
+    color: var(--brand-ink);
+    border: 1.5px solid var(--brand-border);
+
+    &:hover:not(:disabled) {
+      border-color: var(--brand-primary);
+      color: var(--accent-text);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinner-spin 0.7s linear infinite;
+}
+
+@keyframes spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Ajustes de Bootstrap según tema ---------- */
+kbd {
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--surface-2);
+  border-color: var(--border);
+  color: var(--ink);
+
+  &:focus {
+    background-color: var(--surface-2);
+    color: var(--ink);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-primary-soft);
+  }
+
+  &::placeholder {
+    color: var(--placeholder);
+  }
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--surface);
+  --bs-dropdown-color: var(--ink);
+  --bs-dropdown-border-color: var(--border);
+  --bs-dropdown-link-color: var(--ink);
+  --bs-dropdown-link-hover-bg: var(--hover);
+  --bs-dropdown-link-hover-color: var(--accent-text);
+}
+
+/* ---------- SweetAlert2 según tema ---------- */
+.swal2-popup {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+
+.swal2-title,
+.swal2-html-container {
+  color: var(--ink);
+}
+
+.swal2-html-container {
+  color: var(--muted);
+}
+
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-noanimation {
+  background: var(--overlay);
+}
+
+.swal2-input,
+.swal2-textarea,
+.swal2-select {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.swal2-footer {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+/* El fondo blanco del icono de SweetAlert2 debe seguir a la superficie. */
+.swal2-icon .swal2-success-fix,
+.swal2-icon .swal2-success-circular-line-left,
+.swal2-icon .swal2-success-circular-line-right {
+  background: var(--surface) !important;
+}

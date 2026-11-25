@@ -1,0 +1,102 @@
+@use '../../../shared/ag-grid/tabla-skeleton';
+
+:host {
+  display: block;
+}
+
+.usuarios-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    color: var(--brand-ink);
+  }
+}
+
+.hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}
+
+.acceso-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.1rem;
+
+  > .btn {
+    height: 34px;
+    margin-top: 1.45rem;
+  }
+}
+
+.campo {
+  flex: 1 1 160px;
+  min-width: 140px;
+
+  &--ancho {
+    flex: 2 1 240px;
+  }
+
+  &--corto {
+    flex: 0 1 110px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-ink);
+    letter-spacing: 0.02em;
+  }
+
+  input,
+  select {
+    width: 100%;
+    height: 34px;
+    padding: 0 0.9rem;
+    border: 1.5px solid var(--brand-border);
+    border-radius: 12px;
+    background: var(--surface-2);
+    font-size: 0.92rem;
+    color: var(--brand-ink);
+    outline: none;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+
+    &:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px var(--brand-primary-soft);
+    }
+  }
+
+  input {
+    text-transform: uppercase;
+  }
+
+  .error {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.74rem;
+    color: var(--brand-danger);
+  }
+}
+
+.grid {
+  margin-top: 1rem;
+}

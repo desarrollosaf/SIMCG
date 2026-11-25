@@ -1,0 +1,110 @@
+<section class="usuarios-page">
+  <div class="card">
+    <h2>Dar acceso</h2>
+    <p class="hint">
+      Captura el RFC, CURP y homoclave del servidor público (deben coincidir con su registro) y el
+      rol que tendrá. Si ya tenía un rol, se reemplaza.
+    </p>
+
+    <form class="acceso-form" [formGroup]="form" (ngSubmit)="darAcceso()" novalidate>
+      <div class="campo">
+        <label for="rfc">RFC (10 caracteres)</label>
+        <input
+          id="rfc"
+          type="text"
+          formControlName="rfc"
+          maxlength="10"
+          autocomplete="off"
+          spellcheck="false"
+          (input)="mayusculas('rfc', $event)"
+        />
+        @if (invalido('rfc')) {
+          <small class="error">Captura un RFC válido de 10 caracteres.</small>
+        }
+      </div>
+
+      <div class="campo campo--ancho">
+        <label for="curp">CURP (18 caracteres)</label>
+        <input
+          id="curp"
+          type="text"
+          formControlName="curp"
+          maxlength="18"
+          autocomplete="off"
+          spellcheck="false"
+          (input)="mayusculas('curp', $event)"
+        />
+        @if (invalido('curp')) {
+          <small class="error">Captura una CURP válida de 18 caracteres.</small>
+        }
+      </div>
+
+      <div class="campo campo--corto">
+        <label for="homoclave">Homoclave</label>
+        <input
+          id="homoclave"
+          type="text"
+          formControlName="homoclave"
+          maxlength="3"
+          autocomplete="off"
+          spellcheck="false"
+          (input)="mayusculas('homoclave', $event)"
+        />
+        @if (invalido('homoclave')) {
+          <small class="error">3 caracteres.</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="rol">Rol</label>
+        <select id="rol" formControlName="rol">
+          <option value="" disabled>Selecciona un rol</option>
+          @for (rol of roles; track rol) {
+            <option [value]="rol">{{ rol }}</option>
+          }
+        </select>
+        @if (invalido('rol')) {
+          <small class="error">Selecciona un rol.</small>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--primary" [disabled]="guardando()">
+        @if (guardando()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Guardando…</span>
+        } @else {
+          <span>Dar acceso</span>
+        }
+      </button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Usuarios con acceso</h2>
+
+    @if (cargando()) {
+      <div class="tabla-skeleton">
+        <div class="tabla-skeleton__header"></div>
+        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+          <div class="tabla-skeleton__row"></div>
+        }
+      </div>
+    } @else if (usuarios().length === 0) {
+      <p class="hint">Todavía no hay usuarios con acceso.</p>
+    } @else {
+      <ag-grid-angular
+        class="grid"
+        [theme]="gridTheme"
+        [localeText]="localeText"
+        [rowData]="filas()"
+        [columnDefs]="columnas"
+        [pagination]="true"
+        [paginationPageSize]="10"
+        [paginationPageSizeSelector]="[10, 20, 50]"
+        [domLayout]="'autoHeight'"
+        [enableCellTextSelection]="true"
+        [ensureDomOrder]="true"
+      />
+    }
+  </div>
+</section>

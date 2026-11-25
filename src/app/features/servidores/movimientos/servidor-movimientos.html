@@ -1,0 +1,73 @@
+<section class="movimientos-page">
+  <div class="card">
+    <div class="encabezado">
+      <div>
+        <h2>Movimientos</h2>
+        <p class="hint">{{ nombreServidor() || 'Cargando…' }}</p>
+      </div>
+      <button type="button" class="btn btn--outline" (click)="volver()">Volver al listado</button>
+    </div>
+  </div>
+
+  @if (puedeEditar()) {
+    <div class="card">
+      <h2>Nuevo movimiento</h2>
+      <p class="hint">
+        Solo se ofrecen los movimientos que corresponden según el historial del año.
+      </p>
+
+      <form class="movimiento-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <div class="campo">
+          <label for="tipoMovimientoId">Tipo de movimiento</label>
+          <select id="tipoMovimientoId" formControlName="tipoMovimientoId">
+            <option [ngValue]="null" disabled>Selecciona un movimiento</option>
+            @for (tipo of permitidos(); track tipo.id) {
+              <option [ngValue]="tipo.id">{{ tipo.valor }}</option>
+            }
+          </select>
+          @if (form.controls.tipoMovimientoId.invalid && form.controls.tipoMovimientoId.touched) {
+            <small class="error">Selecciona un movimiento.</small>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--primary" [disabled]="guardando()">
+          @if (guardando()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Guardando…</span>
+          } @else {
+            <span>Guardar</span>
+          }
+        </button>
+      </form>
+    </div>
+  }
+
+  <div class="card">
+    <h2>Historial</h2>
+
+    @if (cargando()) {
+      <div class="tabla-skeleton">
+        <div class="tabla-skeleton__header"></div>
+        @for (n of [1, 2, 3, 4]; track n) {
+          <div class="tabla-skeleton__row"></div>
+        }
+      </div>
+    } @else if (movimientos().length === 0) {
+      <p class="hint">Este servidor público todavía no tiene movimientos.</p>
+    } @else {
+      <ag-grid-angular
+        class="grid"
+        [theme]="gridTheme"
+        [localeText]="localeText"
+        [rowData]="movimientos()"
+        [columnDefs]="columnas"
+        [pagination]="true"
+        [paginationPageSize]="10"
+        [paginationPageSizeSelector]="[10, 20, 50]"
+        [domLayout]="'autoHeight'"
+        [enableCellTextSelection]="true"
+        [ensureDomOrder]="true"
+      />
+    }
+  </div>
+</section>

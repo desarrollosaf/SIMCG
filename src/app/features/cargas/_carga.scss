@@ -1,0 +1,156 @@
+// Estilos compartidos por las pantallas de carga CSV.
+:host {
+  display: block;
+}
+
+.carga-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.tabla-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    margin: 0 0 0.15rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--brand-ink);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--brand-muted);
+  }
+}
+
+.btn {
+  height: 42px;
+  padding-block: 0;
+}
+
+.ayuda {
+  margin-bottom: 1.25rem;
+
+  &__toggle {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-text);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__tabla {
+    width: 100%;
+    margin-top: 0.75rem;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+
+    th,
+    td {
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      color: var(--brand-ink);
+    }
+
+    th {
+      background: var(--surface-2);
+      color: var(--brand-muted);
+      font-weight: 600;
+    }
+
+    code {
+      color: var(--accent-text);
+    }
+  }
+
+  &__nota {
+    margin: 0.75rem 0 0;
+    font-size: 0.82rem;
+    color: var(--brand-muted);
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.5rem 0 1rem;
+
+  &__filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--brand-ink);
+    cursor: pointer;
+  }
+}
+
+.chip {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--brand-ink);
+
+  &--ok {
+    background: var(--success-bg);
+    color: var(--success-ink);
+  }
+
+  &--error {
+    background: var(--danger-soft);
+    color: var(--brand-danger);
+  }
+
+  &--info {
+    background: var(--info-bg);
+    color: var(--info-ink);
+  }
+}
+
+.grid {
+  display: block;
+  height: 420px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}

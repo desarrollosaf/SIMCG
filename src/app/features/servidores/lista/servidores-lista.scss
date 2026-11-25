@@ -1,0 +1,86 @@
+@use '../../../shared/ag-grid/tabla-skeleton';
+@use '../../../shared/ag-grid/tabla-header';
+
+:host {
+  display: block;
+}
+
+.servidores-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  flex: 1 1 320px;
+  justify-content: flex-end;
+
+  .btn {
+    height: 34px;
+    padding-block: 0;
+  }
+}
+
+.grid {
+  transition: opacity 0.15s;
+
+  &--cargando {
+    opacity: 0.55;
+  }
+}
+
+.paginador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+
+  &__tamano {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    select {
+      height: 36px;
+      padding: 0 0.6rem;
+      border: 1.5px solid var(--brand-border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--brand-ink);
+    }
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+
+    .btn {
+      height: 36px;
+      padding: 0 1rem;
+      font-size: 0.82rem;
+    }
+  }
+}

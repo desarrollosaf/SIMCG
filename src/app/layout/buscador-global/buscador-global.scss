@@ -1,0 +1,228 @@
+:host {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  margin-left: 4px;
+  padding-left: 4px;
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+// Lupa al final de la isla: misma altura que .lk (34px).
+.ico {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 34px;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+  }
+}
+
+// Abierto en escritorio: el campo reemplaza a la lupa dentro de la isla.
+.bg.exp .ico {
+  display: none;
+}
+
+// Campo blanco dentro de la isla guinda (igual en tema claro y oscuro).
+.caja {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 280px;
+  height: 30px;
+  padding: 0 8px 0 10px;
+  border-radius: 9px;
+  background: #fff;
+  color: #6b6b6b;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+
+  .lupa {
+    flex: none;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 0.82rem;
+    color: #222;
+    text-overflow: ellipsis;
+
+    &::placeholder {
+      color: #8a8a8a;
+    }
+  }
+
+  kbd {
+    flex: none;
+    font-size: 0.66rem;
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+    padding: 0 5px;
+    color: #6b6b6b;
+    background: transparent;
+    box-shadow: none;
+    font-weight: 600;
+    font-family: inherit;
+  }
+}
+
+// Se ancla a la isla (.nav, position: relative), alineado a su extremo derecho.
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  box-sizing: border-box;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+}
+
+.grupo {
+  margin: 8px 10px 4px;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--brand-muted);
+  font-weight: 600;
+}
+
+.op {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  cursor: pointer;
+  color: var(--ink);
+
+  .t {
+    min-width: 0;
+  }
+
+  small {
+    margin-left: auto;
+    flex: none;
+    color: var(--brand-muted);
+    font-size: 0.74rem;
+  }
+
+  &.sel {
+    background: var(--hover);
+    color: var(--accent-text);
+  }
+}
+
+mark {
+  background: transparent;
+  color: var(--accent-text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.est {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--brand-muted);
+  font-size: 0.82rem;
+}
+
+.spin {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--brand-primary);
+  border-radius: 50%;
+  animation: giro 0.7s linear infinite;
+}
+
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 2s;
+  }
+
+  .ico {
+    transition: none;
+  }
+}
+
+// Angosto: la isla hace scroll horizontal y recortaría el campo; este pasa a ser un
+// panel fijo a todo el ancho justo bajo la isla (la lupa se queda en la isla).
+@media (max-width: 980px) {
+  .bg.exp .ico {
+    display: grid;
+  }
+
+  .caja {
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    z-index: 45;
+    width: auto;
+    height: 38px;
+    padding: 0 10px 0 12px;
+    background: var(--surface);
+    color: var(--brand-muted);
+    border: 1px solid var(--brand-primary);
+    box-shadow: var(--shadow-pop);
+
+    input {
+      color: var(--ink);
+
+      &::placeholder {
+        color: var(--brand-muted);
+      }
+    }
+
+    kbd {
+      color: var(--brand-muted);
+      border-color: var(--border);
+    }
+  }
+
+  .panel {
+    width: 100%;
+    max-width: none;
+  }
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>SIMCG</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // Aplica el tema antes de pintar para evitar el destello.
+      (function () {
+        var t = null;
+        try {
+          t = localStorage.getItem('simcg-tema');
+        } catch (e) {}
+        if (t !== 'claro' && t !== 'oscuro') {
+          t =
+            window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'oscuro'
+              : 'claro';
+        }
+        document.documentElement.setAttribute('data-bs-theme', t === 'oscuro' ? 'dark' : 'light');
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

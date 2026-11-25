@@ -1,0 +1,109 @@
+<div class="shell">
+  <header class="top">
+    <div class="bar">
+      <a class="marca" routerLink="/home" aria-label="Ir al inicio">
+        <img
+          class="logoC"
+          src="assets/congreso-edomex-logo.png"
+          alt="Congreso del Estado de México"
+        />
+        <span class="sep ocS" aria-hidden="true"></span>
+        <img class="logo ocS" src="assets/declaralegis-logo.png" alt="DeclaraLegis" />
+        <span class="titulo ocT"
+          >Módulo de control y gestión<small>Poder Legislativo del Estado de México</small></span
+        >
+      </a>
+
+      <nav class="nav" aria-label="Menú principal">
+        @for (entrada of menu(); track entrada.etiqueta) {
+          @if (esGrupo(entrada)) {
+            <div class="it" [class.abre]="abierto() === entrada.etiqueta">
+              <button
+                type="button"
+                class="lk"
+                [class.on]="grupoActivo(entrada)"
+                aria-haspopup="true"
+                [attr.aria-expanded]="abierto() === entrada.etiqueta"
+                (click)="alternar(entrada.etiqueta, $event)"
+              >
+                {{ entrada.etiqueta }}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <div class="dd" [style.top.px]="topPanel()">
+                @for (hijo of entrada.hijos; track hijo.ruta) {
+                  <a [routerLink]="hijo.ruta" [class.on]="activa() === hijo.ruta" (click)="cerrar()"
+                    >{{ hijo.etiqueta }}
+                    @if (hijo.descripcion) {
+                      <small>{{ hijo.descripcion }}</small>
+                    }
+                  </a>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="it">
+              <a class="lk" [class.on]="activa() === entrada.ruta" [routerLink]="entrada.ruta">{{
+                entrada.etiqueta
+              }}</a>
+            </div>
+          }
+        }
+        <app-buscador-global />
+      </nav>
+
+      <div class="der">
+        <div class="it" [class.abre]="abierto() === 'usuario'">
+          <button
+            type="button"
+            class="av"
+            aria-label="Cuenta"
+            aria-haspopup="true"
+            [attr.aria-expanded]="abierto() === 'usuario'"
+            (click)="alternar('usuario', $event)"
+          >
+            {{ iniciales() }}
+          </button>
+          <div class="dd um">
+            <div class="yo">
+              {{ user()?.nombre }}<small>{{ rolesTexto() }}</small>
+            </div>
+            <button
+              type="button"
+              class="tm"
+              role="switch"
+              [attr.aria-checked]="temaService.tema() === 'oscuro'"
+              (click)="temaService.alternar()"
+            >
+              <span class="tm-et">Tema oscuro</span>
+              <span class="sw" aria-hidden="true"></span>
+            </button>
+            <a href="#" (click)="$event.preventDefault(); logout()">Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+
+  <footer class="foot">
+    <div class="in">
+      <span
+        >© {{ anio }} Poder Legislativo del Estado de México.<br />Todos los derechos
+        reservados.</span
+      >
+      <img src="assets/congreso-edomex-logo.png" alt="Congreso del Estado de México" />
+      <span class="der2">SIMCG · Módulo de control y gestión</span>
+    </div>
+  </footer>
+</div>

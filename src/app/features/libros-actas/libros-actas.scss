@@ -1,0 +1,260 @@
+@use '../../shared/ag-grid/tabla-skeleton';
+@use '../../shared/ag-grid/tabla-header';
+
+:host {
+  display: block;
+}
+
+.libros-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.hint,
+.tenue {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  justify-content: flex-end;
+
+  .btn {
+    height: 42px;
+    padding-block: 0;
+  }
+}
+
+.campo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+
+  select {
+    height: 42px;
+    padding: 0 0.8rem;
+    border: 1.5px solid var(--brand-border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--brand-ink);
+  }
+}
+
+.pestanas {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+
+  &__tab {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--brand-muted);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--accent-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
+
+    &--activa {
+      border-bottom-color: var(--brand-primary);
+      color: var(--accent-text);
+    }
+  }
+}
+
+.resumen-linea {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+
+.busqueda {
+  margin-bottom: 1.25rem;
+}
+
+.grid {
+  transition: opacity 0.15s;
+
+  &--cargando {
+    opacity: 0.55;
+  }
+}
+
+.paginador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+
+  &__tamano {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    select {
+      height: 36px;
+      padding: 0 0.6rem;
+      border: 1.5px solid var(--brand-border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--brand-ink);
+    }
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+
+    .btn {
+      height: 36px;
+      padding: 0 1rem;
+      font-size: 0.82rem;
+    }
+  }
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--overlay);
+
+  &__caja {
+    width: min(960px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    padding: 1.5rem;
+    border: 1px solid var(--brand-border);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: var(--shadow-pop);
+  }
+
+  &__cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--brand-ink);
+    }
+  }
+
+  &__cerrar {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--brand-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--hover);
+      color: var(--accent-text);
+    }
+  }
+}
+
+.actas-scroll {
+  overflow-x: auto;
+}
+
+.actas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th,
+  td {
+    padding: 0.7rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+    color: var(--brand-ink);
+  }
+
+  thead th {
+    color: var(--brand-muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+  }
+
+  &__subida {
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .btn {
+      align-self: flex-start;
+      height: 36px;
+      padding: 0 1rem;
+      font-size: 0.82rem;
+    }
+  }
+}
+
+.enlace {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-text);
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+  word-break: break-all;
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+}
+
+.nota {
+  margin-top: 1rem;
+}

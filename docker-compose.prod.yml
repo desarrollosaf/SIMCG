@@ -1,0 +1,28 @@
+name: simcg
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: DockerFile
+      args:
+        BASE_HREF: ${BASE_HREF:-/}
+    container_name: simcg-frontend
+    ports:
+      - "8094:80"
+    restart: always
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: DockerFile
+    container_name: simcg-backend
+    ports:
+      - "3066:3065"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/uploads:/app/uploads
+    restart: always

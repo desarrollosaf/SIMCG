@@ -1,0 +1,100 @@
+name: simcg
+
+services:
+  frontend:
+    image: node:26-alpine
+    container_name: simcg-frontend
+    working_dir: /app
+
+    ports:
+      - "4220:4200"
+
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/node_modules
+      - /app/backend
+
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      BACKEND_HOST: backend
+      BACKEND_PORT: "3065"
+
+    command: >
+      sh -c "npm install &&
+      npm run start --
+      --host 0.0.0.0
+      --port 4200
+      --poll=1000"
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
+
+  backend:
+    image: node:26-alpine
+    container_name: simcg-backend
+    working_dir: /app
+
+    ports:
+      - "3065:3065"
+
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+      - ./backend/uploads:/app/uploads
+
+    env_file:
+      - ./backend/.env
+
+    environment:
+      NODE_ENV: development
+      PORT: 3065
+      CHOKIDAR_USEPOLLING: "true"
+
+    command: >
+      sh -c "npm install &&
+      npm run start:dev"
+
+    depends_on:
+      - db
+
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:6.3.1
+    container_name: simcg-adminer
+    ports:
+      - "8090:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mariadb:12.3
+    container_name: simcg-db
+
+    ports:
+      - "3310:3306"
+
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      DEV_ADMIN_EMAIL: ${DEV_ADMIN_EMAIL:-}
+      DEV_ADMIN_PASSWORD_HASH: ${DEV_ADMIN_PASSWORD_HASH:-}
+
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
+      - ${DB_DUMPS_DIR}:/respaldos:ro
+
+    restart: unless-stopped
+
+volumes:
+  frontend_node_modules:
+    name: simcg_frontend_node_modules
+  backend_node_modules:
+    name: simcg_backend_node_modules
+  db_data:
+    name: simcg_db_data

@@ -1,0 +1,119 @@
+@use '../../../shared/ag-grid/tabla-skeleton';
+
+:host {
+  display: block;
+}
+
+.movimientos-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    color: var(--brand-ink);
+  }
+}
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h2 {
+    margin-bottom: 0.15rem;
+  }
+
+  .btn {
+    height: 34px;
+    padding-block: 0;
+  }
+}
+
+.hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 0.88rem;
+}
+
+.movimiento-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 1.1rem;
+
+  > .btn {
+    height: 34px;
+    margin-top: 1.45rem;
+  }
+}
+
+.campo {
+  flex: 1 1 260px;
+  max-width: 420px;
+
+  label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-ink);
+    letter-spacing: 0.02em;
+  }
+
+  select {
+    width: 100%;
+    height: 34px;
+    padding: 0 0.9rem;
+    border: 1.5px solid var(--brand-border);
+    border-radius: 12px;
+    background: var(--surface-2);
+    font-size: 0.92rem;
+    color: var(--brand-ink);
+    outline: none;
+
+    &:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px var(--brand-primary-soft);
+    }
+  }
+
+  .error {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.74rem;
+    color: var(--brand-danger);
+  }
+}
+
+.grid {
+  margin-top: 1rem;
+}
+
+:host ::ng-deep .estatus {
+  font-weight: 700;
+
+  &--bueno {
+    color: var(--success-strong);
+  }
+
+  &--malo {
+    color: var(--brand-danger);
+  }
+
+  &--neutro {
+    color: var(--brand-muted);
+  }
+}

@@ -1,0 +1,104 @@
+<section class="servidores-page">
+  <div class="card">
+    <div class="tabla-header">
+      <div class="tabla-header__titulo">
+        <h2>Servidores públicos</h2>
+        <p>Busca por nombre, apellidos, CURP, dependencia o dirección.</p>
+      </div>
+
+      <div class="acciones">
+        <div class="tabla-header__busqueda">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+            <path
+              d="m20 20-3.5-3.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar servidor público"
+            aria-label="Buscar servidor público"
+            autocomplete="off"
+            [value]="buscar()"
+            (input)="alEscribir($event)"
+          />
+          @if (buscar()) {
+            <button
+              type="button"
+              class="limpiar-busqueda"
+              aria-label="Limpiar búsqueda"
+              (click)="limpiarBusqueda()"
+            >
+              ×
+            </button>
+          }
+        </div>
+
+        @if (puedeEditar()) {
+          <button type="button" class="btn btn--primary" (click)="nuevo()">Nuevo servidor</button>
+        }
+      </div>
+    </div>
+
+    @if (cargando() && filas().length === 0) {
+      <div class="tabla-skeleton">
+        <div class="tabla-skeleton__header"></div>
+        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+          <div class="tabla-skeleton__row"></div>
+        }
+      </div>
+    } @else if (total() === 0) {
+      <p class="hint">No se encontraron servidores públicos.</p>
+    } @else {
+      <ag-grid-angular
+        class="grid"
+        [class.grid--cargando]="cargando()"
+        [theme]="gridTheme"
+        [localeText]="localeText"
+        [rowData]="filas()"
+        [columnDefs]="columnas"
+        [domLayout]="'autoHeight'"
+        [enableCellTextSelection]="true"
+        [ensureDomOrder]="true"
+        [suppressMultiSort]="true"
+        (sortChanged)="alOrdenar($event)"
+      />
+
+      <div class="paginador">
+        <span class="paginador__info"> {{ desde() }}–{{ hasta() }} de {{ total() }} </span>
+
+        <label class="paginador__tamano">
+          Filas
+          <select (change)="cambiarLimite($event)">
+            @for (n of tamanosPagina; track n) {
+              <option [value]="n" [selected]="n === limite()">{{ n }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="paginador__nav">
+          <button
+            type="button"
+            class="btn btn--outline"
+            [disabled]="pagina() === 0 || cargando()"
+            (click)="irAPagina(pagina() - 1)"
+          >
+            Anterior
+          </button>
+          <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
+          <button
+            type="button"
+            class="btn btn--outline"
+            [disabled]="pagina() + 1 >= paginas() || cargando()"
+            (click)="irAPagina(pagina() + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</section>

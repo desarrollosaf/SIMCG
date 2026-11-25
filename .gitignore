@@ -1,0 +1,39 @@
+# Compiled output
+/dist
+/tmp
+/out-tsc
+node_modules/
+.angular/
+npm-debug.log
+yarn-error.log
+
+# Entorno y secretos
+.env
+backend/.env
+
+# Respaldos y archivos subidos
+*.sql
+respaldos/
+uploads/
+
+# Documentación y archivos de Claude (solo README.md se sube)
+docs/
+CLAUDE.md
+.claude/
+*.md
+!README.md
+
+# Pruebas
+coverage/
+.nyc_output/
+
+# IDEs y sistema
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.sublime-workspace
+.sass-cache/
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
