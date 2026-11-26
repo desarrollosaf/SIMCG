@@ -146,58 +146,6 @@
   }
 }
 
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1050;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  background: var(--overlay);
-
-  &__caja {
-    width: min(960px, 100%);
-    max-height: 90vh;
-    overflow: auto;
-    padding: 1.5rem;
-    border: 1px solid var(--brand-border);
-    border-radius: 16px;
-    background: var(--surface);
-    box-shadow: var(--shadow-pop);
-  }
-
-  &__cabecera {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-
-    h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--brand-ink);
-    }
-  }
-
-  &__cerrar {
-    width: 34px;
-    height: 34px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    font-size: 1.4rem;
-    line-height: 1;
-    color: var(--brand-muted);
-    cursor: pointer;
-
-    &:hover {
-      background: var(--hover);
-      color: var(--accent-text);
-    }
-  }
-}
-
 .actas-scroll {
   overflow-x: auto;
 }

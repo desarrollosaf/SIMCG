@@ -232,7 +232,7 @@ export class BuscadorGlobal {
 
   /** Muestra el campo (si estaba colapsado) y le da el foco. */
   abrir(): void {
-    const isla = this.host.nativeElement.closest('.nav');
+    const isla = this.host.nativeElement.closest('.buscar');
     const angosto = window.matchMedia?.('(max-width: 980px)').matches ?? false;
     this.topCaja.set(isla && angosto ? isla.getBoundingClientRect().bottom + 10 : null);
     this.expandido.set(true);

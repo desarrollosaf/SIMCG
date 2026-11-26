@@ -4,12 +4,24 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TipoMovimiento } from './catalogos.service';
 
+export type EstatusServidor = 'obligado' | 'no_obligado' | 'baja' | 'sin_movimiento';
+
+export interface UltimoMovimiento {
+  tipo: string | null;
+  /** Fecha ISO (yyyy-mm-dd). */
+  fecha: string;
+}
+
 export interface ServidorFila {
   id: number;
   nombre: string;
   curp: string | null;
   dependencia: string | null;
   direccion: string | null;
+  estatus: EstatusServidor;
+  /** Obligación según el último movimiento; null si no tiene movimientos. */
+  obligado: boolean | null;
+  ultimoMovimiento: UltimoMovimiento | null;
 }
 
 export interface ServidoresPagina {
@@ -21,8 +33,11 @@ export interface ConsultaServidores {
   inicio: number;
   limite: number;
   buscar: string;
-  ordenar: 'nombre' | 'curp';
+  ordenar: 'nombre' | 'curp' | 'dependencia';
   direccion: 'asc' | 'desc';
+  estatus?: 'activos' | 'todos' | 'baja';
+  obligado?: boolean;
+  dependenciaId?: number | null;
 }
 
 export interface DatosServidor {
@@ -49,12 +64,21 @@ export interface CrearServidor extends DatosServidor {
 
 export interface ActualizarServidor extends DatosServidor {
   email?: string;
-  motivoCorreo?: string;
+  /** Obligatorio cuando hay cambios: queda en la bitácora. */
+  motivo?: string;
+}
+
+export interface MovimientoInicial {
+  tipoMovimientoId: number;
+  tipo: string | null;
+  fecha: string;
 }
 
 export interface ServidorDetalle extends DatosServidor {
   id: number;
   fechaInicio: string;
+  /** Primer movimiento del servidor (solo lectura en la edición). */
+  movimientoInicial: MovimientoInicial | null;
   presentaVersionLarga: boolean;
   puedeVersionLarga: boolean;
   email: string | null;
@@ -72,6 +96,8 @@ export interface Movimiento {
   oficioPreventivo: string | null;
   oficioRemision: string | null;
   fechaEnvio: string | null;
+  /** Iniciada / Terminada / Enviada. */
+  estatusDeclaracion: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -87,6 +113,11 @@ export class ServidoresService {
       .set('ordenar', consulta.ordenar)
       .set('direccion', consulta.direccion);
     if (consulta.buscar) params = params.set('buscar', consulta.buscar);
+    if (consulta.estatus && consulta.estatus !== 'activos') {
+      params = params.set('estatus', consulta.estatus);
+    }
+    if (consulta.obligado) params = params.set('obligado', true);
+    if (consulta.dependenciaId) params = params.set('dependenciaId', consulta.dependenciaId);
     return this.http.get<ServidoresPagina>(this.base, { params });
   }
 

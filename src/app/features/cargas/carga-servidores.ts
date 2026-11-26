@@ -9,8 +9,13 @@ import {
   PrevisualizacionServidores,
 } from '../../core/services/cargas.service';
 import { ToastService } from '../../core/services/toast.service';
-import { AG_GRID_LOCALE, simcgGridTheme } from '../../shared/ag-grid/ag-grid-setup';
+import {
+  AG_GRID_COLUMNA_BASE,
+  AG_GRID_LOCALE,
+  simcgGridTheme,
+} from '../../shared/ag-grid/ag-grid-setup';
 import { EstadoCelda, EstadoVisual } from '../../shared/ag-grid/estado-celda';
+import { Ayuda } from '../../shared/ayuda/ayuda';
 import { FileUpload } from '../../shared/file-upload/file-upload';
 import { descargarBlob, mensajeDeError } from '../../shared/utils/descarga';
 
@@ -24,7 +29,7 @@ const MAX_CSV_BYTES = 5 * 1024 * 1024; // Mismo límite que el backend.
 @Component({
   selector: 'app-carga-servidores',
   standalone: true,
-  imports: [AgGridAngular, FileUpload],
+  imports: [AgGridAngular, FileUpload, Ayuda],
   templateUrl: './carga-servidores.html',
   styleUrl: './carga-servidores.scss',
 })
@@ -36,7 +41,6 @@ export class CargaServidores {
   protected readonly vista = signal<PrevisualizacionServidores | null>(null);
   protected readonly cargando = signal(false);
   protected readonly soloErrores = signal(false);
-  protected readonly ayudaAbierta = signal(false);
 
   protected readonly filasVisibles = computed(() => {
     const filas = this.vista()?.filas ?? [];
@@ -47,6 +51,7 @@ export class CargaServidores {
   protected readonly maxBytes = MAX_CSV_BYTES;
   protected readonly gridTheme = simcgGridTheme;
   protected readonly localeText = AG_GRID_LOCALE;
+  protected readonly columnaBase = AG_GRID_COLUMNA_BASE;
   protected readonly columnas: ColDef<FilaPrevisualizacionServidor>[] = this.definirColumnas();
 
   protected readonly columnasAyuda: ColumnaAyuda[] = [
@@ -55,22 +60,29 @@ export class CargaServidores {
     { nombre: 'segundo_apellido', descripcion: 'Segundo apellido (opcional)' },
     { nombre: 'curp', descripcion: 'CURP de 18 caracteres' },
     { nombre: 'rfc', descripcion: 'RFC de 10 caracteres, sin homoclave' },
-    { nombre: 'homoclave', descripcion: 'Homoclave del RFC' },
-    { nombre: 'fecha_inicio', descripcion: 'Fecha de inicio en el cargo (dd/mm/aaaa)' },
+    { nombre: 'homoclave', descripcion: 'Homoclave del RFC (también se acepta homcve)' },
+    {
+      nombre: 'fecha_inicio',
+      descripcion: 'Fecha de inicio en el cargo, dd/mm/aaaa (también fecha_de_inicio)',
+    },
     { nombre: 'cargo', descripcion: 'Nombre del cargo' },
-    { nombre: 'nivel_cargo', descripcion: 'Nivel del cargo (00-0)' },
+    { nombre: 'nivel_cargo', descripcion: 'Nivel del cargo (también se acepta nivel_empleo)' },
     { nombre: 'cve_issemym', descripcion: 'Clave ISSEMYM de 7 dígitos (opcional)' },
     { nombre: 'dependencia_id', descripcion: 'Id de la dependencia' },
     { nombre: 'direccion_id', descripcion: 'Id de la dirección (opcional)' },
     { nombre: 'departamento_id', descripcion: 'Id del departamento (opcional)' },
     { nombre: 'honorarios', descripcion: '1 = Sí, 2 = No' },
     { nombre: 'tipo_movimiento', descripcion: 'Id del tipo de movimiento del catálogo' },
-    { nombre: 'fecha_movimiento', descripcion: 'Fecha del movimiento (dd/mm/aaaa)' },
+    {
+      nombre: 'fecha_movimiento',
+      descripcion: 'Fecha del movimiento, dd/mm/aaaa (también fecha_de_movimiento)',
+    },
+    {
+      nombre: 'obligado',
+      descripcion:
+        'Opcional. 1 = no obligado (motivo «Otro»); vacío o cualquier otro valor = obligado a declarar',
+    },
   ];
-
-  alternarAyuda(): void {
-    this.ayudaAbierta.update((v) => !v);
-  }
 
   alternarSoloErrores(evento: Event): void {
     this.soloErrores.set((evento.target as HTMLInputElement).checked);
@@ -90,7 +102,11 @@ export class CargaServidores {
     });
   }
 
-  previsualizar(): void {
+  /**
+   * «Importar registros»: valida el archivo y, si todos los renglones son válidos, los importa;
+   * si hay errores los muestra para corregirlos o importar solo los válidos.
+   */
+  importar(): void {
     const archivo = this.archivo();
     if (!archivo || this.cargando()) return;
     this.cargando.set(true);
@@ -99,6 +115,7 @@ export class CargaServidores {
         this.vista.set(vista);
         this.soloErrores.set(false);
         this.cargando.set(false);
+        if (vista.total > 0 && vista.conErrores === 0) this.enviar(archivo);
       },
       error: (err: HttpErrorResponse) => {
         this.cargando.set(false);

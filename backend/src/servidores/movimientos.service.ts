@@ -1,11 +1,18 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
+import type { Sequelize } from 'sequelize-typescript';
+import {
+  copiarArbolDeclaracion,
+  deshacerCopia,
+  FilasCreadas,
+} from '../cargas/copiar-declaracion';
 import {
   Declaracion,
   ESTATUS_DECLARACION_INICIAL,
@@ -15,6 +22,7 @@ import {
   TIPO_CORREO_PREVENTIVO,
   TIPO_CORREO_REMISION,
 } from '../database/models/envio-correo.model';
+import { EstatusDeclaracion } from '../database/models/estatus-declaracion.model';
 import { MotivoNoObligado } from '../database/models/motivo-no-obligado.model';
 import {
   TIPO_MOV_INGRESO,
@@ -22,6 +30,7 @@ import {
   TipoMovimientoMcg,
 } from '../database/models/tipo-movimiento-mcg.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
+import { BitacoraService } from './bitacora.service';
 import {
   calcularEstatus,
   estadoObligado,
@@ -63,6 +72,9 @@ export class MovimientosService {
     private readonly declaracionModel: typeof Declaracion,
     @InjectModel(MotivoNoObligado, 'declaranet')
     private readonly motivoModel: typeof MotivoNoObligado,
+    @InjectModel(EstatusDeclaracion, 'declaranet')
+    private readonly estatusDeclaracionModel: typeof EstatusDeclaracion,
+    private readonly bitacora: BitacoraService,
   ) {}
 
   /** Historial del servidor (sin declaraciones de intereses), del más antiguo al más reciente. */
@@ -83,8 +95,9 @@ export class MovimientosService {
     if (declaraciones.length === 0) return [];
 
     // Tipos y oficios viven en cddiputados; las declaraciones en declaranet.
-    const [tipos, oficios] = await Promise.all([
+    const [tipos, estatusDeclaraciones, oficios] = await Promise.all([
       this.tipoMovimientoModel.findAll({ paranoid: false }),
+      this.estatusDeclaracionModel.findAll({ paranoid: false }),
       this.envioCorreoModel.findAll({
         where: {
           declaracionId: declaraciones.map((d) => d.id),
@@ -94,6 +107,9 @@ export class MovimientosService {
       }),
     ]);
     const nombreTipo = new Map(tipos.map((t) => [t.id, t.valor]));
+    const nombreEstatusDeclaracion = new Map(
+      estatusDeclaraciones.map((e) => [Number(e.id), e.estatus]),
+    );
     const oficio = (declaracionId: number, tipoCorreo: number) => {
       const envio = oficios.find(
         (o) => o.declaracionId === declaracionId && o.tipoCorreo === tipoCorreo,
@@ -125,6 +141,9 @@ export class MovimientosService {
         oficioPreventivo: oficio(d.id, TIPO_CORREO_PREVENTIVO),
         oficioRemision: oficio(d.id, TIPO_CORREO_REMISION),
         fechaEnvio: d.fechaEnvio,
+        // Iniciada / Terminada / Enviada (catálogo estatus_declaraciones).
+        estatusDeclaracion:
+          nombreEstatusDeclaracion.get(Number(d.estatusDeclaracionId)) ?? null,
       };
     });
   }
@@ -202,15 +221,49 @@ export class MovimientosService {
       }
     }
 
-    // TODO Fase 5 (declarantes): McgDeclaranteController::movimiento además clonaba
-    // todo el árbol del declarante de `previa` hacia la declaración nueva (domicilio,
-    // pareja y su experiencia/domicilio, dependientes económicos, adeudos, inversiones,
-    // datos curriculares, datos de empleo, experiencias laborales, fue servidor público,
-    // bienes inmuebles/muebles, vehículos, préstamos en comodato, participaciones,
-    // apoyos, representación, clientes, beneficios privados, fideicomisos, donativos,
-    // intereses y viajes) cuando el tipo no es INGRESO. Aquí solo se copian los campos
-    // escalares.
     const declaracion = await this.declaracionModel.create(datos);
+    // Como el sistema viejo: un movimiento que no es ingreso clona todo el árbol
+    // del declarante de la declaración anterior. declaranet es MyISAM (sin
+    // transacciones): si algo falla se borra lo copiado y la declaración nueva.
+    if (previa && tipoMovimientoId !== TIPO_MOV_INGRESO) {
+      const creadas: FilasCreadas = new Map();
+      try {
+        await copiarArbolDeclaracion(
+          this.declaracionModel.sequelize as Sequelize,
+          previa.id,
+          declaracion.id,
+          creadas,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Falló la copia de la declaración ${previa.id} a ${declaracion.id}: ${String(error)}`,
+        );
+        await deshacerCopia(
+          this.declaracionModel.sequelize as Sequelize,
+          creadas,
+        ).catch((e: unknown) =>
+          this.logger.error(`No se pudo deshacer la copia: ${String(e)}`),
+        );
+        await declaracion
+          .destroy({ force: true })
+          .catch((e: unknown) =>
+            this.logger.error(
+              `No se pudo borrar la declaración ${declaracion.id}: ${String(e)}`,
+            ),
+          );
+        throw new InternalServerErrorException(
+          'No se pudo copiar la información de la declaración anterior; el movimiento no se creó. Intenta de nuevo.',
+        );
+      }
+    }
+    await this.bitacora.registrar({
+      logName: 'declaracion',
+      descripcion: `Declaración creada por el usuario ${actorId}`,
+      sujeto: 'declaracion',
+      sujetoId: declaracion.id,
+      usuarioId: actorId,
+      propiedades: { servidorId, tipoMovimientoId },
+    });
     this.logger.log(
       `Usuario ${actorId} creó la declaración ${declaracion.id} (tipo ${tipoMovimientoId}) del servidor ${servidorId}`,
     );
@@ -238,10 +291,21 @@ export class MovimientosService {
       obligado,
       motivoNoObligadoId: obligado ? null : motivoNoObligadoId,
     });
+    await this.bitacora.registrar({
+      logName: 'declaracion',
+      descripcion: `Status de la declaración cambiado por el usuario ${actorId}`,
+      sujeto: 'declaracion',
+      sujetoId: id,
+      usuarioId: actorId,
+      propiedades: {
+        obligado,
+        motivoNoObligadoId: obligado ? null : (motivoNoObligadoId ?? null),
+      },
+    });
     this.logger.log(
       `Usuario ${actorId} marcó la declaración ${id} obligado=${obligado}`,
     );
-    return { mensaje: 'Movimiento actualizado' };
+    return { mensaje: 'Declaración guardada correctamente' };
   }
 
   async eliminar(id: number, actorId: number) {

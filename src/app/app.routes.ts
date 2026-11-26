@@ -56,6 +56,24 @@ export const routes: Routes = [
         loadComponent: proximamente,
       },
       {
+        path: 'declaraciones/fiscal',
+        canActivate: [roleGuard('declaraciones')],
+        data: { titulo: 'Declaración fiscal' },
+        loadComponent: proximamente,
+      },
+      {
+        path: 'declaraciones/fiscal-aclaraciones',
+        canActivate: [roleGuard('declaraciones')],
+        data: { titulo: 'Aclaraciones de declaración fiscal' },
+        loadComponent: proximamente,
+      },
+      {
+        path: 'declaraciones/aclaraciones',
+        canActivate: [roleGuard('declaraciones')],
+        data: { titulo: 'Aclaraciones' },
+        loadComponent: proximamente,
+      },
+      {
         path: 'estadisticas',
         canActivate: [roleGuard('estadisticas')],
         data: { titulo: 'Estadísticas por tipo' },
@@ -70,7 +88,7 @@ export const routes: Routes = [
       {
         path: 'reportes/preventivos',
         canActivate: [roleGuard('reportes')],
-        data: { titulo: 'Detección preventivos' },
+        data: { titulo: 'Preventivos' },
         loadComponent: proximamente,
       },
       {

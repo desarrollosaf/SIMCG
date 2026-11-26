@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/sequelize';
 import { Test } from '@nestjs/testing';
+import { Op } from 'sequelize';
 import { Declaracion } from '../database/models/declaracion.model';
 import { Respuesta } from '../database/models/respuesta.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
@@ -15,6 +16,7 @@ import { TipoMovimientoMcg } from '../database/models/tipo-movimiento-mcg.model'
 import { User } from '../database/models/user.model';
 import { ActualizarServidorDto } from './dto/actualizar-servidor.dto';
 import { CrearServidorDto } from './dto/crear-servidor.dto';
+import { BitacoraService } from './bitacora.service';
 import { ServidoresService } from './servidores.service';
 
 describe('ServidoresService', () => {
@@ -39,9 +41,16 @@ describe('ServidoresService', () => {
   const dependenciaModel = { findByPk: jest.fn() };
   const direccionModel = { findByPk: jest.fn() };
   const departamentoModel = { findByPk: jest.fn() };
-  const tipoMovimientoModel = { findByPk: jest.fn() };
+  const tipoMovimientoModel = { findByPk: jest.fn(), findAll: jest.fn() };
   const respuestaModel = { findByPk: jest.fn() };
-  const declaracionModel = { create: jest.fn() };
+  const query = jest.fn();
+  const bitacora = { registrar: jest.fn() };
+  const declaracionModel = {
+    create: jest.fn(),
+    findOne: jest.fn(),
+    findAll: jest.fn(),
+    sequelize: { query },
+  };
 
   const dto: CrearServidorDto = {
     nombre: 'ANA',
@@ -97,9 +106,220 @@ describe('ServidoresService', () => {
           provide: getModelToken(Declaracion, 'declaranet'),
           useValue: declaracionModel,
         },
+        { provide: BitacoraService, useValue: bitacora },
       ],
     }).compile();
     service = modulo.get(ServidoresService);
+  });
+
+  describe('listar', () => {
+    const fila = (id: number, extra: object = {}) => ({
+      id,
+      nombre: 'ANA',
+      primerApellido: 'LOPEZ',
+      segundoApellido: 'DIAZ',
+      curp: `CURP${id}`,
+      deletedAt: null,
+      dependencia: { nombre: 'DEP' },
+      direccion: { nombre: 'DIR' },
+      ...extra,
+    });
+
+    const ultimasOpciones = () =>
+      (
+        servidorModel.findAndCountAll.mock.calls as unknown as [
+          { paranoid: boolean; where: Record<symbol, unknown[]> },
+        ][]
+      )[0][0];
+
+    beforeEach(() => {
+      tipoMovimientoModel.findAll.mockResolvedValue([
+        { id: 1, valor: 'INGRESO' },
+        { id: 3, valor: 'MODIFICACION' },
+      ]);
+      declaracionModel.findAll.mockResolvedValue([]);
+    });
+
+    it('devuelve último movimiento y estatus por fila', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({
+        count: 3,
+        rows: [fila(1), fila(2), fila(3, { deletedAt: new Date() })],
+      });
+      declaracionModel.findAll.mockResolvedValue([
+        // más reciente primero: el segundo del mismo servidor se ignora
+        {
+          servidorPublicoId: 1,
+          tipoMovimientoId: 3,
+          fechaDeclaracion: '2026-03-12',
+          obligado: true,
+        },
+        {
+          servidorPublicoId: 1,
+          tipoMovimientoId: 1,
+          fechaDeclaracion: '2025-01-01',
+          obligado: false,
+        },
+        {
+          servidorPublicoId: 2,
+          tipoMovimientoId: 1,
+          fechaDeclaracion: '2025-02-02',
+          obligado: false,
+        },
+      ]);
+
+      const r = await service.listar({ inicio: 0, limite: 10 });
+
+      expect(r.total).toBe(3);
+      expect(r.filas[0]).toEqual(
+        expect.objectContaining({
+          nombre: 'ANA LOPEZ DIAZ',
+          estatus: 'obligado',
+          obligado: true,
+          ultimoMovimiento: { tipo: 'MODIFICACION', fecha: '2026-03-12' },
+        }),
+      );
+      expect(r.filas[1].estatus).toBe('no_obligado');
+      expect(r.filas[2]).toEqual(
+        expect.objectContaining({ estatus: 'baja', ultimoMovimiento: null }),
+      );
+    });
+
+    it('mapea las declaraciones al servidor por servidorPublicoId (ids como texto o número)', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({
+        count: 2,
+        rows: [fila(625), fila(850)],
+      });
+      declaracionModel.findAll.mockResolvedValue([
+        {
+          servidorPublicoId: '625',
+          tipoMovimientoId: '3',
+          fechaDeclaracion: '2026-05-01',
+          obligado: 1,
+        },
+        {
+          servidorPublicoId: 850,
+          tipoMovimientoId: 1,
+          fechaDeclaracion: '2021-08-31',
+          obligado: 0,
+        },
+      ]);
+
+      const r = await service.listar({});
+
+      // Se consulta declaranet con los ids de cddiputados de la página.
+      const consultaDeclaraciones = (
+        declaracionModel.findAll.mock.calls as unknown as [
+          { where: { servidorPublicoId: number[] } },
+        ][]
+      )[0][0];
+      expect(consultaDeclaraciones.where.servidorPublicoId).toEqual([625, 850]);
+      expect(r.filas[0]).toEqual(
+        expect.objectContaining({
+          estatus: 'obligado',
+          ultimoMovimiento: { tipo: 'MODIFICACION', fecha: '2026-05-01' },
+        }),
+      );
+      expect(r.filas[1]).toEqual(
+        expect.objectContaining({
+          estatus: 'no_obligado',
+          ultimoMovimiento: { tipo: 'INGRESO', fecha: '2021-08-31' },
+        }),
+      );
+    });
+
+    it('el SQL de obligado usa servidor_publico_id y excluye intereses', async () => {
+      query.mockResolvedValue([]);
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ obligado: true });
+      const [sql, opciones] = query.mock.calls[0] as [
+        string,
+        { replacements: { intereses: number; obligado: number } },
+      ];
+      expect(sql).toContain('d.servidor_publico_id');
+      expect(sql).toContain('d.tipo_movimiento_id <> :intereses');
+      expect(sql).toContain('d.deleted_at IS NULL');
+      expect(opciones.replacements).toEqual({ intereses: 5, obligado: 1 });
+    });
+
+    it('marca sin_movimiento al servidor sin declaraciones', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({
+        count: 1,
+        rows: [fila(9)],
+      });
+      const r = await service.listar({});
+      expect(r.filas[0].estatus).toBe('sin_movimiento');
+      expect(r.filas[0].obligado).toBeNull();
+    });
+
+    it('no consulta declaraciones si la página viene vacía', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({});
+      expect(declaracionModel.findAll).not.toHaveBeenCalled();
+    });
+
+    it('por defecto lista solo activos y filtra por dependencia', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ dependenciaId: 4 });
+      const opciones = ultimasOpciones();
+      expect(opciones.paranoid).toBe(true);
+      expect(opciones.where[Op.and]).toContainEqual({ tipoDependenciaId: 4 });
+    });
+
+    it('estatus baja incluye borrados y solo los dados de baja', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ estatus: 'baja' });
+      const opciones = ultimasOpciones();
+      expect(opciones.paranoid).toBe(false);
+      expect(opciones.where[Op.and]).toContainEqual({
+        deletedAt: { [Op.ne]: null },
+      });
+    });
+
+    it('filtra por obligado usando el último movimiento', async () => {
+      query.mockResolvedValue([
+        { servidor_publico_id: '5' },
+        { servidor_publico_id: '8' },
+      ]);
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ obligado: false });
+      expect(
+        (
+          query.mock.calls[0] as [
+            string,
+            { replacements: { obligado: number } },
+          ]
+        )[1].replacements.obligado,
+      ).toBe(0);
+      const opciones = ultimasOpciones();
+      expect(opciones.where[Op.and]).toContainEqual({
+        id: { [Op.in]: [5, 8] },
+      });
+    });
+
+    it('con obligado sin coincidencias no deja IN vacío', async () => {
+      query.mockResolvedValue([]);
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ obligado: true });
+      const opciones = ultimasOpciones();
+      expect(opciones.where[Op.and]).toContainEqual({ id: { [Op.in]: [0] } });
+    });
+    it('obligado implica activos aunque se pida baja o todos', async () => {
+      query.mockResolvedValue([{ servidor_publico_id: '5' }]);
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ obligado: true, estatus: 'baja' });
+      const opciones = ultimasOpciones();
+      expect(opciones.paranoid).toBe(true);
+      expect(opciones.where[Op.and]).toEqual([{ id: { [Op.in]: [5] } }]);
+      await service.listar({ obligado: true, estatus: 'todos' });
+      expect(ultimasOpciones().paranoid).toBe(true);
+    });
+
+    it('ordena por dependencia', async () => {
+      servidorModel.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+      await service.listar({ ordenar: 'dependencia', direccion: 'desc' });
+      const [orden] = ultimasOpciones().order as [{ val: string }, unknown];
+      expect(orden.val).toContain('`dependencia`.`nombre` DESC');
+    });
   });
 
   describe('crear', () => {
@@ -240,7 +460,31 @@ describe('ServidoresService', () => {
   });
 
   describe('actualizar', () => {
-    const dtoActualizar: ActualizarServidorDto = { ...dto };
+    const dtoActualizar: ActualizarServidorDto = {
+      ...dto,
+      motivo: 'CORRECCION',
+    };
+
+    // Servidor tal como está en la base antes de editar.
+    const servidorActual = (extra: object = {}) => ({
+      id: 1,
+      nombre: 'ANA',
+      primerApellido: 'LOPEZ',
+      segundoApellido: null,
+      rfc: 'LOPA010101',
+      homoclave: 'AB1',
+      curp: 'LOPA010101MMCPNA09',
+      cargo: 'JEFA',
+      nivelCargo: '25-1',
+      cveIssemym: null,
+      tipoDependenciaId: 3,
+      tipoDireccionId: 7,
+      tipoDepartamentoId: null,
+      honorarios: 2,
+      fechaInicio: '2020-01-01',
+      update: jest.fn(),
+      ...extra,
+    });
 
     it('responde 404 si no existe', async () => {
       servidorModel.findByPk.mockResolvedValue(null);
@@ -250,25 +494,32 @@ describe('ServidoresService', () => {
       );
     });
 
-    it('exige motivo si se cambia el correo', async () => {
-      servidorModel.findByPk.mockResolvedValue({ id: 1, update: jest.fn() });
+    it('exige motivo si hay cambios', async () => {
+      const servidor = servidorActual();
+      servidorModel.findByPk.mockResolvedValue(servidor);
+      userModel.findOne.mockResolvedValue(null);
 
       await expect(
-        service.actualizar(1, { ...dtoActualizar, email: 'a@b.com' }, 2),
+        service.actualizar(1, { ...dtoActualizar, motivo: undefined }, 2),
       ).rejects.toThrow(
-        new BadRequestException(
-          'El motivo del cambio de correo es obligatorio',
-        ),
+        new BadRequestException('El motivo del cambio es obligatorio'),
       );
+      expect(servidor.update).not.toHaveBeenCalled();
     });
 
-    it('excluye al propio servidor al buscar duplicados', async () => {
-      const servidor = {
-        id: 1,
-        cargo: 'X',
-        nivelCargo: '25-1',
-        update: jest.fn(),
-      };
+    it('sin cambios no escribe ni pide motivo', async () => {
+      const servidor = servidorActual({ cargo: 'ANALISTA' });
+      servidorModel.findByPk.mockResolvedValue(servidor);
+      userModel.findOne.mockResolvedValue(null);
+
+      await service.actualizar(1, { ...dto, segundoApellido: '' }, 2);
+
+      expect(servidor.update).not.toHaveBeenCalled();
+      expect(bitacora.registrar).not.toHaveBeenCalled();
+    });
+
+    it('guarda y registra en la bitácora el motivo y los cambios (antes y después)', async () => {
+      const servidor = servidorActual();
       servidorModel.findByPk.mockResolvedValue(servidor);
       userModel.findOne.mockResolvedValue(null);
 
@@ -277,11 +528,108 @@ describe('ServidoresService', () => {
       const [consulta] = servidorModel.findOne.mock.calls[0] as [
         { where: { id?: unknown } },
       ];
+      // Excluye al propio servidor al buscar duplicados.
       expect(consulta.where.id).toBeDefined();
       expect(servidor.update).toHaveBeenCalledWith(
         expect.objectContaining({ cargo: 'ANALISTA' }),
         { transaction },
       );
+      expect(bitacora.registrar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          logName: 'ServidorPublico',
+          sujeto: 'servidor',
+          sujetoId: 1,
+          usuarioId: 2,
+          propiedades: {
+            motivo: 'CORRECCION',
+            cambios: [
+              {
+                campo: 'cargo',
+                etiqueta: 'Nombre del empleo, cargo o comisión',
+                antes: 'JEFA',
+                despues: 'ANALISTA',
+              },
+            ],
+          },
+        }),
+        transaction,
+      );
+    });
+
+    it('un cambio de correo exige usuario en Declaranet', async () => {
+      servidorModel.findByPk.mockResolvedValue(servidorActual());
+      userModel.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.actualizar(1, { ...dtoActualizar, email: 'a@b.com' }, 2),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'El servidor público no tiene usuario en Declaranet',
+        ),
+      );
+    });
+
+    it('cambia el correo del usuario y lo deja en la lista de cambios', async () => {
+      const servidor = servidorActual({ cargo: 'ANALISTA' });
+      const usuario = { id: 9, email: 'viejo@b.com', update: jest.fn() };
+      servidorModel.findByPk.mockResolvedValue(servidor);
+      userModel.findOne
+        .mockResolvedValueOnce(usuario) // usuario del servidor
+        .mockResolvedValueOnce(null); // correo repetido
+
+      await service.actualizar(
+        1,
+        { ...dtoActualizar, email: 'nuevo@b.com' },
+        2,
+      );
+
+      expect(usuario.update).toHaveBeenCalledWith(
+        { email: 'nuevo@b.com' },
+        { transaction },
+      );
+      expect(servidor.update).toHaveBeenCalledWith(
+        { cPersonal: 'nuevo@b.com' },
+        { transaction },
+      );
+      const [entrada] = bitacora.registrar.mock.calls[0] as [
+        { propiedades: { cambios: { campo: string }[] } },
+      ];
+      expect(entrada.propiedades.cambios.map((c) => c.campo)).toEqual([
+        'email',
+      ]);
+    });
+
+    it('rechaza un correo ya usado por otro usuario', async () => {
+      servidorModel.findByPk.mockResolvedValue(
+        servidorActual({ cargo: 'ANALISTA' }),
+      );
+      userModel.findOne
+        .mockResolvedValueOnce({ id: 9, email: 'viejo@b.com' })
+        .mockResolvedValueOnce({ id: 10 });
+
+      await expect(
+        service.actualizar(1, { ...dtoActualizar, email: 'otro@b.com' }, 2),
+      ).rejects.toBeInstanceOf(ConflictException);
+    });
+
+    it('en la bitácora nombra la dependencia en lugar del id', async () => {
+      servidorModel.findByPk.mockResolvedValue(
+        servidorActual({ cargo: 'ANALISTA', tipoDependenciaId: 2 }),
+      );
+      userModel.findOne.mockResolvedValue(null);
+      dependenciaModel.findByPk.mockImplementation((id: number) =>
+        Promise.resolve({ id, nombre: id === 2 ? 'TESORERIA' : 'SALUD' }),
+      );
+
+      await service.actualizar(1, dtoActualizar, 2);
+
+      const [entrada] = bitacora.registrar.mock.calls[0] as [
+        { propiedades: { cambios: { antes: string; despues: string }[] } },
+      ];
+      expect(entrada.propiedades.cambios[0]).toMatchObject({
+        antes: 'TESORERIA',
+        despues: 'SALUD',
+      });
     });
   });
 

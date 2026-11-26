@@ -1,0 +1,20 @@
+<ul class="tarjetas" [attr.aria-label]="etiqueta()">
+  @for (fila of filas(); track id()(fila)) {
+    <li class="tarjeta">
+      <app-avatar-iniciales [nombre]="titulo()(fila)" />
+      <div class="tarjeta__textos">
+        <strong class="tarjeta__titulo">{{ titulo()(fila) }}</strong>
+        @if (subtitulo()?.(fila); as sub) {
+          <span class="tarjeta__sub">{{ sub }}</span>
+        }
+        @if (detalle()?.(fila); as det) {
+          <span class="tarjeta__detalle">{{ det }}</span>
+        }
+        @if (estatus()?.(fila); as est) {
+          <app-chip-estatus [texto]="est.texto" [tono]="est.tono" />
+        }
+      </div>
+      <app-menu-acciones [acciones]="acciones()" [fila]="fila" />
+    </li>
+  }
+</ul>

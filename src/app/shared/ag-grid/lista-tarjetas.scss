@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+.tarjetas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjeta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.8rem 0.75rem 0.8rem 0.9rem;
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+  background: var(--surface);
+  user-select: text;
+
+  app-avatar-iniciales {
+    margin-top: 0.1rem;
+  }
+
+  &__textos {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__titulo {
+    max-width: 100%;
+    font-size: 0.92rem;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  &__sub {
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+
+  &__detalle {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  app-chip-estatus {
+    margin-top: 0.3rem;
+  }
+}

@@ -1,73 +1,100 @@
-<section class="movimientos-page">
-  <div class="card">
-    <div class="encabezado">
-      <div>
-        <h2>Movimientos</h2>
-        <p class="hint">{{ nombreServidor() || 'Cargando…' }}</p>
-      </div>
-      <button type="button" class="btn btn--outline" (click)="volver()">Volver al listado</button>
-    </div>
-  </div>
-
+<app-modal
+  tamano="xl"
+  [titulo]="nombreServidor() || 'Movimientos'"
+  [subtitulo]="subtitulo()"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar()"
+>
   @if (puedeEditar()) {
-    <div class="card">
-      <h2>Nuevo movimiento</h2>
-      <p class="hint">
-        Solo se ofrecen los movimientos que corresponden según el historial del año.
-      </p>
-
-      <form class="movimiento-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <section class="seccion" aria-labelledby="titulo-registro">
+      <h3 class="seccion__titulo" id="titulo-registro">Registro de nuevo movimiento</h3>
+      <form
+        id="form-movimiento"
+        class="movimiento-form"
+        [formGroup]="form"
+        (ngSubmit)="guardar()"
+        novalidate
+      >
         <div class="campo">
-          <label for="tipoMovimientoId">Tipo de movimiento</label>
+          <label for="tipoMovimientoId">Tipo de movimiento *</label>
           <select id="tipoMovimientoId" formControlName="tipoMovimientoId">
-            <option [ngValue]="null" disabled>Selecciona un movimiento</option>
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
             @for (tipo of permitidos(); track tipo.id) {
               <option [ngValue]="tipo.id">{{ tipo.valor }}</option>
             }
           </select>
           @if (form.controls.tipoMovimientoId.invalid && form.controls.tipoMovimientoId.touched) {
-            <small class="error">Selecciona un movimiento.</small>
+            <small class="error">Selecciona un tipo de movimiento.</small>
           }
         </div>
-
         <button type="submit" class="btn btn--primary" [disabled]="guardando()">
           @if (guardando()) {
             <span class="spinner" aria-hidden="true"></span>
             <span>Guardando…</span>
           } @else {
-            <span>Guardar</span>
+            <span>Guardar movimiento</span>
           }
         </button>
       </form>
-    </div>
+    </section>
   }
 
-  <div class="card">
-    <h2>Historial</h2>
-
-    @if (cargando()) {
-      <div class="tabla-skeleton">
-        <div class="tabla-skeleton__header"></div>
-        @for (n of [1, 2, 3, 4]; track n) {
-          <div class="tabla-skeleton__row"></div>
+  <section class="seccion" aria-labelledby="titulo-historico">
+    <h3 class="seccion__titulo" id="titulo-historico">Histórico de movimientos</h3>
+    <div class="historial">
+      @if (conError()) {
+        <app-estado-error titulo="No se pudo cargar el historial" (reintentar)="cargar()" />
+      } @else if (cargando() && movimientos().length === 0) {
+        <div class="tabla-skeleton" aria-busy="true" aria-label="Cargando historial">
+          <div class="tabla-skeleton__header"></div>
+          @for (n of [1, 2, 3, 4]; track n) {
+            <div class="tabla-skeleton__row"></div>
+          }
+        </div>
+      } @else if (movimientos().length === 0) {
+        <app-estado-vacio
+          titulo="Sin movimientos"
+          mensaje="Este servidor público todavía no tiene movimientos."
+        />
+      } @else {
+        <ag-grid-angular
+          class="grid"
+          [class.grid--cargando]="cargando()"
+          [theme]="gridTheme"
+          [localeText]="localeText"
+          [rowData]="movimientos()"
+          [columnDefs]="columnas"
+          [defaultColDef]="columnaBase"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          [suppressPaginationPanel]="true"
+          [domLayout]="'autoHeight'"
+          [enableCellTextSelection]="true"
+          [ensureDomOrder]="true"
+          [suppressMovableColumns]="true"
+          [suppressDragLeaveHidesColumns]="true"
+          (gridReady)="alIniciarGrid($event)"
+          (gridSizeChanged)="alCambiarTamano($event)"
+          (paginationChanged)="alPaginar()"
+        />
+        @if (movimientos().length > 10) {
+          <app-paginador
+            [pagina]="paginaGrid()"
+            [total]="movimientos().length"
+            [limite]="limiteGrid()"
+            (paginaCambiada)="irAPaginaGrid($event)"
+            (limiteCambiado)="cambiarLimiteGrid($event)"
+          />
         }
-      </div>
-    } @else if (movimientos().length === 0) {
-      <p class="hint">Este servidor público todavía no tiene movimientos.</p>
-    } @else {
-      <ag-grid-angular
-        class="grid"
-        [theme]="gridTheme"
-        [localeText]="localeText"
-        [rowData]="movimientos()"
-        [columnDefs]="columnas"
-        [pagination]="true"
-        [paginationPageSize]="10"
-        [paginationPageSizeSelector]="[10, 20, 50]"
-        [domLayout]="'autoHeight'"
-        [enableCellTextSelection]="true"
-        [ensureDomOrder]="true"
-      />
-    }
-  </div>
-</section>
+      }
+    </div>
+  </section>
+</app-modal>
+
+@if (editandoObligado(); as movimiento) {
+  <app-cambiar-obligado
+    [movimiento]="movimiento"
+    (cerrar)="editandoObligado.set(null)"
+    (guardado)="alGuardarObligado()"
+  />
+}

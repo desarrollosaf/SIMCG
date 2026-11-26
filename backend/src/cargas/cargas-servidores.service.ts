@@ -8,17 +8,25 @@ import {
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { Op, Transaction } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { traducir } from '../common/filters/all-exceptions.filter';
 import {
   Declaracion,
   ESTATUS_DECLARACION_INICIAL,
+  MOTIVO_NO_OBLIGADO_OTRO,
 } from '../database/models/declaracion.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
+import { TIPO_MOV_INTERESES } from '../database/models/tipo-movimiento-mcg.model';
 import { CrearServidorDto } from '../servidores/dto/crear-servidor.dto';
 import { ServidoresService } from '../servidores/servidores.service';
 import type { ArchivoSubido } from '../common/archivo-subido';
 import { generarCsv, leerCsv, parsearFecha } from './csv';
+import {
+  FilasCreadas,
+  copiarArbolDeclaracion,
+  deshacerCopia,
+} from './copiar-declaracion';
 
 export const COLUMNAS_SERVIDORES = [
   'nombre',
@@ -37,6 +45,7 @@ export const COLUMNAS_SERVIDORES = [
   'honorarios',
   'tipo_movimiento',
   'fecha_movimiento',
+  'obligado',
 ];
 
 const OPCIONALES = [
@@ -44,6 +53,7 @@ const OPCIONALES = [
   'cve_issemym',
   'direccion_id',
   'departamento_id',
+  'obligado',
 ];
 const REQUERIDAS = COLUMNAS_SERVIDORES.filter((c) => !OPCIONALES.includes(c));
 
@@ -75,13 +85,39 @@ const COLUMNA_DE: Record<string, string> = {
   fechaDeclaracion: 'fecha_movimiento',
 };
 
+// alta = servidor nuevo; movimiento = ya existía (CURP y RFC) y recibe un movimiento nuevo.
+export type AccionFila = 'alta' | 'movimiento';
+
 export interface FilaServidorAnalizada {
   renglon: number;
   curp: string | null;
   nombre: string | null;
   errores: string[];
   dto: CrearServidorDto | null;
+  // Como el sistema anterior: solo el valor 1 marca al servidor como NO obligado.
+  obligado: boolean;
+  accion: AccionFila | null;
 }
+
+// Campos escalares que un movimiento nuevo hereda de la declaración anterior.
+const CAMPOS_HEREDADOS = [
+  'correoInstitucional',
+  'correoPersonal',
+  'telefonoCasa',
+  'telefonoPersonal',
+  'situacionPersonalId',
+  'regimenMatrimonialId',
+  'honorarios',
+  'paisId',
+  'nacionalidad',
+  'nacionalidadId',
+  'regimenEspecificar',
+  'observaciones',
+  'regimenMatrimonial',
+] as const;
+
+type Busqueda =
+  { servidor: ServidorPublico } | { servidor: null; error: string | null };
 
 const vacioANulo = (v: string): string | null => (v === '' ? null : v);
 
@@ -126,6 +162,7 @@ export class CargasServidoresService {
         'NO',
         '1',
         '15/01/2025',
+        '',
       ],
     ]);
   }
@@ -137,22 +174,22 @@ export class CargasServidoresService {
       total: filas.length,
       validas: filas.length - conErrores,
       conErrores,
-      filas: filas.map(({ renglon, curp, nombre, errores }) => ({
+      filas: filas.map(({ renglon, curp, nombre, errores, accion }) => ({
         renglon,
         curp,
         nombre,
         errores,
+        accion,
       })),
     };
   }
 
   /**
-   * Inserta solo los renglones válidos, todo o nada. Igual que el alta
-   * individual (servidor en cddiputados con transacción, declaración inicial en
-   * declaranet, commit al final), pero para el lote completo. Si algo falla
-   * antes del commit se revierte el lote y se borran las declaraciones que ya
-   * se hubieran creado en declaranet (compensación: MyISAM no tiene
-   * transacciones).
+   * Procesa solo los renglones válidos, uno por uno (como el sistema anterior):
+   * servidor nuevo -> alta con su primera declaración; servidor existente ->
+   * actualiza su cargo/adscripción y crea una declaración nueva con los datos
+   * copiados de la anterior. Cada renglón va en su propia transacción; si falla
+   * se revierte y se reporta en `fallidos` sin detener los demás.
    */
   async confirmar(archivo: ArchivoSubido | undefined, actorId: number) {
     const filas = await this.analizar(archivo);
@@ -161,79 +198,188 @@ export class CargasServidoresService {
       throw new BadRequestException('No hay renglones válidos para cargar');
     }
 
-    const transaction = await this.sequelize.transaction();
-    const idsServidores: number[] = [];
-    let creoDeclaraciones = false;
-    try {
-      for (const fila of validas) {
-        const dto = fila.dto!;
-        // Se repite dentro de la transacción: otro usuario pudo dar de alta al
-        // mismo servidor entre la previsualización y la confirmación.
-        try {
-          await this.servidoresService.validarDuplicados(
-            dto,
-            undefined,
-            transaction,
+    let nuevos = 0;
+    let actualizados = 0;
+    const fallidos: { renglon: number; mensaje: string }[] = [];
+    for (const fila of validas) {
+      try {
+        const accion = await this.procesarFila(fila);
+        if (accion === 'alta') nuevos++;
+        else actualizados++;
+      } catch (error) {
+        const mensaje = mensajeDe(error);
+        if (!mensaje) {
+          this.logger.error(
+            `Renglón ${fila.renglon} de la carga de servidores: ${String(error)}`,
           );
-        } catch (error) {
-          const mensaje = mensajeDe(error);
-          if (error instanceof ConflictException && mensaje) {
-            throw new ConflictException(
-              `Renglón ${fila.renglon}: ${mensaje}. No se cargó nada; vuelve a previsualizar el archivo.`,
-            );
-          }
-          throw error;
         }
+        fallidos.push({
+          renglon: fila.renglon,
+          mensaje: mensaje ?? 'Error inesperado al guardar el renglón',
+        });
+      }
+    }
 
+    this.logger.log(
+      `Usuario ${actorId} cargó servidores por CSV: ${nuevos} altas, ${actualizados} movimientos, ${fallidos.length} fallidos`,
+    );
+    const insertados = nuevos + actualizados;
+    return {
+      insertados,
+      nuevos,
+      actualizados,
+      omitidos: filas.length - insertados,
+      fallidos,
+    };
+  }
+
+  // Un renglón completo: servidor (cddiputados, transacción) + declaración y su
+  // árbol (declaranet, MyISAM: sin transacciones, se compensa a mano).
+  private async procesarFila(fila: FilaServidorAnalizada): Promise<AccionFila> {
+    const dto = fila.dto!;
+    const transaction = await this.sequelize.transaction();
+    const creadas: FilasCreadas = new Map();
+    let declaracion: Declaracion | null = null;
+    try {
+      // Se repite dentro de la transacción: el servidor pudo cambiar desde la previsualización.
+      const busqueda = await this.buscarServidor(dto, transaction);
+      if (!busqueda.servidor && busqueda.error) {
+        throw new ConflictException(busqueda.error);
+      }
+
+      const estado = {
+        obligado: fila.obligado,
+        motivoNoObligadoId: fila.obligado ? null : MOTIVO_NO_OBLIGADO_OTRO,
+      };
+      let accion: AccionFila;
+      if (busqueda.servidor) {
+        accion = 'movimiento';
+        const servidor = busqueda.servidor;
+        const previa = await this.declaracionModel.findOne({
+          where: {
+            servidorPublicoId: servidor.id,
+            tipoMovimientoId: { [Op.ne]: TIPO_MOV_INTERESES },
+          },
+          order: [['id', 'DESC']],
+        });
+        await servidor.update(
+          {
+            nivelCargo: dto.nivelCargo,
+            cargo: dto.cargo,
+            cveIssemym: dto.cveIssemym ?? null,
+            tipoDependenciaId: dto.tipoDependenciaId,
+            tipoDireccionId: dto.tipoDireccionId ?? null,
+            tipoDepartamentoId: dto.tipoDepartamentoId ?? null,
+          },
+          { transaction },
+        );
+
+        const heredados: Record<string, unknown> = {};
+        if (previa) {
+          for (const campo of CAMPOS_HEREDADOS)
+            heredados[campo] = previa[campo];
+        } else {
+          heredados.honorarios = servidor.honorarios;
+        }
+        declaracion = await this.declaracionModel.create({
+          ...heredados,
+          servidorPublicoId: servidor.id,
+          tipoMovimientoId: dto.tipoMovimientoId,
+          fechaDeclaracion: dto.fechaDeclaracion,
+          estatusDeclaracionId: ESTATUS_DECLARACION_INICIAL,
+          ...estado,
+          cargo: dto.cargo,
+          nivelCargo: dto.nivelCargo,
+        });
+        if (previa) {
+          await copiarArbolDeclaracion(
+            this.conexionDeclaranet(),
+            previa.id,
+            declaracion.id,
+            creadas,
+          );
+        }
+      } else {
+        accion = 'alta';
         const servidor = await this.servidorModel.create(
           this.servidoresService.atributos(dto, {
             fechaInicio: dto.fechaInicio,
           }),
           { transaction },
         );
-        idsServidores.push(servidor.id);
-      }
-
-      creoDeclaraciones = true;
-      for (let i = 0; i < validas.length; i++) {
-        const dto = validas[i].dto!;
-        await this.declaracionModel.create({
-          servidorPublicoId: idsServidores[i],
+        declaracion = await this.declaracionModel.create({
+          servidorPublicoId: servidor.id,
           tipoMovimientoId: dto.tipoMovimientoId,
           fechaDeclaracion: dto.fechaDeclaracion,
           estatusDeclaracionId: ESTATUS_DECLARACION_INICIAL,
           honorarios: dto.honorarios,
+          ...estado,
           cargo: dto.cargo,
           nivelCargo: dto.nivelCargo,
         });
       }
 
       await transaction.commit();
+      return accion;
     } catch (error) {
       await transaction.rollback().catch(() => undefined);
-      if (creoDeclaraciones && idsServidores.length > 0) {
-        // Compensación: hay declaraciones en declaranet sin su servidor.
-        await this.declaracionModel
-          .destroy({
-            where: { servidorPublicoId: idsServidores },
-            force: true,
-          })
+      // Compensación: lo creado en declaranet no tiene transacción que lo respalde.
+      await deshacerCopia(this.conexionDeclaranet(), creadas).catch(
+        (e: unknown) =>
+          this.logger.error(
+            `No se pudo deshacer la copia de la declaración del renglón ${fila.renglon}: ${String(e)}`,
+          ),
+      );
+      if (declaracion) {
+        const huerfana = declaracion;
+        await huerfana
+          .destroy({ force: true })
           .catch((e: unknown) =>
             this.logger.error(
-              `No se pudieron borrar las declaraciones huérfanas de la carga masiva: ${String(e)}`,
+              `No se pudo borrar la declaración ${huerfana.id} huérfana: ${String(e)}`,
             ),
           );
       }
       throw error;
     }
+  }
 
-    this.logger.log(
-      `Usuario ${actorId} cargó ${validas.length} servidores por CSV`,
+  private conexionDeclaranet(): Sequelize {
+    return this.declaracionModel.sequelize as Sequelize;
+  }
+
+  // Busca por CURP y RFC. Si solo coincide uno de los dos es un conflicto de datos.
+  private async buscarServidor(
+    dto: CrearServidorDto,
+    transaction?: Transaction,
+  ): Promise<Busqueda> {
+    const candidatos = await this.servidorModel.findAll({
+      where: { [Op.or]: [{ curp: dto.curp }, { rfc: dto.rfc }] },
+      transaction,
+    });
+    const igual = (a: string | null, b: string) =>
+      (a ?? '').toUpperCase() === b.toUpperCase();
+
+    const servidor = candidatos.find(
+      (s) => igual(s.curp, dto.curp) && igual(s.rfc, dto.rfc),
     );
-    return {
-      insertados: validas.length,
-      omitidos: filas.length - validas.length,
-    };
+    if (servidor) return { servidor };
+
+    const porCurp = candidatos.find((s) => igual(s.curp, dto.curp));
+    if (porCurp) {
+      return {
+        servidor: null,
+        error: `La CURP ya existe con otro RFC (${porCurp.rfc ?? 'sin RFC'}); no coincide con el RFC ${dto.rfc}`,
+      };
+    }
+    const porRfc = candidatos.find((s) => igual(s.rfc, dto.rfc));
+    if (porRfc) {
+      return {
+        servidor: null,
+        error: `El RFC ya existe con otra CURP (${porRfc.curp ?? 'sin CURP'}); no coincide con la CURP ${dto.curp}`,
+      };
+    }
+    return { servidor: null, error: null };
   }
 
   // Lee el CSV y valida todos los renglones (formato, repetidos y base de datos).
@@ -266,8 +412,9 @@ export class CargasServidoresService {
       }
 
       if (fila.errores.length === 0 && fila.dto) {
-        const mensaje = await this.validarBaseDeDatos(fila.dto);
-        if (mensaje) fila.errores.push(mensaje);
+        const { error, accion } = await this.validarBaseDeDatos(fila.dto);
+        if (error) fila.errores.push(error);
+        else fila.accion = accion;
       }
       resultado.push(fila);
     }
@@ -362,20 +509,25 @@ export class CargasServidoresService {
       nombre,
       errores,
       dto: errores.length === 0 ? dto : null,
+      // Igual que el sistema anterior: 1 = no obligado; vacío u otro valor = obligado.
+      obligado: (v.obligado ?? '') !== '1',
+      accion: null,
     };
   }
 
-  // Mismas reglas del alta individual; devuelve el mensaje del primer error.
+  // Reglas del alta (adscripción, honorarios, tipo de movimiento) y búsqueda por CURP y RFC.
   private async validarBaseDeDatos(
     dto: CrearServidorDto,
-  ): Promise<string | null> {
+  ): Promise<{ error: string | null; accion: AccionFila | null }> {
     try {
       await this.servidoresService.validarAlta(dto);
-      await this.servidoresService.validarDuplicados(dto);
-      return null;
+      const busqueda = await this.buscarServidor(dto);
+      if (busqueda.servidor) return { error: null, accion: 'movimiento' };
+      if (busqueda.error) return { error: busqueda.error, accion: null };
+      return { error: null, accion: 'alta' };
     } catch (error) {
       const mensaje = mensajeDe(error);
-      if (mensaje) return mensaje;
+      if (mensaje) return { error: mensaje, accion: null };
       throw error;
     }
   }

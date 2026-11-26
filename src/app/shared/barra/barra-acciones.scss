@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  &__titulo {
+    min-width: 0;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0 0 0.15rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--brand-ink);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--brand-muted);
+    }
+  }
+
+  &__contador {
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background: var(--brand-primary-soft);
+    color: var(--accent-text);
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+
+  &__herramientas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.9rem;
+    flex: 1 1 320px;
+  }
+
+  &__acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .barra {
+    &__herramientas {
+      flex-basis: 100%;
+      justify-content: stretch;
+    }
+
+    &__acciones {
+      width: 100%;
+
+      ::ng-deep .btn {
+        flex: 1 1 auto;
+      }
+    }
+  }
+}

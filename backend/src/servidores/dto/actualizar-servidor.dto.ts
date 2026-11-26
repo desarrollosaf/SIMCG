@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { Recortar } from './normalizar';
 import { DatosServidorDto } from './datos-servidor.dto';
 
@@ -10,10 +17,13 @@ export class ActualizarServidorDto extends DatosServidorDto {
   @MaxLength(191)
   email?: string;
 
-  // Obligatorio cuando se manda email; se registra en el log.
+  // Motivo del cambio: el servicio lo exige siempre que haya algo que cambiar
+  // y lo guarda en la bitácora junto con la lista de cambios.
   @Recortar()
   @IsOptional()
   @IsString()
-  @MaxLength(500)
-  motivoCorreo?: string;
+  @IsNotEmpty({ message: 'El motivo del cambio no puede ir vacío' })
+  @MinLength(5, { message: 'El motivo debe tener al menos 5 caracteres' })
+  @MaxLength(500, { message: 'El motivo admite máximo 500 caracteres' })
+  motivo?: string;
 }

@@ -30,6 +30,7 @@ describe('puedeVer', () => {
     'cargas',
     'libros-actas',
     'reportes',
+    'declaraciones',
     'oficios',
     'declaraciones-intereses',
     'estadisticas',
@@ -48,10 +49,10 @@ describe('puedeVer', () => {
   });
 
   it.each(['Consulta', 'Estadistica', 'Estadistica2'])(
-    '%s ve Servidores, Reportes y Estadísticas',
+    '%s ve Servidores, Reportes, Declaraciones y Estadísticas',
     (rol) => {
       const visibles = todas.filter((s) => puedeVer([rol], s));
-      expect(visibles).toEqual(['servidores', 'reportes', 'estadisticas']);
+      expect(visibles).toEqual(['servidores', 'reportes', 'declaraciones', 'estadisticas']);
     },
   );
 

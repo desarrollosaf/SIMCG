@@ -1,0 +1,40 @@
+<app-modal
+  tamano="sm"
+  titulo="¿Dar de baja este servidor público?"
+  [subtitulo]="servidor().nombre"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar.emit()"
+>
+  <form id="form-baja" [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
+    <label for="motivo-baja" class="etiqueta">Motivo de la baja *</label>
+    <textarea
+      id="motivo-baja"
+      cdkFocusInitial
+      formControlName="motivo"
+      rows="4"
+      [attr.maxlength]="maximo"
+      placeholder="Captura el motivo de la baja"
+      [attr.aria-invalid]="mostrarError"
+      aria-describedby="motivo-baja-ayuda"
+    ></textarea>
+    <div class="ayuda" id="motivo-baja-ayuda">
+      @if (mostrarError) {
+        <small class="error">El motivo debe tener al menos {{ minimo }} caracteres.</small>
+      } @else {
+        <span></span>
+      }
+      <small class="contador">{{ form.controls.motivo.value.length }} / {{ maximo }}</small>
+    </div>
+  </form>
+
+  <div modal-pie>
+    <button type="submit" form="form-baja" class="btn btn--peligro" [disabled]="guardando()">
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Dando de baja…</span>
+      } @else {
+        <span>Sí, dar de baja</span>
+      }
+    </button>
+  </div>
+</app-modal>

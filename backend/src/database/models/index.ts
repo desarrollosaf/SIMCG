@@ -1,6 +1,8 @@
+import { ActivityLog } from './activity-log.model';
 import { Declaracion } from './declaracion.model';
 import { DocumentoSat } from './documento-sat.model';
 import { EnvioCorreo } from './envio-correo.model';
+import { EstatusDeclaracion } from './estatus-declaracion.model';
 import { Folio } from './folio.model';
 import { Libro } from './libro.model';
 import { ModelHasRole } from './model-has-role.model';
@@ -41,7 +43,13 @@ export const MODELOS_SERVIDORES = [
   Respuesta,
   EnvioCorreo,
   Libro,
+  ActivityLog,
 ];
 
 // Movimientos: conexión 'declaranet'.
-export const MODELOS_DECLARANET = [Declaracion, MotivoNoObligado, DocumentoSat];
+export const MODELOS_DECLARANET = [
+  Declaracion,
+  MotivoNoObligado,
+  DocumentoSat,
+  EstatusDeclaracion,
+];

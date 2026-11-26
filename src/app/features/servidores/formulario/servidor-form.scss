@@ -1,72 +1,43 @@
 @use '../../../shared/ag-grid/tabla-skeleton';
 
 :host {
-  display: block;
-}
-
-.servidor-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--brand-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-soft);
-
-  h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.05rem;
-    color: var(--brand-ink);
-  }
+  display: contents;
 }
 
 .hint {
-  margin: 0;
+  margin: 0 0 1rem;
   color: var(--brand-muted);
   font-size: 0.88rem;
 }
 
 .servidor-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
-  margin-top: 1.1rem;
+  min-width: 0;
 }
 
-.grupo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1rem;
-  margin: 0;
-  padding: 1.1rem 1.2rem 1.3rem;
-  border: 1px solid var(--brand-border);
-  border-radius: 14px;
+// Rejilla fluida: 3 columnas en ancho completo, 2 y 1 al angostarse. Las etiquetas
+// largas se parten en varias líneas en lugar de recortarse.
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 1rem 1.1rem;
+  min-width: 0;
 
-  legend {
-    padding: 0 0.5rem;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--brand-primary);
-    letter-spacing: 0.02em;
+  .hint {
+    margin: 0;
+    align-self: center;
   }
 }
 
 .campo {
-  flex: 1 1 200px;
-  min-width: 160px;
+  min-width: 0;
 
-  &--ancho {
-    flex: 2 1 300px;
+  &--doble {
+    grid-column: span 2;
   }
 
-  &--corto {
-    flex: 0 1 120px;
-    min-width: 100px;
+  &--completo {
+    grid-column: 1 / -1;
   }
 
   &--switch {
@@ -79,6 +50,9 @@
   .etiqueta {
     display: block;
     margin-bottom: 0.4rem;
+    line-height: 1.3;
+    white-space: normal;
+    overflow-wrap: anywhere;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--brand-ink);
@@ -107,9 +81,41 @@
       box-shadow: 0 0 0 3px var(--brand-primary-soft);
     }
 
-    &:disabled {
-      opacity: 0.7;
+    &:disabled,
+    &[readonly] {
+      opacity: 0.75;
+      cursor: not-allowed;
     }
+
+    &[readonly] {
+      cursor: default;
+    }
+  }
+
+  // Campo con botón al lado (correo): el botón nunca se recorta ni encoge.
+  .con-boton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    input {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .btn {
+      flex: none;
+    }
+  }
+
+  .btn--icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    overflow: visible;
   }
 
   input[type='text'] {
@@ -159,7 +165,7 @@
       height: 18px;
       border-radius: 50%;
       background: var(--surface);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+      box-shadow: var(--shadow-header);
       transition: transform 0.18s;
     }
   }
@@ -177,13 +183,26 @@
   }
 }
 
-.acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.8rem;
+@media (max-width: 900px) {
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-  .btn {
-    height: 34px;
-    padding-block: 0;
+@media (max-width: 560px) {
+  .rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .campo--doble,
+  .campo--completo {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch__control,
+  .switch__control::after {
+    transition: none;
   }
 }

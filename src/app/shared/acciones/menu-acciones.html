@@ -1,0 +1,34 @@
+@if (visibles().length) {
+  <button
+    type="button"
+    [class]="variante() === 'barra' ? 'btn btn--outline boton-mas' : 'icono-boton'"
+    [attr.aria-label]="etiqueta()"
+    [title]="etiqueta()"
+    aria-haspopup="menu"
+    [cdkMenuTriggerFor]="menuAcciones"
+    (click)="$event.stopPropagation()"
+    (dblclick)="$event.stopPropagation()"
+  >
+    <app-icono nombre="mas" />
+    @if (variante() === 'barra') {
+      <span>Más</span>
+    }
+  </button>
+}
+
+<ng-template #menuAcciones>
+  <div cdkMenu class="menu-acciones" aria-label="Acciones" animate.enter="menu-acciones-entrada">
+    @for (accion of visibles(); track accion.etiqueta) {
+      <button
+        type="button"
+        cdkMenuItem
+        class="menu-acciones__item"
+        [class.menu-acciones__item--peligro]="accion.peligro"
+        (cdkMenuItemTriggered)="ejecutar(accion)"
+      >
+        <app-icono [nombre]="accion.icono" />
+        <span>{{ accion.etiqueta }}</span>
+      </button>
+    }
+  </div>
+</ng-template>

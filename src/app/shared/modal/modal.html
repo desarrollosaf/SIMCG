@@ -1,0 +1,40 @@
+<div
+  class="modal__fondo"
+  aria-hidden="true"
+  animate.enter="modal-fondo-entrada"
+  (click)="solicitarCierre()"
+></div>
+<div
+  class="modal__caja"
+  [attr.data-tamano]="tamano()"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="idTitulo"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  animate.enter="modal-caja-entrada"
+>
+  <header class="modal__encabezado">
+    <div class="modal__titulos">
+      <h2 class="modal__titulo" [id]="idTitulo">{{ titulo() }}</h2>
+      @if (subtitulo()) {
+        <p class="modal__subtitulo">{{ subtitulo() }}</p>
+      }
+    </div>
+    <div class="modal__acciones"><ng-content select="[modal-acciones]" /></div>
+    <button
+      type="button"
+      class="modal__cerrar"
+      aria-label="Cerrar"
+      title="Cerrar"
+      [disabled]="bloqueado()"
+      (click)="solicitarCierre()"
+    >
+      <app-icono nombre="cerrar" />
+    </button>
+  </header>
+
+  <div class="modal__cuerpo"><ng-content /></div>
+
+  <footer class="modal__pie"><ng-content select="[modal-pie]" /></footer>
+</div>

@@ -1,12 +1,24 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { getModelToken } from '@nestjs/sequelize';
 import { Test } from '@nestjs/testing';
 import { Declaracion } from '../database/models/declaracion.model';
 import { EnvioCorreo } from '../database/models/envio-correo.model';
+import { EstatusDeclaracion } from '../database/models/estatus-declaracion.model';
 import { MotivoNoObligado } from '../database/models/motivo-no-obligado.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
 import { TipoMovimientoMcg } from '../database/models/tipo-movimiento-mcg.model';
+import {
+  copiarArbolDeclaracion,
+  deshacerCopia,
+} from '../cargas/copiar-declaracion';
+import { BitacoraService } from './bitacora.service';
 import { MovimientosService } from './movimientos.service';
+
+jest.mock('../cargas/copiar-declaracion');
 
 describe('MovimientosService', () => {
   let service: MovimientosService;
@@ -19,8 +31,11 @@ describe('MovimientosService', () => {
     findOne: jest.fn(),
     findByPk: jest.fn(),
     create: jest.fn(),
+    sequelize: { nombre: 'declaranet' },
   };
   const motivoModel = { findByPk: jest.fn() };
+  const estatusDeclaracionModel = { findAll: jest.fn() };
+  const bitacora = { registrar: jest.fn() };
 
   const tipos = [1, 2, 3, 4].map((id) => ({ id, valor: `TIPO ${id}` }));
   const servidor = {
@@ -32,8 +47,14 @@ describe('MovimientosService', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
+    jest.mocked(copiarArbolDeclaracion).mockResolvedValue(undefined);
+    jest.mocked(deshacerCopia).mockResolvedValue(undefined);
     servidorModel.findByPk.mockResolvedValue(servidor);
     tipoMovimientoModel.findAll.mockResolvedValue(tipos);
+    estatusDeclaracionModel.findAll.mockResolvedValue([
+      { id: 1, estatus: 'Iniciada' },
+      { id: 3, estatus: 'Enviada' },
+    ]);
 
     const modulo = await Test.createTestingModule({
       providers: [
@@ -52,6 +73,11 @@ describe('MovimientosService', () => {
           provide: getModelToken(MotivoNoObligado, 'declaranet'),
           useValue: motivoModel,
         },
+        {
+          provide: getModelToken(EstatusDeclaracion, 'declaranet'),
+          useValue: estatusDeclaracionModel,
+        },
+        { provide: BitacoraService, useValue: bitacora },
       ],
     }).compile();
     service = modulo.get(MovimientosService);
@@ -99,6 +125,7 @@ describe('MovimientosService', () => {
 
     it('crea el movimiento con cargo y nivel del servidor y hereda los campos escalares', async () => {
       const previa = {
+        id: 99,
         tipoMovimientoId: 1,
         fechaDeclaracion: '2020-01-01',
         correoInstitucional: 'a@x.com',
@@ -124,6 +151,19 @@ describe('MovimientosService', () => {
       const resultado = await service.crear(7, 3, 1);
 
       expect(resultado).toEqual({ id: 321 });
+      expect(copiarArbolDeclaracion).toHaveBeenCalledWith(
+        declaracionModel.sequelize,
+        99,
+        321,
+        expect.any(Map),
+      );
+      expect(bitacora.registrar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          logName: 'declaracion',
+          sujetoId: 321,
+          usuarioId: 1,
+        }),
+      );
       expect(declaracionModel.create).toHaveBeenCalledWith(
         expect.objectContaining({
           servidorPublicoId: 7,
@@ -155,6 +195,24 @@ describe('MovimientosService', () => {
       ];
       expect(datos.correoPersonal).toBeUndefined();
       expect(datos.honorarios).toBe(2);
+      expect(copiarArbolDeclaracion).not.toHaveBeenCalled();
+    });
+
+    it('si falla la copia deshace lo copiado, borra la declaración nueva y avisa', async () => {
+      const destroy = jest.fn().mockResolvedValue(undefined);
+      declaracionModel.findOne
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 99, honorarios: 1 });
+      declaracionModel.create.mockResolvedValue({ id: 5, destroy });
+      jest.mocked(copiarArbolDeclaracion).mockRejectedValue(new Error('boom'));
+
+      await expect(service.crear(7, 3, 1)).rejects.toBeInstanceOf(
+        InternalServerErrorException,
+      );
+
+      expect(deshacerCopia).toHaveBeenCalledTimes(1);
+      expect(destroy).toHaveBeenCalledWith({ force: true });
+      expect(bitacora.registrar).not.toHaveBeenCalled();
     });
   });
 
@@ -195,6 +253,22 @@ describe('MovimientosService', () => {
         obligado: false,
         motivoNoObligadoId: 2,
       });
+      expect(bitacora.registrar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sujetoId: 1,
+          propiedades: { obligado: false, motivoNoObligadoId: 2 },
+        }),
+      );
+    });
+
+    it('responde con el mensaje de guardado', async () => {
+      declaracionModel.findByPk.mockResolvedValue({ update: jest.fn() });
+
+      await expect(
+        service.cambiarObligado(1, true, undefined, 1),
+      ).resolves.toEqual({
+        mensaje: 'Declaración guardada correctamente',
+      });
     });
 
     it('al volver a obligado limpia el motivo', async () => {
@@ -215,6 +289,7 @@ describe('MovimientosService', () => {
       declaracionModel.findAll.mockResolvedValue([
         {
           id: 10,
+          estatusDeclaracionId: 3,
           tipoMovimientoId: 1,
           fechaDeclaracion: '2020-01-01',
           fechaEnvio: '2020-02-01',
@@ -224,6 +299,7 @@ describe('MovimientosService', () => {
         },
         {
           id: 11,
+          estatusDeclaracionId: 1,
           tipoMovimientoId: 3,
           fechaDeclaracion: '2021-01-01',
           fechaEnvio: null,
@@ -243,12 +319,15 @@ describe('MovimientosService', () => {
         tipo: 'TIPO 1',
         estado: 'OBLIGADO',
         estatus: 'ENVIO EN TIEMPO',
+        estatusDeclaracion: 'Enviada',
+        fechaEnvio: '2020-02-01',
         oficioPreventivo: 'CPL/DSP/MCG/12/2020',
         oficioRemision: 'CPL/DSP/MCG/99/2020',
       });
       expect(b).toMatchObject({
         estado: 'NO OBLIGADO - POR DEFUNCIÓN',
         estatus: 'NO OBLIGADO - POR DEFUNCIÓN',
+        estatusDeclaracion: 'Iniciada',
         oficioPreventivo: null,
         oficioRemision: null,
       });

@@ -1,345 +1,377 @@
-<section class="servidor-page">
-  <div class="card">
-    <h2>{{ esEdicion() ? 'Editar servidor público' : 'Nuevo servidor público' }}</h2>
+<app-modal
+  tamano="lg"
+  [titulo]="esEdicion() ? 'Editar servidor público' : 'Nuevo servidor público'"
+  [subtitulo]="subtitulo()"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar()"
+>
+  @if (cargando()) {
+    <div class="tabla-skeleton" aria-busy="true" aria-label="Cargando datos del servidor público">
+      @for (n of [1, 2, 3, 4, 5]; track n) {
+        <div class="tabla-skeleton__row"></div>
+      }
+    </div>
+  } @else {
     <p class="hint">Los campos con * son obligatorios. Los textos se guardan en mayúsculas.</p>
 
-    @if (cargando()) {
-      <div class="tabla-skeleton">
-        @for (n of [1, 2, 3, 4, 5]; track n) {
-          <div class="tabla-skeleton__row"></div>
-        }
-      </div>
-    } @else {
-      <form class="servidor-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
-        @if (!esEdicion()) {
-          <fieldset class="grupo">
-            <legend>Movimiento inicial</legend>
-
-            <div class="campo">
-              <label for="tipoMovimientoId">Tipo de movimiento *</label>
-              <select id="tipoMovimientoId" formControlName="tipoMovimientoId">
-                <option [ngValue]="null" disabled>Selecciona una opción</option>
-                @for (tipo of tiposMovimiento(); track tipo.id) {
-                  <option [ngValue]="tipo.id">{{ tipo.valor }}</option>
-                }
-              </select>
-              @if (invalido('tipoMovimientoId')) {
-                <small class="error">Selecciona el tipo de movimiento.</small>
-              }
-            </div>
-
-            <div class="campo">
-              <label for="fechaDeclaracion">Fecha del movimiento *</label>
-              <input
-                id="fechaDeclaracion"
-                type="date"
-                formControlName="fechaDeclaracion"
-                class="sin-mayusculas"
-              />
-              @if (invalido('fechaDeclaracion')) {
-                <small class="error">Captura la fecha del movimiento.</small>
-              }
-            </div>
-
-            <div class="campo">
-              <label for="fechaInicio">Fecha de inicio *</label>
-              <input
-                id="fechaInicio"
-                type="date"
-                formControlName="fechaInicio"
-                class="sin-mayusculas"
-              />
-              @if (invalido('fechaInicio')) {
-                <small class="error">Captura la fecha de inicio.</small>
-              }
-            </div>
-          </fieldset>
-        }
-
-        <fieldset class="grupo">
-          <legend>Identificación</legend>
-
+    <form
+      id="servidor-form"
+      class="servidor-form"
+      [formGroup]="form"
+      (ngSubmit)="guardar()"
+      novalidate
+    >
+      <div class="rejilla">
+        @if (esEdicion()) {
+          <!-- Datos del movimiento inicial: solo lectura en la edición. -->
           <div class="campo">
-            <label for="rfc">RFC (10 caracteres) *</label>
+            <label for="tipoMovimientoLectura">Tipo de movimiento</label>
             <input
-              id="rfc"
+              id="tipoMovimientoLectura"
               type="text"
-              formControlName="rfc"
-              maxlength="10"
-              placeholder="P. EJ. XAXX010101"
-              autocomplete="off"
-              spellcheck="false"
-              (input)="mayusculas('rfc', $event)"
+              disabled
+              [value]="detalle()?.movimientoInicial?.tipo ?? ''"
             />
-            @if (invalido('rfc')) {
-              <small class="error">Captura un RFC válido de 10 caracteres.</small>
-            }
           </div>
-
-          <div class="campo campo--corto">
-            <label for="homoclave">Homoclave *</label>
-            <input
-              id="homoclave"
-              type="text"
-              formControlName="homoclave"
-              maxlength="3"
-              placeholder="XX0"
-              autocomplete="off"
-              spellcheck="false"
-              (input)="mayusculas('homoclave', $event)"
-            />
-            @if (invalido('homoclave')) {
-              <small class="error">3 caracteres.</small>
-            }
-          </div>
-
-          <div class="campo campo--ancho">
-            <label for="curp">CURP (18 caracteres) *</label>
-            <input
-              id="curp"
-              type="text"
-              formControlName="curp"
-              maxlength="18"
-              placeholder="P. EJ. XAXX010101HXXXXX01"
-              autocomplete="off"
-              spellcheck="false"
-              (input)="mayusculas('curp', $event)"
-            />
-            @if (invalido('curp')) {
-              <small class="error">Captura una CURP válida de 18 caracteres.</small>
-            }
-          </div>
-
           <div class="campo">
-            <label for="nombre">Nombre(s) *</label>
+            <label for="fechaMovimientoLectura">Fecha del movimiento</label>
             <input
-              id="nombre"
-              type="text"
-              formControlName="nombre"
-              maxlength="191"
-              autocomplete="off"
-              (input)="mayusculas('nombre', $event)"
+              id="fechaMovimientoLectura"
+              type="date"
+              class="sin-mayusculas"
+              disabled
+              [value]="detalle()?.movimientoInicial?.fecha ?? ''"
             />
-            @if (invalido('nombre')) {
-              <small class="error">Captura el nombre.</small>
-            }
           </div>
-
           <div class="campo">
-            <label for="primerApellido">Primer apellido *</label>
+            <label for="fechaInicioLectura">Fecha de inicio</label>
             <input
-              id="primerApellido"
-              type="text"
-              formControlName="primerApellido"
-              maxlength="191"
-              autocomplete="off"
-              (input)="mayusculas('primerApellido', $event)"
+              id="fechaInicioLectura"
+              type="date"
+              class="sin-mayusculas"
+              disabled
+              [value]="detalle()?.fechaInicio ?? ''"
             />
-            @if (invalido('primerApellido')) {
-              <small class="error">Captura el primer apellido.</small>
-            }
           </div>
-
+        } @else {
           <div class="campo">
-            <label for="segundoApellido">Segundo apellido</label>
-            <input
-              id="segundoApellido"
-              type="text"
-              formControlName="segundoApellido"
-              maxlength="191"
-              autocomplete="off"
-              (input)="mayusculas('segundoApellido', $event)"
-            />
-          </div>
-        </fieldset>
-
-        <fieldset class="grupo">
-          <legend>Empleo, cargo o comisión</legend>
-
-          <div class="campo campo--ancho">
-            <label for="cargo">Nombre del empleo, cargo o comisión *</label>
-            <input
-              id="cargo"
-              type="text"
-              formControlName="cargo"
-              maxlength="191"
-              placeholder="P. EJ. ABOGADO DICTAMINADOR"
-              autocomplete="off"
-              (input)="mayusculas('cargo', $event)"
-            />
-            @if (invalido('cargo')) {
-              <small class="error">Captura el cargo.</small>
-            }
-          </div>
-
-          <div class="campo campo--corto">
-            <label for="nivelCargo">Nivel *</label>
-            <input
-              id="nivelCargo"
-              type="text"
-              formControlName="nivelCargo"
-              maxlength="4"
-              placeholder="25-3"
-              autocomplete="off"
-              (input)="mayusculas('nivelCargo', $event)"
-            />
-            @if (invalido('nivelCargo')) {
-              <small class="error">Formato 00-0.</small>
-            }
-          </div>
-
-          <div class="campo">
-            <label for="cveIssemym">Clave ISSEMYM</label>
-            <input
-              id="cveIssemym"
-              type="text"
-              formControlName="cveIssemym"
-              maxlength="7"
-              placeholder="P. EJ. 1234567"
-              autocomplete="off"
-              (input)="mayusculas('cveIssemym', $event)"
-            />
-            @if (invalido('cveIssemym')) {
-              <small class="error">7 dígitos.</small>
-            }
-          </div>
-
-          <div class="campo">
-            <label for="honorarios">¿Contratado por honorarios? *</label>
-            <select id="honorarios" formControlName="honorarios">
+            <label for="tipoMovimientoId">Tipo de movimiento *</label>
+            <select id="tipoMovimientoId" formControlName="tipoMovimientoId">
               <option [ngValue]="null" disabled>Selecciona una opción</option>
-              @for (r of respuestas(); track r.id) {
-                <option [ngValue]="r.id">{{ r.respuesta }}</option>
+              @for (tipo of tiposMovimiento(); track tipo.id) {
+                <option [ngValue]="tipo.id">{{ tipo.valor }}</option>
               }
             </select>
-            @if (invalido('honorarios')) {
-              <small class="error">Selecciona una opción.</small>
-            }
-          </div>
-        </fieldset>
-
-        <fieldset class="grupo">
-          <legend>Adscripción</legend>
-
-          <div class="campo">
-            <label for="tipoDependenciaId">Dependencia *</label>
-            <select id="tipoDependenciaId" formControlName="tipoDependenciaId">
-              <option [ngValue]="null" disabled>Selecciona una dependencia</option>
-              @for (d of dependencias(); track d.id) {
-                <option [ngValue]="d.id">{{ d.nombre }}</option>
-              }
-            </select>
-            @if (invalido('tipoDependenciaId')) {
-              <small class="error">Selecciona la dependencia.</small>
+            @if (invalido('tipoMovimientoId')) {
+              <small class="error">Selecciona el tipo de movimiento.</small>
             }
           </div>
 
           <div class="campo">
-            <label for="tipoDireccionId">Dirección</label>
-            <select id="tipoDireccionId" formControlName="tipoDireccionId">
-              <option [ngValue]="null">Sin dirección</option>
-              @for (d of direcciones(); track d.id) {
-                <option [ngValue]="d.id">{{ d.nombre }}</option>
-              }
-            </select>
+            <label for="fechaDeclaracion">Fecha del movimiento *</label>
+            <input
+              id="fechaDeclaracion"
+              type="date"
+              formControlName="fechaDeclaracion"
+              class="sin-mayusculas"
+            />
+            @if (invalido('fechaDeclaracion')) {
+              <small class="error">Captura la fecha del movimiento.</small>
+            }
           </div>
 
           <div class="campo">
-            <label for="tipoDepartamentoId">Departamento</label>
-            <select id="tipoDepartamentoId" formControlName="tipoDepartamentoId">
-              <option [ngValue]="null">Sin departamento</option>
-              @for (d of departamentos(); track d.id) {
-                <option [ngValue]="d.id">{{ d.nombre }}</option>
-              }
-            </select>
+            <label for="fechaInicio">Fecha de inicio *</label>
+            <input
+              id="fechaInicio"
+              type="date"
+              formControlName="fechaInicio"
+              class="sin-mayusculas"
+            />
+            @if (invalido('fechaInicio')) {
+              <small class="error">Captura la fecha de inicio.</small>
+            }
           </div>
-        </fieldset>
+        }
+
+        <div class="campo">
+          <label for="rfc">RFC (10 caracteres) *</label>
+          <input
+            id="rfc"
+            type="text"
+            formControlName="rfc"
+            maxlength="10"
+            placeholder="P. EJ. XAXX010101"
+            autocomplete="off"
+            spellcheck="false"
+            (input)="mayusculas('rfc', $event)"
+          />
+          @if (invalido('rfc')) {
+            <small class="error">Captura un RFC válido de 10 caracteres.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="homoclave">Homoclave *</label>
+          <input
+            id="homoclave"
+            type="text"
+            formControlName="homoclave"
+            maxlength="3"
+            placeholder="XX0"
+            autocomplete="off"
+            spellcheck="false"
+            (input)="mayusculas('homoclave', $event)"
+          />
+          @if (invalido('homoclave')) {
+            <small class="error">Captura 3 caracteres.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="curp">CURP (18 caracteres) *</label>
+          <input
+            id="curp"
+            type="text"
+            formControlName="curp"
+            maxlength="18"
+            placeholder="P. EJ. XAXX010101HXXXXX01"
+            autocomplete="off"
+            spellcheck="false"
+            (input)="mayusculas('curp', $event)"
+          />
+          @if (invalido('curp')) {
+            <small class="error">Captura una CURP válida de 18 caracteres.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="nombre">Nombre(s) *</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            maxlength="191"
+            autocomplete="off"
+            (input)="mayusculas('nombre', $event)"
+          />
+          @if (invalido('nombre')) {
+            <small class="error">Captura el nombre.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="primerApellido">Primer apellido *</label>
+          <input
+            id="primerApellido"
+            type="text"
+            formControlName="primerApellido"
+            maxlength="191"
+            autocomplete="off"
+            (input)="mayusculas('primerApellido', $event)"
+          />
+          @if (invalido('primerApellido')) {
+            <small class="error">Captura el primer apellido.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="segundoApellido">Segundo apellido</label>
+          <input
+            id="segundoApellido"
+            type="text"
+            formControlName="segundoApellido"
+            maxlength="191"
+            autocomplete="off"
+            (input)="mayusculas('segundoApellido', $event)"
+          />
+        </div>
+
+        <div class="campo campo--completo">
+          <label for="cargo">Nombre del empleo, cargo o comisión *</label>
+          <input
+            id="cargo"
+            type="text"
+            formControlName="cargo"
+            maxlength="191"
+            placeholder="P. EJ. ABOGADO DICTAMINADOR"
+            autocomplete="off"
+            (input)="mayusculas('cargo', $event)"
+          />
+          @if (invalido('cargo')) {
+            <small class="error">Captura el cargo.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="nivelCargo">Nivel del empleo, cargo o comisión *</label>
+          <input
+            id="nivelCargo"
+            type="text"
+            formControlName="nivelCargo"
+            maxlength="4"
+            placeholder="XX-X"
+            autocomplete="off"
+            (input)="mayusculas('nivelCargo', $event)"
+          />
+          @if (invalido('nivelCargo')) {
+            <small class="error">Usa el formato XX-X (por ejemplo 25-3).</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="cveIssemym">Clave ISSEMYM *</label>
+          <input
+            id="cveIssemym"
+            type="text"
+            inputmode="numeric"
+            formControlName="cveIssemym"
+            maxlength="7"
+            placeholder="P. EJ. 1234567"
+            autocomplete="off"
+            (input)="mayusculas('cveIssemym', $event)"
+          />
+          @if (invalido('cveIssemym')) {
+            <small class="error">Captura los 7 dígitos de la clave.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="tipoDependenciaId">Adscripción *</label>
+          <select id="tipoDependenciaId" formControlName="tipoDependenciaId">
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
+            @for (d of dependencias(); track d.id) {
+              <option [ngValue]="d.id">{{ d.nombre }}</option>
+            }
+          </select>
+          @if (invalido('tipoDependenciaId')) {
+            <small class="error">Selecciona la adscripción.</small>
+          }
+        </div>
+
+        <div class="campo campo--completo">
+          <label for="tipoDireccionId">Dirección {{ direcciones().length ? '*' : '' }}</label>
+          <select id="tipoDireccionId" formControlName="tipoDireccionId">
+            <option [ngValue]="null" [disabled]="direcciones().length > 0">
+              {{ direcciones().length ? 'Selecciona una opción' : 'Sin direcciones' }}
+            </option>
+            @for (d of direcciones(); track d.id) {
+              <option [ngValue]="d.id">{{ d.nombre }}</option>
+            }
+          </select>
+          @if (invalido('tipoDireccionId')) {
+            <small class="error">Selecciona la dirección.</small>
+          }
+        </div>
+
+        <div class="campo campo--completo">
+          <label for="tipoDepartamentoId"
+            >Departamento {{ departamentos().length ? '*' : '' }}</label
+          >
+          <select id="tipoDepartamentoId" formControlName="tipoDepartamentoId">
+            <option [ngValue]="null" [disabled]="departamentos().length > 0">
+              {{ departamentos().length ? 'Selecciona una opción' : 'Sin departamentos' }}
+            </option>
+            @for (d of departamentos(); track d.id) {
+              <option [ngValue]="d.id">{{ d.nombre }}</option>
+            }
+          </select>
+          @if (invalido('tipoDepartamentoId')) {
+            <small class="error">Selecciona el departamento.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="honorarios">¿Está contratado por honorarios? *</label>
+          <select id="honorarios" formControlName="honorarios">
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
+            @for (r of respuestas(); track r.id) {
+              <option [ngValue]="r.id">{{ r.respuesta }}</option>
+            }
+          </select>
+          @if (invalido('honorarios')) {
+            <small class="error">Selecciona una opción.</small>
+          }
+        </div>
 
         @if (esEdicion()) {
-          <fieldset class="grupo">
-            <legend>Declaración y usuario</legend>
-
-            @if (detalle()?.puedeVersionLarga) {
-              <div class="campo campo--switch">
-                <span class="etiqueta">¿Presenta la declaración completa?</span>
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    [checked]="versionLarga()"
-                    (change)="alternarVersionLarga($event)"
-                  />
-                  <span class="switch__control"></span>
-                  <span>{{ versionLarga() ? 'Sí' : 'No' }}</span>
-                </label>
-              </div>
-            } @else {
-              <p class="hint campo--ancho">
-                La declaración completa solo aplica a los niveles 25 a 43 y 46.
-              </p>
-            }
-
-            @if (detalle()?.email) {
-              <div class="campo campo--ancho">
-                <label for="email">Correo del usuario</label>
+          @if (detalle()?.email) {
+            <div class="campo campo--doble">
+              <label for="email">Correo *</label>
+              <div class="con-boton">
                 <input
                   id="email"
                   type="email"
                   formControlName="email"
                   class="sin-mayusculas"
                   autocomplete="off"
+                  [readOnly]="!editandoCorreo()"
                 />
-                @if (invalido('email')) {
-                  <small class="error">Captura un correo válido.</small>
+                @if (!editandoCorreo()) {
+                  <button
+                    type="button"
+                    class="btn btn--outline btn--icono"
+                    title="Editar correo"
+                    aria-label="Editar correo"
+                    (click)="editarCorreo()"
+                  >
+                    <app-icono nombre="editar" />
+                  </button>
                 }
               </div>
-
-              <div class="campo campo--switch">
-                <span class="etiqueta">Cambiar correo</span>
-                <label class="switch">
-                  <input
-                    type="checkbox"
-                    [checked]="cambiarCorreo()"
-                    (change)="alternarCorreo($any($event.target).checked)"
-                  />
-                  <span class="switch__control"></span>
-                  <span>{{ cambiarCorreo() ? 'Sí' : 'No' }}</span>
-                </label>
-              </div>
-
-              @if (cambiarCorreo()) {
-                <div class="campo campo--ancho">
-                  <label for="motivoCorreo">Motivo del cambio de correo *</label>
-                  <input
-                    id="motivoCorreo"
-                    type="text"
-                    formControlName="motivoCorreo"
-                    maxlength="500"
-                    autocomplete="off"
-                    (input)="mayusculas('motivoCorreo', $event)"
-                  />
-                  @if (invalido('motivoCorreo')) {
-                    <small class="error">Captura el motivo (mínimo 5 caracteres).</small>
-                  }
-                </div>
+              @if (invalido('email')) {
+                <small class="error">Captura un correo válido.</small>
               }
-            } @else {
-              <p class="hint campo--ancho">Este servidor no tiene usuario en Declaranet.</p>
-            }
-          </fieldset>
-        }
+            </div>
+          } @else {
+            <p class="hint campo--doble">Este servidor no tiene usuario en Declaranet.</p>
+          }
 
-        <div class="acciones">
-          <button type="button" class="btn btn--outline" (click)="cancelar()">Cancelar</button>
-          <button type="submit" class="btn btn--primary" [disabled]="guardando()">
-            @if (guardando()) {
-              <span class="spinner" aria-hidden="true"></span>
-              <span>Guardando…</span>
-            } @else {
-              <span>Guardar</span>
-            }
-          </button>
-        </div>
-      </form>
-    }
+          @if (detalle()?.puedeVersionLarga) {
+            <div class="campo campo--switch">
+              <span class="etiqueta">¿Presenta la declaración completa?</span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  [checked]="versionLarga()"
+                  (change)="alternarVersionLarga($event)"
+                />
+                <span class="switch__control"></span>
+                <span>{{ versionLarga() ? 'Sí' : 'No' }}</span>
+              </label>
+            </div>
+          } @else {
+            <p class="hint campo--doble">
+              La declaración completa solo aplica a los niveles 25 a 43 y 46.
+            </p>
+          }
+        }
+      </div>
+    </form>
+  }
+
+  <div modal-pie>
+    <button
+      type="submit"
+      form="servidor-form"
+      class="btn btn--primary"
+      [disabled]="guardando() || cargando() || (intentado() && form.invalid)"
+    >
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Guardando…</span>
+      } @else {
+        <span>Guardar</span>
+      }
+    </button>
   </div>
-</section>
+</app-modal>
+
+@if (cambiosPorConfirmar(); as cambios) {
+  <app-confirmar-cambios
+    [cambios]="cambios"
+    [guardando]="guardando()"
+    (cancelar)="cancelarConfirmacion()"
+    (confirmar)="confirmarCambios($event)"
+  />
+}

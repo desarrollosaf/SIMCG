@@ -15,6 +15,7 @@ export type Seccion =
   | 'cargas'
   | 'libros-actas'
   | 'reportes'
+  | 'declaraciones'
   | 'oficios'
   | 'declaraciones-intereses'
   | 'estadisticas'
@@ -27,6 +28,7 @@ export const ROLES_POR_SECCION: Record<Seccion, readonly string[]> = {
   servidores: ROLES_SIMCG,
   cargas: [ROL_ADMINISTRADOR, 'Registro'],
   reportes: LECTURA,
+  declaraciones: LECTURA,
   estadisticas: LECTURA,
   'libros-actas': SOLO_ADMIN,
   oficios: SOLO_ADMIN,

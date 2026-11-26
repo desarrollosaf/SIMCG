@@ -1,0 +1,60 @@
+<app-modal
+  tamano="md"
+  titulo="¿Está seguro que desea modificar la información?"
+  subtitulo="Se quedarán registrados los cambios que realices en el sistema."
+  [bloqueado]="guardando()"
+  (cerrar)="cancelar.emit()"
+>
+  <ul class="cambios" aria-label="Campos modificados">
+    @for (c of cambios(); track c.campo) {
+      <li class="cambio">
+        <span class="cambio__campo">{{ c.etiqueta }}</span>
+        <span class="cambio__valores">
+          <span class="cambio__antes">{{ c.antes }}</span>
+          <span class="cambio__flecha" aria-label="cambia a">→</span>
+          <span class="cambio__despues">{{ c.despues }}</span>
+        </span>
+      </li>
+    }
+  </ul>
+
+  <form id="form-confirmar-cambios" [formGroup]="form" (ngSubmit)="aceptar()" novalidate>
+    <label class="etiqueta" for="motivo">Motivo del cambio *</label>
+    <textarea
+      id="motivo"
+      formControlName="motivo"
+      rows="3"
+      maxlength="500"
+      cdkFocusInitial
+      [attr.aria-invalid]="motivoInvalido"
+      placeholder="Explica por qué se hace este cambio"
+    ></textarea>
+    @if (motivoInvalido) {
+      <small class="error">Captura el motivo del cambio (mínimo 5 caracteres).</small>
+    }
+  </form>
+
+  <div modal-pie>
+    <button
+      type="button"
+      class="btn btn--outline"
+      [disabled]="guardando()"
+      (click)="cancelar.emit()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      form="form-confirmar-cambios"
+      class="btn btn--primary"
+      [disabled]="guardando()"
+    >
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Guardando…</span>
+      } @else {
+        <span>Guardar</span>
+      }
+    </button>
+  </div>
+</app-modal>

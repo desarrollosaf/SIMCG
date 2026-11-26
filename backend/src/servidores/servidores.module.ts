@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { MODELOS_DECLARANET, MODELOS_SERVIDORES } from '../database/models';
 import { JwtAuthModule } from '../auth/jwt-auth.module';
+import { BitacoraService } from './bitacora.service';
 import { MovimientosController } from './movimientos.controller';
 import { MovimientosService } from './movimientos.service';
 import { ServidoresController } from './servidores.controller';
@@ -14,7 +15,7 @@ import { ServidoresService } from './servidores.service';
     JwtAuthModule,
   ],
   controllers: [ServidoresController, MovimientosController],
-  providers: [ServidoresService, MovimientosService],
+  providers: [ServidoresService, MovimientosService, BitacoraService],
   exports: [ServidoresService],
 })
 export class ServidoresModule {}

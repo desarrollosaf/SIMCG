@@ -35,6 +35,11 @@ export function mensajeDeError(err: { error?: { message?: unknown } }): string |
   return typeof mensaje === 'string' ? mensaje : null;
 }
 
+/** True si la petición no llegó al servidor (sin red, servidor caído): status 0. */
+export function esErrorDeRed(err: unknown): boolean {
+  return typeof err === 'object' && err !== null && (err as { status?: unknown }).status === 0;
+}
+
 /** Formatea una fecha ISO (aaaa-mm-dd o con hora) como dd/mm/aaaa. */
 export function formatearFecha(valor: string | null | undefined): string {
   if (!valor) return '';

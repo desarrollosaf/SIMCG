@@ -98,6 +98,9 @@ export class ServidorPublico extends Model {
   @Column({ type: DataType.STRING, field: 'c_personal' })
   declare cPersonal: string | null;
 
+  // Borrado lógico (baja).
+  declare deletedAt: Date | null;
+
   @HasOne(() => User)
   declare usuario: User;
 }

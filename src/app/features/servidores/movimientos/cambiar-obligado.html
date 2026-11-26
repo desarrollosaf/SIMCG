@@ -1,0 +1,49 @@
+<app-modal
+  tamano="sm"
+  titulo="Cambiar status"
+  [subtitulo]="(movimiento().tipo ?? 'Movimiento') + ' del ' + movimiento().fechaDeclaracion"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar.emit()"
+>
+  <form id="form-obligado" class="formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <div class="campo">
+      <label for="status-obligado">Status *</label>
+      <select id="status-obligado" formControlName="obligado" cdkFocusInitial>
+        <option value="si">OBLIGADO</option>
+        <option value="no">NO OBLIGADO</option>
+      </select>
+    </div>
+
+    @if (exigeMotivo) {
+      <div class="campo">
+        <label for="motivo-no-obligado">Motivo de no obligado *</label>
+        <select
+          id="motivo-no-obligado"
+          formControlName="motivoNoObligadoId"
+          [attr.aria-invalid]="motivoInvalido"
+        >
+          <option [ngValue]="null" disabled>
+            {{ cargandoMotivos() ? 'Cargando motivos…' : 'Selecciona una opción' }}
+          </option>
+          @for (m of motivos(); track m.id) {
+            <option [ngValue]="m.id">{{ m.causa }}</option>
+          }
+        </select>
+        @if (motivoInvalido) {
+          <small class="error">Selecciona un motivo.</small>
+        }
+      </div>
+    }
+  </form>
+
+  <div modal-pie>
+    <button type="submit" form="form-obligado" class="btn btn--primary" [disabled]="guardando()">
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Guardando…</span>
+      } @else {
+        <span>Guardar</span>
+      }
+    </button>
+  </div>
+</app-modal>

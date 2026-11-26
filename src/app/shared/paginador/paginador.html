@@ -1,0 +1,78 @@
+<nav class="paginador" aria-label="Paginación">
+  <span class="paginador__info" aria-live="polite">
+    Mostrando {{ formato(desde()) }}–{{ formato(hasta()) }} de {{ formato(total()) }}
+  </span>
+
+  <div class="paginador__nav">
+    <button
+      type="button"
+      class="paginador__boton"
+      aria-label="Primera página"
+      title="Primera página"
+      [disabled]="alInicio()"
+      (click)="ir(0)"
+    >
+      <app-icono nombre="primera" />
+    </button>
+    <button
+      type="button"
+      class="paginador__boton"
+      aria-label="Página anterior"
+      title="Página anterior"
+      [disabled]="alInicio()"
+      (click)="ir(pagina() - 1)"
+    >
+      <app-icono nombre="anterior" />
+    </button>
+
+    <span class="paginador__numeros">
+      @for (n of numeros(); track $index) {
+        @if (n === null) {
+          <span class="paginador__elipsis" aria-hidden="true">…</span>
+        } @else {
+          <button
+            type="button"
+            class="paginador__numero"
+            [class.paginador__numero--actual]="n === pagina() + 1"
+            [attr.aria-current]="n === pagina() + 1 ? 'page' : null"
+            [attr.aria-label]="'Página ' + n"
+            [disabled]="deshabilitado()"
+            (click)="ir(n - 1)"
+          >
+            {{ n }}
+          </button>
+        }
+      }
+    </span>
+    <span class="paginador__compacto">Pág. {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+
+    <button
+      type="button"
+      class="paginador__boton"
+      aria-label="Página siguiente"
+      title="Página siguiente"
+      [disabled]="alFinal()"
+      (click)="ir(pagina() + 1)"
+    >
+      <app-icono nombre="siguiente" />
+    </button>
+    <button
+      type="button"
+      class="paginador__boton"
+      aria-label="Última página"
+      title="Última página"
+      [disabled]="alFinal()"
+      (click)="ir(totalPaginas() - 1)"
+    >
+      <app-icono nombre="ultima" />
+    </button>
+  </div>
+
+  <label class="paginador__tamano">
+    <select aria-label="Filas por página" (change)="alCambiarLimite($event)">
+      @for (n of tamanos(); track n) {
+        <option [value]="n" [selected]="n === limite()">{{ n }} por página</option>
+      }
+    </select>
+  </label>
+</nav>

@@ -1,104 +1,164 @@
 <section class="servidores-page">
   <div class="card">
-    <div class="tabla-header">
-      <div class="tabla-header__titulo">
-        <h2>Servidores públicos</h2>
-        <p>Busca por nombre, apellidos, CURP, dependencia o dirección.</p>
+    <app-barra-acciones
+      titulo="Servidores públicos"
+      subtitulo="Busca por nombre, apellidos, CURP, dependencia o dirección."
+      [contador]="yaCargo() ? total() : null"
+    >
+      <div barra-busqueda class="tabla-header__busqueda">
+        <app-icono nombre="buscar" />
+        <input
+          type="text"
+          placeholder="Buscar servidor público"
+          aria-label="Buscar servidor público"
+          autocomplete="off"
+          [value]="textoBusqueda()"
+          (input)="alEscribir($event)"
+        />
+        @if (textoBusqueda()) {
+          <button
+            type="button"
+            class="limpiar-busqueda"
+            aria-label="Limpiar búsqueda"
+            (click)="limpiarBusqueda()"
+          >
+            <app-icono nombre="cerrar" />
+          </button>
+        }
       </div>
 
-      <div class="acciones">
-        <div class="tabla-header__busqueda">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-            <path
-              d="m20 20-3.5-3.5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
+      <app-filtros-popover
+        barra-acciones
+        [activos]="filtros()"
+        (limpiar)="limpiarFiltros()"
+      >
+        <label class="filtro-check">
           <input
-            type="text"
-            placeholder="Buscar servidor público"
-            aria-label="Buscar servidor público"
-            autocomplete="off"
-            [value]="buscar()"
-            (input)="alEscribir($event)"
+            type="checkbox"
+            [checked]="soloActivos()"
+            [disabled]="soloObligados()"
+            (change)="alternarActivos()"
           />
-          @if (buscar()) {
-            <button
-              type="button"
-              class="limpiar-busqueda"
-              aria-label="Limpiar búsqueda"
-              (click)="limpiarBusqueda()"
-            >
-              ×
-            </button>
-          }
-        </div>
-
-        @if (puedeEditar()) {
-          <button type="button" class="btn btn--primary" (click)="nuevo()">Nuevo servidor</button>
-        }
-      </div>
-    </div>
-
-    @if (cargando() && filas().length === 0) {
-      <div class="tabla-skeleton">
-        <div class="tabla-skeleton__header"></div>
-        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
-          <div class="tabla-skeleton__row"></div>
-        }
-      </div>
-    } @else if (total() === 0) {
-      <p class="hint">No se encontraron servidores públicos.</p>
-    } @else {
-      <ag-grid-angular
-        class="grid"
-        [class.grid--cargando]="cargando()"
-        [theme]="gridTheme"
-        [localeText]="localeText"
-        [rowData]="filas()"
-        [columnDefs]="columnas"
-        [domLayout]="'autoHeight'"
-        [enableCellTextSelection]="true"
-        [ensureDomOrder]="true"
-        [suppressMultiSort]="true"
-        (sortChanged)="alOrdenar($event)"
-      />
-
-      <div class="paginador">
-        <span class="paginador__info"> {{ desde() }}–{{ hasta() }} de {{ total() }} </span>
-
-        <label class="paginador__tamano">
-          Filas
-          <select (change)="cambiarLimite($event)">
-            @for (n of tamanosPagina; track n) {
-              <option [value]="n" [selected]="n === limite()">{{ n }}</option>
+          <span>Solo activos</span>
+        </label>
+        <label class="filtro-check">
+          <input type="checkbox" [checked]="soloObligados()" (change)="alternarObligados()" />
+          <span>Solo obligados</span>
+        </label>
+        <label class="filtro-campo">
+          <span>Dependencia</span>
+          <select aria-label="Filtrar por dependencia" (change)="cambiarDependencia($event)">
+            <option value="" [selected]="dependenciaId() === null">Todas las dependencias</option>
+            @for (d of dependencias(); track d.id) {
+              <option [value]="d.id" [selected]="d.id === dependenciaId()">{{ d.nombre }}</option>
             }
           </select>
         </label>
+      </app-filtros-popover>
 
-        <div class="paginador__nav">
-          <button
-            type="button"
-            class="btn btn--outline"
-            [disabled]="pagina() === 0 || cargando()"
-            (click)="irAPagina(pagina() - 1)"
-          >
-            Anterior
-          </button>
-          <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
-          <button
-            type="button"
-            class="btn btn--outline"
-            [disabled]="pagina() + 1 >= paginas() || cargando()"
-            (click)="irAPagina(pagina() + 1)"
-          >
-            Siguiente
-          </button>
+      @if (puedeEditar()) {
+        <button barra-acciones type="button" class="btn btn--primary" (click)="nuevo()">
+          <app-icono nombre="agregar" />
+          Nuevo servidor
+        </button>
+      }
+    </app-barra-acciones>
+
+    <div class="cuerpo">
+      @if (conError()) {
+        <app-estado-error
+          titulo="No se pudieron cargar los servidores públicos"
+          mensaje="Revisa tu conexión e intenta de nuevo."
+          (reintentar)="cargar()"
+        />
+      } @else if (!yaCargo()) {
+        <div class="tabla-skeleton" aria-busy="true" aria-label="Cargando servidores públicos">
+          <div class="tabla-skeleton__header"></div>
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <div class="tabla-skeleton__row"></div>
+          }
         </div>
-      </div>
+      } @else if (total() === 0) {
+        @if (hayFiltros()) {
+          <app-estado-vacio
+            icono="buscar"
+            titulo="Sin resultados"
+            [mensaje]="
+              buscar()
+                ? 'No hay servidores públicos que coincidan con «' + buscar() + '».'
+                : 'No hay servidores públicos con esos filtros.'
+            "
+          >
+            <button type="button" class="btn btn--outline" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          </app-estado-vacio>
+        } @else {
+          <app-estado-vacio
+            titulo="Aún no hay servidores"
+            mensaje="Cuando se registren servidores públicos aparecerán aquí."
+          >
+            @if (puedeEditar()) {
+              <button type="button" class="btn btn--primary" (click)="nuevo()">
+                <app-icono nombre="agregar" />
+                Nuevo servidor
+              </button>
+            }
+          </app-estado-vacio>
+        }
+      } @else if (esMovil()) {
+        <app-lista-tarjetas
+          class="tarjetas-lista"
+          [class.grid--cargando]="cargando()"
+          etiqueta="Servidores públicos"
+          [filas]="filas()"
+          [acciones]="acciones"
+          [id]="idTarjeta"
+          [titulo]="tituloTarjeta"
+          [subtitulo]="subtituloTarjeta"
+          [detalle]="detalleTarjeta"
+          [estatus]="estatusTarjeta"
+        />
+      } @else {
+        <ag-grid-angular
+          class="grid"
+          [class.grid--cargando]="cargando()"
+          [theme]="gridTheme"
+          [defaultColDef]="columnaBase"
+          [localeText]="localeText"
+          [rowData]="filas()"
+          [columnDefs]="columnas"
+          [getRowId]="obtenerIdFila"
+          [rowHeight]="56"
+          [domLayout]="'autoHeight'"
+          [enableCellTextSelection]="true"
+          [ensureDomOrder]="true"
+          [suppressMovableColumns]="true"
+          [suppressDragLeaveHidesColumns]="true"
+          [suppressMultiSort]="true"
+          (gridReady)="alIniciarGrid($event)"
+          (sortChanged)="alOrdenar($event)"
+        />
+      }
+    </div>
+
+    @if (yaCargo() && total() > 0 && !conError()) {
+      <app-paginador
+        class="pie-paginador"
+        [pagina]="pagina()"
+        [total]="total()"
+        [limite]="limite()"
+        [tamanos]="tamanosPagina"
+        [deshabilitado]="cargando()"
+        (paginaCambiada)="irAPagina($event)"
+        (limiteCambiado)="cambiarLimite($event)"
+      />
     }
   </div>
 </section>
+
+@if (bajaFila(); as fila) {
+  <app-baja-servidor [servidor]="fila" (cerrar)="bajaFila.set(null)" (completada)="alDarDeBaja()" />
+}
+
+<router-outlet />

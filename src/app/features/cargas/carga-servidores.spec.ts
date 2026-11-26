@@ -45,16 +45,16 @@ describe('CargaServidores', () => {
     });
   });
 
-  it('no previsualiza sin archivo', () => {
+  it('no importa sin archivo', () => {
     const c = crear();
-    c.previsualizar();
+    c.importar();
     expect(servicio.previsualizarServidores).not.toHaveBeenCalled();
   });
 
   it('previsualiza y filtra solo con errores', () => {
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     expect(servicio.previsualizarServidores).toHaveBeenCalledWith(archivo);
     expect(c.filasVisibles().length).toBe(3);
     c.alternarSoloErrores({ target: { checked: true } } as unknown as Event);
@@ -64,15 +64,33 @@ describe('CargaServidores', () => {
   it('cambiar el archivo limpia la previsualización', () => {
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     c.alCambiarArchivo(new File(['y'], 'otro.csv'));
     expect(c.vista()).toBeNull();
+  });
+
+  it('importa de inmediato cuando todos los renglones son válidos', async () => {
+    servicio.previsualizarServidores.mockReturnValue(
+      of({ total: 1, validas: 1, conErrores: 0, filas: [] }),
+    );
+    const c = crear();
+    c.alCambiarArchivo(archivo);
+    c.importar();
+    await vi.waitFor(() => expect(servicio.confirmarServidores).toHaveBeenCalledWith(archivo));
+  });
+
+  it('con errores no importa solo: espera la confirmación', () => {
+    const c = crear();
+    c.alCambiarArchivo(archivo);
+    c.importar();
+    expect(servicio.confirmarServidores).not.toHaveBeenCalled();
+    expect(c.vista()).toEqual(vista);
   });
 
   it('confirma con el mismo archivo, avisa y reinicia', async () => {
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     c.confirmar();
     await vi.waitFor(() => expect(servicio.confirmarServidores).toHaveBeenCalledWith(archivo));
     expect(toast.success).toHaveBeenCalledWith('Se cargaron 2 servidores (1 omitidos).');
@@ -87,7 +105,7 @@ describe('CargaServidores', () => {
     );
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     c.confirmar();
     expect(servicio.confirmarServidores).not.toHaveBeenCalled();
   });
@@ -98,7 +116,7 @@ describe('CargaServidores', () => {
     );
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     expect(toast.error).toHaveBeenCalledWith('a b');
     expect(c.cargando()).toBe(false);
   });
@@ -109,7 +127,7 @@ describe('CargaServidores', () => {
     );
     const c = crear();
     c.alCambiarArchivo(archivo);
-    c.previsualizar();
+    c.importar();
     c.confirmar();
     await vi.waitFor(() => expect(toast.error).toHaveBeenCalled());
     expect(toast.error.mock.calls[0][0]).toContain('previsualizar');

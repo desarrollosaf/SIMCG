@@ -1,15 +1,22 @@
+import type { NombreIcono } from '../../shared/icono/icono';
 import { Seccion, puedeVer } from './acceso-por-rol';
 
-// Única fuente de verdad del menú superior y del buscador global.
+// Única fuente de verdad del menú lateral y del buscador global.
 export interface MenuHoja {
   etiqueta: string;
   ruta: string;
   seccion: Seccion;
   descripcion?: string;
+  icono?: NombreIcono;
+  /** Nombre corto para el menú colapsado (el buscador usa la etiqueta completa). */
+  corto?: string;
 }
 
 export interface MenuGrupo {
   etiqueta: string;
+  /** Nombre corto para el menú colapsado. */
+  corto?: string;
+  icono?: NombreIcono;
   hijos: MenuHoja[];
 }
 
@@ -20,96 +27,147 @@ export function esGrupo(entrada: MenuEntrada): entrada is MenuGrupo {
 }
 
 export const MENU: readonly MenuEntrada[] = [
-  { etiqueta: 'Inicio', ruta: '/home', seccion: 'servidores' },
+  { etiqueta: 'Inicio', corto: 'Inicio', ruta: '/home', icono: 'documento', seccion: 'servidores' },
+  {
+    etiqueta: 'Análisis de evoluciones patrimoniales',
+    corto: 'Evoluciones',
+    ruta: '/evoluciones-patrimoniales',
+    icono: 'tendencia',
+    seccion: 'administracion',
+  },
   {
     etiqueta: 'Padrón de obligados',
+    corto: 'Padrón',
+    icono: 'usuarios',
     hijos: [
       {
-        etiqueta: 'Registro de servidor público',
+        etiqueta: 'Registro de servidores públicos',
         descripcion: 'Consulta, alta y movimientos',
         ruta: '/servidores',
+        icono: 'usuario',
         seccion: 'servidores',
       },
       {
-        etiqueta: 'Cargar registros con CSV',
+        etiqueta: 'Carga de registros con CSV',
         descripcion: 'Altas masivas',
         ruta: '/cargas',
+        icono: 'subir',
         seccion: 'cargas',
       },
-      {
-        etiqueta: 'Cargar registros No Obligados CSV',
-        ruta: '/cargas/no-obligados',
-        seccion: 'administracion',
-      },
     ],
   },
   {
-    etiqueta: 'Detección',
+    etiqueta: 'Declaraciones',
+    corto: 'Declaraciones',
+    icono: 'documentoCheck',
     hijos: [
       {
-        etiqueta: 'Detección de omisos, extemporáneos y no obligados',
-        ruta: '/reportes/omisos',
-        seccion: 'reportes',
-      },
-      { etiqueta: 'Detección preventivos', ruta: '/reportes/preventivos', seccion: 'reportes' },
-      {
-        etiqueta: 'Consultar situación del Servidor Público',
-        ruta: '/reportes/situacion-servidor',
-        seccion: 'reportes',
+        etiqueta: 'Declaración fiscal',
+        ruta: '/declaraciones/fiscal',
+        icono: 'documento',
+        seccion: 'declaraciones',
       },
       {
-        etiqueta: 'Consultar situación Dependencias',
-        ruta: '/reportes/situacion-dependencias',
-        seccion: 'reportes',
-      },
-      { etiqueta: 'Reporte General', ruta: '/reportes', seccion: 'reportes' },
-      {
-        etiqueta: 'Reporte No Obligados',
-        ruta: '/reportes/no-obligados',
-        seccion: 'reportes',
-      },
-    ],
-  },
-  {
-    etiqueta: 'Estadísticas',
-    hijos: [
-      { etiqueta: 'Estadísticas por tipo', ruta: '/estadisticas', seccion: 'estadisticas' },
-      {
-        etiqueta: 'Situación del Padrón',
-        ruta: '/estadisticas/situacion-padron',
-        seccion: 'estadisticas',
-      },
-    ],
-  },
-  {
-    etiqueta: 'Gestión',
-    hijos: [
-      { etiqueta: 'Libros de cierres', ruta: '/libros-actas', seccion: 'libros-actas' },
-      { etiqueta: 'Notificaciones y oficios', ruta: '/oficios', seccion: 'oficios' },
-      {
-        etiqueta: 'Evoluciones patrimoniales',
-        ruta: '/evoluciones-patrimoniales',
-        seccion: 'administracion',
+        etiqueta: 'Aclaraciones de declaración fiscal',
+        ruta: '/declaraciones/fiscal-aclaraciones',
+        icono: 'documentoCheck',
+        seccion: 'declaraciones',
       },
       {
-        etiqueta: 'Declaración de intereses',
+        etiqueta: 'Aclaraciones',
+        ruta: '/declaraciones/aclaraciones',
+        icono: 'sobre',
+        seccion: 'declaraciones',
+      },
+      {
+        etiqueta: 'Actualización de declaraciones de intereses',
         ruta: '/declaraciones-intereses',
+        icono: 'documentoCheck',
         seccion: 'declaraciones-intereses',
       },
     ],
   },
   {
-    etiqueta: 'Administración',
+    etiqueta: 'Detección de omisos',
+    corto: 'Omisos',
+    icono: 'radar',
     hijos: [
       {
-        etiqueta: 'Creación de usuarios',
+        etiqueta: 'Omisos, extemporáneos y no obligados',
+        ruta: '/reportes/omisos',
+        icono: 'radar',
+        seccion: 'reportes',
+      },
+      {
+        etiqueta: 'Preventivos',
+        ruta: '/reportes/preventivos',
+        icono: 'escudo',
+        seccion: 'reportes',
+      },
+    ],
+  },
+  {
+    etiqueta: 'Reportes',
+    corto: 'Reportes',
+    icono: 'documento',
+    hijos: [
+      { etiqueta: 'Reporte general', ruta: '/reportes', icono: 'documento', seccion: 'reportes' },
+      {
+        etiqueta: 'Reporte de no obligados',
+        ruta: '/reportes/no-obligados',
+        icono: 'usuarioX',
+        seccion: 'reportes',
+      },
+      {
+        etiqueta: 'Situación del padrón',
+        ruta: '/estadisticas/situacion-padron',
+        icono: 'pastel',
+        seccion: 'estadisticas',
+      },
+      {
+        etiqueta: 'Situación por servidor público',
+        ruta: '/reportes/situacion-servidor',
+        icono: 'usuarioBuscar',
+        seccion: 'reportes',
+      },
+      {
+        etiqueta: 'Situación por dependencia',
+        ruta: '/reportes/situacion-dependencias',
+        icono: 'edificio',
+        seccion: 'reportes',
+      },
+    ],
+  },
+  {
+    etiqueta: 'Estadísticas por tipo',
+    corto: 'Estadísticas',
+    ruta: '/estadisticas',
+    icono: 'grafica',
+    seccion: 'estadisticas',
+  },
+  { etiqueta: 'Notificaciones', corto: 'Notificaciones', ruta: '/oficios', icono: 'sobre', seccion: 'oficios' },
+  {
+    etiqueta: 'Administración',
+    corto: 'Admin',
+    icono: 'engrane',
+    hijos: [
+      {
+        etiqueta: 'Usuarios',
         ruta: '/administracion/usuarios',
+        icono: 'usuarioMas',
         seccion: 'administracion',
       },
       {
         etiqueta: 'Movimientos de usuarios',
         ruta: '/administracion/auditoria',
+        icono: 'historial',
         seccion: 'administracion',
+      },
+      {
+        etiqueta: 'Libros de cierre',
+        ruta: '/libros-actas',
+        icono: 'libro',
+        seccion: 'libros-actas',
       },
     ],
   },

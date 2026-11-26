@@ -95,15 +95,76 @@
 }
 
 /* ag-grid renders its own DOM outside Angular's style encapsulation,
-   so header alignment has to be set globally rather than per-component. */
+   so these overrides are global. */
 ag-grid-angular .ag-header-cell-label {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 ag-grid-angular .ag-header-cell-label .ag-header-cell-text {
   text-overflow: clip;
   white-space: normal;
   line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Clic en el encabezado = ordenar: el texto del encabezado no se selecciona
+   (las celdas conservan enableCellTextSelection). */
+ag-grid-angular .ag-header-cell,
+ag-grid-angular .ag-header-cell * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Sin manijas de redimensión ni recuadro de celda al hacer clic (ni rango de selección);
+   el texto sigue seleccionable. El foco de teclado se marca con un tinte sutil de toda la fila. */
+ag-grid-angular .ag-header-cell-resize::after {
+  display: none;
+}
+
+ag-grid-angular .ag-cell-focus,
+ag-grid-angular .ag-cell-focus:not(.ag-cell-range-selected):focus-within,
+ag-grid-angular .ag-cell.ag-cell-range-selected,
+ag-grid-angular .ag-header-cell.ag-header-active,
+ag-grid-angular .ag-cell:focus,
+ag-grid-angular .ag-header-cell:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+ag-grid-angular .ag-cell.ag-cell-range-selected:not(.ag-cell-range-single-cell),
+ag-grid-angular .ag-cell.ag-cell-range-selected {
+  background-color: transparent;
+}
+
+ag-grid-angular .ag-row:has(.ag-cell:focus-visible) {
+  background-color: var(--brand-primary-soft);
+}
+
+ag-grid-angular .ag-cell:focus-visible,
+ag-grid-angular .ag-header-cell:focus-visible {
+  outline: none;
+}
+
+ag-grid-angular .ag-header-cell:focus-visible {
+  background-color: var(--brand-primary-soft);
+}
+
+/* Columna fija a la derecha (Acciones): sin línea divisoria. */
+ag-grid-angular .ag-pinned-right-header,
+ag-grid-angular .ag-pinned-right-cols-container,
+ag-grid-angular .ag-cell.ag-cell-last-left-pinned,
+ag-grid-angular .ag-header-cell.ag-header-cell-first-right-pinned,
+ag-grid-angular .ag-cell.ag-cell-first-right-pinned {
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+}
+
+/* El botón ⋮ no dibuja anillo: su foco de teclado es un tinte de fondo (ver menu-acciones). */
+ag-grid-angular .ag-cell button:focus-visible {
+  outline: none;
 }
 
 html {
@@ -136,6 +197,7 @@ body {
   border-radius: 9px;
   font-size: 0.84rem;
   font-weight: 600;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   transition:
@@ -190,6 +252,30 @@ body {
     }
   }
 
+  &--peligro {
+    --bs-btn-color: var(--surface);
+    --bs-btn-hover-color: var(--surface);
+    --bs-btn-active-color: var(--surface);
+    --bs-btn-disabled-color: var(--surface);
+    --bs-btn-bg: var(--brand-danger);
+    --bs-btn-hover-bg: var(--brand-danger);
+    --bs-btn-active-bg: var(--brand-danger);
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-border-color: transparent;
+    background: var(--brand-danger);
+    color: var(--surface);
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -215,6 +301,49 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+}
+
+/* ---------- Modales y overlays ---------- */
+/* Mientras hay un modal abierto la página de fondo no se desplaza. El espacio de la barra de
+   scroll queda reservado siempre, así que al bloquearla la página no "salta" de ancho. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Con el shell el scroll vive en su contenedor interno (a 100vh): el documento no debe reservar
+   gutter, o queda una franja vacía a la derecha del scrollbar del contenido. */
+html:has(app-shell) {
+  scrollbar-gutter: auto;
+  overflow: hidden;
+}
+
+body.modal-abierto {
+  overflow: hidden;
+}
+
+/* Los menús de CDK deben quedar sobre los modales y bajo los avisos (toast: 2000). */
+.cdk-overlay-container {
+  z-index: 1500;
+}
+
+/* ---------- Transición entre páginas (View Transitions API) ---------- */
+/* Solo se anima el cambio de módulo; abrir un modal hijo la omite (ver core/router). */
+::view-transition-group(root) {
+  animation-duration: 0.18s;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.18s;
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 
@@ -291,4 +420,17 @@ kbd {
 .swal2-icon .swal2-success-circular-line-left,
 .swal2-icon .swal2-success-circular-line-right {
   background: var(--surface) !important;
+}
+
+// Filas con alto automático: todo el contenido de la celda va centrado vertical.
+.ag-theme-quartz .ag-cell,
+.ag-cell {
+  display: flex;
+  align-items: center;
+}
+.ag-cell-wrapper,
+.ag-cell-value {
+  display: flex;
+  align-items: center;
+  min-height: 100%;
 }

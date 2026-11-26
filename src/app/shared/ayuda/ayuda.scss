@@ -1,0 +1,123 @@
+:host {
+  display: inline-block;
+}
+
+.ayuda__boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 38px;
+  padding: 0 1rem;
+  border: 1px solid var(--accent-text);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  app-icono {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: var(--hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+}
+
+.ayuda__fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--overlay);
+}
+
+.ayuda__panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100vw);
+  background: var(--surface);
+  color: var(--ink);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-pop);
+  animation: ayuda-entrada 0.2s ease-out;
+}
+
+.ayuda__encabezado {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ayuda__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.ayuda__cerrar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover);
+    color: var(--accent-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+}
+
+.ayuda__cuerpo {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+@keyframes ayuda-entrada {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 599px) {
+  .ayuda__panel {
+    width: 100vw;
+    border-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ayuda__panel {
+    animation: none;
+  }
+}

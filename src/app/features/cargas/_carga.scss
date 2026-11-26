@@ -94,6 +94,22 @@
   }
 }
 
+.campo-archivo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  &__etiqueta {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand-ink);
+
+    span {
+      color: var(--danger, #c0392b);
+    }
+  }
+}
+
 .acciones {
   display: flex;
   flex-wrap: wrap;
@@ -153,4 +169,17 @@
   margin: 0;
   color: var(--brand-muted);
   font-size: 0.88rem;
+}
+
+.tabla-header__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ayuda-sub {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
 }

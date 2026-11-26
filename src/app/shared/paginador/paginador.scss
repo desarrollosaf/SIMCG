@@ -1,0 +1,125 @@
+:host {
+  display: block;
+}
+
+.paginador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.2rem;
+  margin-top: 1rem;
+  font-size: 0.84rem;
+  color: var(--brand-muted);
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  &__numeros {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0 0.3rem;
+  }
+
+  &__compacto {
+    display: none;
+    margin: 0 0.4rem;
+    font-weight: 600;
+    color: var(--brand-ink);
+  }
+
+  &__boton,
+  &__numero {
+    display: inline-grid;
+    place-items: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.3rem;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--brand-ink);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      color 0.15s,
+      border-color 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--hover);
+      color: var(--accent-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 1px;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__boton {
+    border-color: var(--brand-border);
+    background: var(--surface);
+    font-size: 16px;
+  }
+
+  &__numero--actual,
+  &__numero--actual:hover:not(:disabled) {
+    background: var(--brand-primary);
+    color: var(--surface);
+    cursor: default;
+  }
+
+  &__elipsis {
+    min-width: 24px;
+    text-align: center;
+    color: var(--brand-muted);
+  }
+
+  &__tamano select {
+    height: 34px;
+    padding: 0 0.7rem;
+    border: 1.5px solid var(--brand-border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--brand-ink);
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 1px;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .paginador {
+    justify-content: center;
+
+    &__numeros,
+    &__tamano {
+      display: none;
+    }
+
+    &__compacto {
+      display: inline;
+    }
+
+    &__info {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}

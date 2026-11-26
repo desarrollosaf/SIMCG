@@ -8,7 +8,11 @@ import { ROLES_SIMCG } from '../../../core/access/acceso-por-rol';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsuarioAcceso, UsuariosService } from '../../../core/services/usuarios.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { AG_GRID_LOCALE, simcgGridTheme } from '../../../shared/ag-grid/ag-grid-setup';
+import {
+  AG_GRID_COLUMNA_BASE,
+  AG_GRID_LOCALE,
+  simcgGridTheme,
+} from '../../../shared/ag-grid/ag-grid-setup';
 import { BotonCeldaComponent } from '../../../shared/ag-grid/boton-celda';
 
 // Mismas reglas que AccesoDto del backend.
@@ -38,6 +42,7 @@ export class Usuarios {
 
   protected readonly gridTheme = simcgGridTheme;
   protected readonly localeText = AG_GRID_LOCALE;
+  protected readonly columnaBase = AG_GRID_COLUMNA_BASE;
   protected readonly filas = computed(() => this.usuarios());
   protected readonly columnas: ColDef<UsuarioAcceso>[] = [
     { field: 'nombre', headerName: 'Nombre', minWidth: 220, flex: 1.6 },
@@ -51,7 +56,8 @@ export class Usuarios {
       valueGetter: (p) => p.data?.roles.join(', '),
     },
     {
-      headerName: '',
+      headerName: 'Acciones',
+      headerClass: 'ag-center-aligned-header',
       width: 115,
       pinned: 'right',
       sortable: false,

@@ -97,6 +97,7 @@
         [theme]="gridTheme"
         [localeText]="localeText"
         [rowData]="filas()"
+        [defaultColDef]="columnaBase"
         [columnDefs]="columnas"
         [pagination]="true"
         [paginationPageSize]="10"
@@ -104,6 +105,8 @@
         [domLayout]="'autoHeight'"
         [enableCellTextSelection]="true"
         [ensureDomOrder]="true"
+        [suppressMovableColumns]="true"
+        [suppressDragLeaveHidesColumns]="true"
       />
     }
   </div>

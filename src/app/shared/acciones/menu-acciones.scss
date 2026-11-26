@@ -1,0 +1,122 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.boton-mas {
+  gap: 0.35rem;
+  height: 34px;
+  padding: 0 0.8rem;
+
+  app-icono {
+    font-size: 17px;
+  }
+}
+
+.icono-boton {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--accent-text);
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--brand-primary-soft);
+  }
+
+  // Sin anillo ni contorno (ni tras un clic): el foco de teclado es un tinte de fondo.
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:focus-visible {
+    background: var(--brand-primary-soft);
+  }
+}
+
+.menu-acciones {
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-pop);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--brand-ink);
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+
+    app-icono {
+      font-size: 16px;
+      color: var(--brand-muted);
+    }
+
+    &:hover,
+    &:focus-visible,
+    &.cdk-focused {
+      outline: none;
+      background: var(--hover);
+      color: var(--accent-text);
+
+      app-icono {
+        color: inherit;
+      }
+    }
+
+    &--peligro {
+      color: var(--brand-danger);
+
+      app-icono {
+        color: var(--brand-danger);
+      }
+
+      &:hover,
+      &:focus-visible,
+      &.cdk-focused {
+        background: var(--danger-soft);
+        color: var(--brand-danger);
+      }
+    }
+  }
+}
+
+.menu-acciones-entrada {
+  animation: menu-acciones-in 0.14s ease-out;
+}
+
+@keyframes menu-acciones-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-acciones-entrada {
+    animation: none;
+  }
+}

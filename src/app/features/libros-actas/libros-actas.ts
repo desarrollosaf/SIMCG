@@ -13,6 +13,7 @@ import {
 } from '../../core/services/libros.service';
 import { ToastService } from '../../core/services/toast.service';
 import { AG_GRID_LOCALE, simcgGridTheme } from '../../shared/ag-grid/ag-grid-setup';
+import { Modal } from '../../shared/modal/modal';
 import { FileUpload } from '../../shared/file-upload/file-upload';
 import {
   descargarBlob,
@@ -39,7 +40,7 @@ export const PESTANAS: readonly PestanaLibro[] = [
 @Component({
   selector: 'app-libros-actas',
   standalone: true,
-  imports: [AgGridAngular, FileUpload],
+  imports: [AgGridAngular, FileUpload, Modal],
   templateUrl: './libros-actas.html',
   styleUrl: './libros-actas.scss',
 })

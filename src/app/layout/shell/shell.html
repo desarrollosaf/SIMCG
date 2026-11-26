@@ -13,65 +13,20 @@
           >Módulo de control y gestión<small>Poder Legislativo del Estado de México</small></span
         >
       </a>
-
-      <nav class="nav" aria-label="Menú principal">
-        @for (entrada of menu(); track entrada.etiqueta) {
-          @if (esGrupo(entrada)) {
-            <div class="it" [class.abre]="abierto() === entrada.etiqueta">
-              <button
-                type="button"
-                class="lk"
-                [class.on]="grupoActivo(entrada)"
-                aria-haspopup="true"
-                [attr.aria-expanded]="abierto() === entrada.etiqueta"
-                (click)="alternar(entrada.etiqueta, $event)"
-              >
-                {{ entrada.etiqueta }}
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.4"
-                  aria-hidden="true"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-              <div class="dd" [style.top.px]="topPanel()">
-                @for (hijo of entrada.hijos; track hijo.ruta) {
-                  <a [routerLink]="hijo.ruta" [class.on]="activa() === hijo.ruta" (click)="cerrar()"
-                    >{{ hijo.etiqueta }}
-                    @if (hijo.descripcion) {
-                      <small>{{ hijo.descripcion }}</small>
-                    }
-                  </a>
-                }
-              </div>
-            </div>
-          } @else {
-            <div class="it">
-              <a class="lk" [class.on]="activa() === entrada.ruta" [routerLink]="entrada.ruta">{{
-                entrada.etiqueta
-              }}</a>
-            </div>
-          }
-        }
-        <app-buscador-global />
-      </nav>
-
       <div class="der">
-        <div class="it" [class.abre]="abierto() === 'usuario'">
+        <div class="buscar"><app-buscador-global /></div>
+        <div class="usr" [class.abre]="usuarioAbierto()">
           <button
             type="button"
             class="av"
             aria-label="Cuenta"
             aria-haspopup="true"
-            [attr.aria-expanded]="abierto() === 'usuario'"
-            (click)="alternar('usuario', $event)"
+            [attr.aria-expanded]="usuarioAbierto()"
+            (click)="alternarUsuario()"
           >
             {{ iniciales() }}
           </button>
-          <div class="dd um">
+          <div class="dd">
             <div class="yo">
               {{ user()?.nombre }}<small>{{ rolesTexto() }}</small>
             </div>
@@ -92,18 +47,164 @@
     </div>
   </header>
 
-  <main class="content">
-    <router-outlet />
-  </main>
+  <div class="cuerpo">
+    <aside class="lateral" [class.col]="colapsado()">
+      @if (!colapsado() && !movil()) {
+        <nav class="exp" aria-label="Menú principal">
+          <div class="exp-cab">
+            <span class="exp-tit">Menú</span>
+            <button
+              type="button"
+              class="btn-col"
+              aria-label="Colapsar menú"
+              title="Colapsar menú"
+              (click)="alternarColapsado()"
+            >
+              <app-icono nombre="flechaIzq" />
+            </button>
+          </div>
 
-  <footer class="foot">
-    <div class="in">
-      <span
-        >© {{ anio }} Poder Legislativo del Estado de México.<br />Todos los derechos
-        reservados.</span
-      >
-      <img src="assets/congreso-edomex-logo.png" alt="Congreso del Estado de México" />
-      <span class="der2">SIMCG · Módulo de control y gestión</span>
+          <ul class="lista">
+            @for (entrada of menu(); track entrada.etiqueta; let i = $index) {
+              <li>
+                @if (esGrupo(entrada)) {
+                  <button
+                    type="button"
+                    class="gr"
+                    [class.on]="grupoActivo(entrada)"
+                    [attr.aria-expanded]="expandidos().has(entrada.etiqueta)"
+                    [attr.aria-controls]="'sub-' + i"
+                    (click)="alternarGrupo(entrada)"
+                  >
+                    <span class="caja-ico"><app-icono [nombre]="entrada.icono ?? 'lista'" /></span>
+                    <span class="gr-et">{{ entrada.etiqueta }}</span>
+                    <span class="chev" [class.giro]="expandidos().has(entrada.etiqueta)">
+                      <app-icono nombre="chevron" />
+                    </span>
+                  </button>
+                  <div class="sub" [class.abre]="expandidos().has(entrada.etiqueta)">
+                    <ul [id]="'sub-' + i" class="sub-in">
+                      @for (hijo of entrada.hijos; track hijo.ruta) {
+                        <li>
+                          <a
+                            class="hj"
+                            [routerLink]="hijo.ruta"
+                            [class.on]="activa() === hijo.ruta"
+                            [attr.aria-current]="activa() === hijo.ruta ? 'page' : null"
+                            [attr.tabindex]="expandidos().has(entrada.etiqueta) ? null : -1"
+                          >
+                            <app-icono [nombre]="iconoHoja(hijo)" />
+                            <span>{{ hijo.etiqueta }}</span>
+                          </a>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                } @else {
+                  <a
+                    class="gr"
+                    [routerLink]="entrada.ruta"
+                    [class.on]="activa() === entrada.ruta"
+                    [attr.aria-current]="activa() === entrada.ruta ? 'page' : null"
+                  >
+                    <span class="caja-ico"
+                      ><app-icono [nombre]="entrada.icono ?? 'documento'"
+                    /></span>
+                    <span class="gr-et">{{ entrada.etiqueta }}</span>
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        </nav>
+      } @else {
+        <nav class="isla" aria-label="Menú principal">
+          @if (!movil()) {
+            <button
+              type="button"
+              class="btn-col"
+              aria-label="Expandir menú"
+              title="Expandir menú"
+              (click)="alternarColapsado()"
+            >
+              <app-icono nombre="flechaDer" />
+            </button>
+          }
+          @for (entrada of menu(); track entrada.etiqueta) {
+            @if (esGrupo(entrada)) {
+              <button
+                type="button"
+                class="mod"
+                [class.on]="grupoActivo(entrada)"
+                [class.abre]="panelGrupo() === entrada"
+                aria-haspopup="true"
+                [attr.aria-expanded]="panelGrupo() === entrada"
+                [title]="entrada.etiqueta"
+                [attr.aria-label]="entrada.etiqueta"
+                (click)="alternarPanel(entrada, $event)"
+              >
+                <app-icono [nombre]="entrada.icono ?? 'lista'" />
+                <span>{{ nombreCorto(entrada) }}</span>
+              </button>
+            } @else {
+              <a
+                class="mod"
+                [routerLink]="entrada.ruta"
+                [class.on]="activa() === entrada.ruta"
+                [title]="entrada.etiqueta"
+                [attr.aria-label]="entrada.etiqueta"
+              >
+                <app-icono [nombre]="entrada.icono ?? 'documento'" />
+                <span>{{ nombreCorto(entrada) }}</span>
+              </a>
+            }
+          }
+        </nav>
+
+        @if (panelGrupo(); as g) {
+          <div
+            class="flotante"
+            role="menu"
+            [attr.aria-label]="g.etiqueta"
+            [style.top.px]="panelTop()"
+          >
+            <div class="fl-tit">{{ g.etiqueta }}</div>
+            @for (hijo of g.hijos; track hijo.ruta) {
+              <a
+                class="fl-it"
+                role="menuitem"
+                [routerLink]="hijo.ruta"
+                [class.on]="activa() === hijo.ruta"
+              >
+                <span class="fl-ico"><app-icono [nombre]="iconoHoja(hijo)" /></span>
+                <span class="fl-tx">
+                  {{ hijo.etiqueta }}
+                  @if (hijo.descripcion) {
+                    <small>{{ hijo.descripcion }}</small>
+                  }
+                </span>
+              </a>
+            }
+          </div>
+        }
+      }
+    </aside>
+
+    <div class="scroll">
+      <main class="content">
+        <router-outlet />
+      </main>
+
+      <footer class="foot">
+        <div class="in">
+          <span
+            >© {{ anio }} Poder Legislativo del Estado de México. Todos los derechos
+            reservados.</span
+          >
+          <img src="assets/congreso-edomex-logo.png" alt="Congreso del Estado de México" />
+          <span class="der2">SIMCG · Módulo de control y gestión</span>
+        </div>
+      </footer>
     </div>
-  </footer>
+  </div>
 </div>

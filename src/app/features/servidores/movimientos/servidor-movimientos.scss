@@ -1,68 +1,42 @@
 @use '../../../shared/ag-grid/tabla-skeleton';
 
 :host {
-  display: block;
+  display: contents;
 }
 
-.movimientos-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
+.seccion {
+  margin-bottom: 1.4rem;
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--brand-border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-soft);
-
-  h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.05rem;
-    color: var(--brand-ink);
-  }
-}
-
-.encabezado {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  h2 {
-    margin-bottom: 0.15rem;
+  &:last-child {
+    margin-bottom: 0;
   }
 
-  .btn {
-    height: 34px;
-    padding-block: 0;
+  &__titulo {
+    margin: 0 0 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--brand-primary);
   }
-}
-
-.hint {
-  margin: 0;
-  color: var(--brand-muted);
-  font-size: 0.88rem;
 }
 
 .movimiento-form {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 1rem;
-  margin-top: 1.1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: var(--surface-2);
 
-  > .btn {
-    height: 34px;
-    margin-top: 1.45rem;
+  .btn {
+    flex: none;
   }
 }
 
 .campo {
   flex: 1 1 260px;
-  max-width: 420px;
+  max-width: 460px;
 
   label {
     display: block;
@@ -99,21 +73,14 @@
 }
 
 .grid {
-  margin-top: 1rem;
+  display: block;
+  transition: opacity 0.15s;
+
+  &--cargando {
+    opacity: 0.55;
+  }
 }
 
-:host ::ng-deep .estatus {
-  font-weight: 700;
-
-  &--bueno {
-    color: var(--success-strong);
-  }
-
-  &--malo {
-    color: var(--brand-danger);
-  }
-
-  &--neutro {
-    color: var(--brand-muted);
-  }
+.movimiento-form select {
+  background: var(--surface);
 }

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { Op, Transaction, WhereOptions, literal } from 'sequelize';
+import { Op, QueryTypes, Transaction, WhereOptions, literal } from 'sequelize';
 import {
   Declaracion,
   ESTATUS_DECLARACION_INICIAL,
@@ -26,7 +26,12 @@ import { ActualizarServidorDto } from './dto/actualizar-servidor.dto';
 import { CrearServidorDto } from './dto/crear-servidor.dto';
 import { DatosServidorDto } from './dto/datos-servidor.dto';
 import { ListarServidoresDto } from './dto/listar-servidores.dto';
+import { BitacoraService } from './bitacora.service';
+import { Cambio, Valores, calcularCambios } from './servidores.cambios';
 import { permiteVersionLarga } from './movimientos.reglas';
+
+export type EstatusServidor =
+  'obligado' | 'no_obligado' | 'baja' | 'sin_movimiento';
 
 const nombreCompleto = (s: ServidorPublico): string =>
   [s.nombre, s.primerApellido, s.segundoApellido].filter(Boolean).join(' ');
@@ -55,60 +60,169 @@ export class ServidoresService {
     @InjectModel(Respuesta) private readonly respuestaModel: typeof Respuesta,
     @InjectModel(Declaracion, 'declaranet')
     private readonly declaracionModel: typeof Declaracion,
+    private readonly bitacora: BitacoraService,
   ) {}
 
   async listar(dto: ListarServidoresDto) {
     const palabras = (dto.buscar ?? '').split(/\s+/).filter(Boolean);
+    // La obligación solo tiene sentido en servidores activos: se ignora el estatus.
+    const estatus =
+      dto.obligado !== undefined ? 'activos' : (dto.estatus ?? 'activos');
+
+    const condiciones: WhereOptions[] = [];
 
     // Cada palabra debe aparecer en algún campo (no necesariamente el mismo).
-    const where: WhereOptions = palabras.length
-      ? {
-          [Op.and]: palabras.map((palabra) => {
-            const like = { [Op.like]: `%${escaparLike(palabra)}%` };
-            return {
-              [Op.or]: [
-                { nombre: like },
-                { primerApellido: like },
-                { segundoApellido: like },
-                { curp: like },
-                { '$dependencia.nombre$': like },
-                { '$direccion.nombre$': like },
-              ],
-            };
-          }),
-        }
-      : {};
+    if (palabras.length) {
+      condiciones.push({
+        [Op.and]: palabras.map((palabra) => {
+          const like = { [Op.like]: `%${escaparLike(palabra)}%` };
+          return {
+            [Op.or]: [
+              { nombre: like },
+              { primerApellido: like },
+              { segundoApellido: like },
+              { curp: like },
+              { '$dependencia.nombre$': like },
+              { '$direccion.nombre$': like },
+            ],
+          };
+        }),
+      });
+    }
+    if (dto.dependenciaId) {
+      condiciones.push({ tipoDependenciaId: dto.dependenciaId });
+    }
+    if (estatus === 'baja') condiciones.push({ deletedAt: { [Op.ne]: null } });
+
+    // La obligación vive en declaranet: se resuelve primero qué servidores
+    // tienen como último movimiento uno obligado (o no obligado).
+    if (dto.obligado !== undefined) {
+      const ids = await this.idsPorObligado(dto.obligado);
+      condiciones.push({ id: { [Op.in]: ids } });
+    }
 
     const sentido = dto.direccion === 'desc' ? 'DESC' : 'ASC';
     const orden =
       dto.ordenar === 'curp'
         ? literal(`\`ServidorPublico\`.\`curp\` ${sentido}`)
-        : literal(
-            `CONCAT_WS(' ', \`ServidorPublico\`.\`nombre\`, \`ServidorPublico\`.\`primer_apellido\`, \`ServidorPublico\`.\`segundo_apellido\`) ${sentido}`,
-          );
+        : dto.ordenar === 'dependencia'
+          ? literal(`\`dependencia\`.\`nombre\` ${sentido}`)
+          : literal(
+              `CONCAT_WS(' ', \`ServidorPublico\`.\`nombre\`, \`ServidorPublico\`.\`primer_apellido\`, \`ServidorPublico\`.\`segundo_apellido\`) ${sentido}`,
+            );
 
     const { count, rows } = await this.servidorModel.findAndCountAll({
-      where,
+      where: condiciones.length ? { [Op.and]: condiciones } : {},
       include: [
         { model: TipoDependencia, as: 'dependencia', paranoid: false },
         { model: TipoDireccion, as: 'direccion', paranoid: false },
       ],
+      // 'baja' y 'todos' incluyen a los dados de baja (borrado lógico).
+      paranoid: estatus === 'activos',
       order: [orden, ['id', 'ASC']],
       offset: dto.inicio ?? 0,
       limit: dto.limite ?? 10,
       subQuery: false,
     });
 
+    const ultimos = await this.ultimosMovimientos(rows.map((s) => s.id));
+
     return {
       total: count,
-      filas: rows.map((s) => ({
-        id: s.id,
-        nombre: nombreCompleto(s),
-        curp: s.curp,
-        dependencia: s.dependencia?.nombre ?? null,
-        direccion: s.direccion?.nombre ?? null,
-      })),
+      filas: rows.map((s) => {
+        const ultimo = ultimos.get(s.id) ?? null;
+        const baja = !!s.deletedAt;
+        const estatusFila: EstatusServidor = baja
+          ? 'baja'
+          : !ultimo
+            ? 'sin_movimiento'
+            : ultimo.obligado
+              ? 'obligado'
+              : 'no_obligado';
+        return {
+          id: s.id,
+          nombre: nombreCompleto(s),
+          curp: s.curp,
+          dependencia: s.dependencia?.nombre ?? null,
+          direccion: s.direccion?.nombre ?? null,
+          estatus: estatusFila,
+          obligado: ultimo ? ultimo.obligado : null,
+          ultimoMovimiento: ultimo
+            ? { tipo: ultimo.tipo, fecha: ultimo.fecha }
+            : null,
+        };
+      }),
     };
+  }
+
+  /** Ids de servidores cuyo último movimiento es (o no) obligado. */
+  private async idsPorObligado(obligado: boolean): Promise<number[]> {
+    const filas = await this.declaracionModel.sequelize!.query<{
+      servidor_publico_id: number;
+    }>(
+      // Ventana en lugar de subconsulta correlacionada: esta última tarda minutos
+      // sobre declaraciones (MyISAM, sin índice por servidor).
+      `SELECT t.servidor_publico_id
+         FROM (
+           SELECT d.servidor_publico_id, d.obligado,
+                  ROW_NUMBER() OVER (
+                    PARTITION BY d.servidor_publico_id
+                    ORDER BY d.fecha_declaracion DESC, d.id DESC
+                  ) AS orden
+             FROM declaraciones d
+            WHERE d.deleted_at IS NULL
+              AND d.tipo_movimiento_id <> :intereses
+         ) t
+        WHERE t.orden = 1 AND t.obligado = :obligado`,
+      {
+        replacements: {
+          intereses: TIPO_MOV_INTERESES,
+          obligado: obligado ? 1 : 0,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+    // Con un arreglo vacío IN () no es válido: 0 no coincide con ningún id.
+    return filas.length ? filas.map((f) => Number(f.servidor_publico_id)) : [0];
+  }
+
+  /** Último movimiento (sin intereses) de cada servidor de la página. */
+  private async ultimosMovimientos(
+    ids: number[],
+  ): Promise<
+    Map<number, { tipo: string | null; fecha: string; obligado: boolean }>
+  > {
+    const resultado = new Map<
+      number,
+      { tipo: string | null; fecha: string; obligado: boolean }
+    >();
+    if (ids.length === 0) return resultado;
+
+    const [declaraciones, tipos] = await Promise.all([
+      this.declaracionModel.findAll({
+        where: {
+          servidorPublicoId: ids,
+          tipoMovimientoId: { [Op.ne]: TIPO_MOV_INTERESES },
+        },
+        order: [
+          ['fechaDeclaracion', 'DESC'],
+          ['id', 'DESC'],
+        ],
+      }),
+      this.tipoMovimientoModel.findAll({ paranoid: false }),
+    ]);
+    const nombreTipo = new Map(tipos.map((t) => [Number(t.id), t.valor]));
+    for (const d of declaraciones) {
+      // BIGINT UNSIGNED puede llegar como texto: la llave siempre es numérica.
+      const servidorId = Number(d.servidorPublicoId);
+      if (resultado.has(servidorId)) continue;
+      resultado.set(servidorId, {
+        tipo: nombreTipo.get(Number(d.tipoMovimientoId)) ?? null,
+        fecha: d.fechaDeclaracion,
+        obligado: !!d.obligado,
+      });
+    }
+    return resultado;
   }
 
   async detalle(id: number) {
@@ -117,6 +231,8 @@ export class ServidoresService {
       where: { servidorPublicoId: id },
       order: [['id', 'ASC']],
     });
+
+    const movimientoInicial = await this.movimientoInicial(id);
 
     return {
       id: servidor.id,
@@ -127,6 +243,7 @@ export class ServidoresService {
       homoclave: servidor.homoclave?.trim() ?? null,
       curp: servidor.curp?.trim() ?? null,
       fechaInicio: servidor.fechaInicio,
+      movimientoInicial,
       cargo: servidor.cargo.trim(),
       // Los datos viejos traen espacios sobrantes (ej. ' 03-1 ').
       nivelCargo: servidor.nivelCargo.trim(),
@@ -211,28 +328,52 @@ export class ServidoresService {
     await this.validarHonorarios(dto.honorarios);
     await this.validarDuplicados(dto, id);
 
-    const cambiaCorreo = dto.email !== undefined && dto.email !== '';
-    if (cambiaCorreo && !dto.motivoCorreo) {
+    const usuario = await this.userModel.findOne({
+      where: { servidorPublicoId: id },
+      order: [['id', 'ASC']],
+    });
+    const email = dto.email?.trim() || undefined;
+    const antes: Valores = {
+      rfc: servidor.rfc,
+      homoclave: servidor.homoclave,
+      curp: servidor.curp,
+      nombre: servidor.nombre,
+      primerApellido: servidor.primerApellido,
+      segundoApellido: servidor.segundoApellido,
+      cargo: servidor.cargo,
+      nivelCargo: servidor.nivelCargo,
+      cveIssemym: servidor.cveIssemym,
+      tipoDependenciaId: servidor.tipoDependenciaId,
+      tipoDireccionId: servidor.tipoDireccionId,
+      tipoDepartamentoId: servidor.tipoDepartamentoId,
+      honorarios: servidor.honorarios,
+      email: usuario?.email,
+    };
+    const datos = this.atributos(dto);
+    const cambios = calcularCambios(antes, {
+      ...(datos as unknown as Valores),
+      // Sin correo en la petición no se toca el del usuario.
+      email,
+    });
+
+    if (cambios.length === 0) return this.detalle(id);
+
+    const motivo = dto.motivo?.trim();
+    if (!motivo) {
+      throw new BadRequestException('El motivo del cambio es obligatorio');
+    }
+    const cambiaCorreo = cambios.some((c) => c.campo === 'email');
+    if (cambiaCorreo && !usuario) {
       throw new BadRequestException(
-        'El motivo del cambio de correo es obligatorio',
+        'El servidor público no tiene usuario en Declaranet',
       );
     }
+    const detallados = await this.nombrarCambios(cambios);
 
     await this.sequelize.transaction(async (transaction) => {
-      await servidor.update(this.atributos(dto), { transaction });
+      await servidor.update(datos, { transaction });
 
-      if (cambiaCorreo) {
-        const usuario = await this.userModel.findOne({
-          where: { servidorPublicoId: id },
-          order: [['id', 'ASC']],
-          transaction,
-        });
-        if (!usuario) {
-          throw new BadRequestException(
-            'El servidor público no tiene usuario en Declaranet',
-          );
-        }
-        const email = dto.email!;
+      if (cambiaCorreo && usuario && email) {
         const repetido = await this.userModel.findOne({
           where: { email, id: { [Op.ne]: usuario.id } },
           transaction,
@@ -242,14 +383,81 @@ export class ServidoresService {
         }
         await usuario.update({ email }, { transaction });
         await servidor.update({ cPersonal: email }, { transaction });
-        // TODO Fase 5 (auditoría): guardar en la bitácora en lugar del log.
-        this.logger.log(
-          `Usuario ${actorId} cambió el correo del servidor ${id}. Motivo: ${dto.motivoCorreo}`,
-        );
       }
+
+      await this.bitacora.registrar(
+        {
+          logName: 'ServidorPublico',
+          descripcion: `Servidor público ${id} actualizado`,
+          sujeto: 'servidor',
+          sujetoId: id,
+          usuarioId: actorId,
+          propiedades: { motivo, cambios: detallados },
+        },
+        transaction,
+      );
     });
 
+    this.logger.log(
+      `Usuario ${actorId} actualizó al servidor ${id} (${cambios.map((c) => c.campo).join(', ')})`,
+    );
     return this.detalle(id);
+  }
+
+  /** Cambia los ids de adscripción y honorarios por su nombre, para la bitácora. */
+  private async nombrarCambios(cambios: Cambio[]): Promise<Cambio[]> {
+    const nombre = async (campo: string, valor: string | null) => {
+      if (valor === null) return null;
+      const pk = Number(valor);
+      const registro =
+        campo === 'tipoDependenciaId'
+          ? await this.dependenciaModel.findByPk(pk, { paranoid: false })
+          : campo === 'tipoDireccionId'
+            ? await this.direccionModel.findByPk(pk, { paranoid: false })
+            : campo === 'tipoDepartamentoId'
+              ? await this.departamentoModel.findByPk(pk, { paranoid: false })
+              : null;
+      const texto = (registro as { nombre?: string } | null)?.nombre;
+      if (texto) return texto;
+      if (campo === 'honorarios') {
+        const r = await this.respuestaModel.findByPk(pk);
+        return r?.respuesta ?? valor;
+      }
+      return valor;
+    };
+    const resultado: Cambio[] = [];
+    for (const c of cambios) {
+      resultado.push({
+        ...c,
+        antes: await nombre(c.campo, c.antes),
+        despues: await nombre(c.campo, c.despues),
+      });
+    }
+    return resultado;
+  }
+
+  /** Primer movimiento (sin intereses) del servidor: el que dio lugar a su alta. */
+  private async movimientoInicial(servidorId: number) {
+    const declaracion = await this.declaracionModel.findOne({
+      where: {
+        servidorPublicoId: servidorId,
+        tipoMovimientoId: { [Op.ne]: TIPO_MOV_INTERESES },
+      },
+      order: [
+        ['fechaDeclaracion', 'ASC'],
+        ['id', 'ASC'],
+      ],
+    });
+    if (!declaracion) return null;
+    const tipo = await this.tipoMovimientoModel.findByPk(
+      declaracion.tipoMovimientoId,
+      { paranoid: false },
+    );
+    return {
+      tipoMovimientoId: declaracion.tipoMovimientoId,
+      tipo: tipo?.valor ?? null,
+      fecha: declaracion.fechaDeclaracion,
+    };
   }
 
   async baja(id: number, motivo: string, actorId: number) {

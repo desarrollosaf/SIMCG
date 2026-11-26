@@ -1,0 +1,36 @@
+<button
+  type="button"
+  class="ayuda__boton"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="abierto()"
+  (click)="abrir()"
+>
+  <app-icono nombre="ayuda" />
+  <span>Ayuda</span>
+</button>
+
+@if (abierto()) {
+  <div class="ayuda__fondo" aria-hidden="true" (click)="cerrar()"></div>
+  <aside
+    class="ayuda__panel"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="idTitulo"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <header class="ayuda__encabezado">
+      <h2 class="ayuda__titulo" [id]="idTitulo">{{ titulo() }}</h2>
+      <button
+        type="button"
+        class="ayuda__cerrar"
+        aria-label="Cerrar"
+        title="Cerrar"
+        (click)="cerrar()"
+      >
+        <app-icono nombre="cerrar" />
+      </button>
+    </header>
+    <div class="ayuda__cuerpo"><ng-content /></div>
+  </aside>
+}
