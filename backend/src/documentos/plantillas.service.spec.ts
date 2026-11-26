@@ -36,6 +36,14 @@ describe('PlantillasService', () => {
 
   it('rechaza nombres de plantilla con rutas', () => {
     expect(() => servicio.cargar('../app')).toThrow();
+    expect(() => servicio.cargar('declaracion/../index.blade')).toThrow();
+    expect(() => servicio.cargar('a/b/c')).toThrow();
+  });
+
+  it('carga plantillas de una subcarpeta', () => {
+    expect(servicio.cargar('declaracion/index.blade')).toContain(
+      'DATOS GENERALES DEL DECLARANTE',
+    );
   });
 
   it('imagenBase64 devuelve data URI y bloquea rutas fuera de assets', () => {

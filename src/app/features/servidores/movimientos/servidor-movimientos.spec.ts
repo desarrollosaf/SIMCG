@@ -334,6 +334,10 @@ describe('CambiarObligado', () => {
 });
 
 describe('PDF de la declaración', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [{ provide: ToastService, useValue: toast }] });
+  });
+
   it('solo Administrador y Consulta pueden verlos', () => {
     expect(puedeVerPdf(['Administrador'])).toBe(true);
     expect(puedeVerPdf(['Consulta'])).toBe(true);
@@ -348,18 +352,68 @@ describe('PDF de la declaración', () => {
     expect(estadoPdf(enviado, false)).toBe('sin-permiso');
   });
 
-  it('la celda muestra los botones deshabilitados con «Próximamente»', () => {
+  it('la celda muestra los dos botones habilitados con su título', () => {
     const fixture = TestBed.createComponent(CeldaPdf);
     fixture.componentInstance.agInit({
       data: { ...movimiento, fechaEnvio: '2026-02-01' },
       estado: () => 'disponible',
+      pdf: vi.fn(),
     } as never);
     fixture.detectChanges();
     const botones = Array.from(
       fixture.nativeElement.querySelectorAll('button'),
     ) as HTMLButtonElement[];
-    expect(botones.map((b) => b.disabled)).toEqual([true, true]);
-    expect(botones.every((b) => b.title.includes('Próximamente'))).toBe(true);
+    expect(botones.map((b) => b.disabled)).toEqual([false, false]);
+    expect(botones.map((b) => b.title)).toEqual([
+      'PDF de la declaración',
+      'PDF de la declaración privada',
+    ]);
+  });
+
+  it('cada botón pide el PDF público o privado de la fila y lo abre en otra pestaña', () => {
+    URL.createObjectURL = vi.fn(() => 'blob:prueba');
+    URL.revokeObjectURL = vi.fn();
+    const abrir = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const blob = new Blob(['%PDF']);
+    const pdf = vi.fn(() => of(blob));
+    const fila = { ...movimiento, fechaEnvio: '2026-02-01' };
+    const fixture = TestBed.createComponent(CeldaPdf);
+    fixture.componentInstance.agInit({ data: fila, estado: () => 'disponible', pdf } as never);
+    fixture.detectChanges();
+    const botones = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+
+    botones[0].click();
+    botones[1].click();
+
+    expect(pdf.mock.calls).toEqual([
+      [fila, false],
+      [fila, true],
+    ]);
+    expect(URL.createObjectURL).toHaveBeenCalledWith(blob);
+    expect(abrir).toHaveBeenCalledTimes(2);
+    abrir.mockRestore();
+  });
+
+  it('si el PDF falla avisa con un toast y vuelve a habilitar los botones', () => {
+    const error = { status: 404 };
+    const pdf = vi.fn(() => throwError(() => error));
+    const fixture = TestBed.createComponent(CeldaPdf);
+    fixture.componentInstance.agInit({
+      data: { ...movimiento, fechaEnvio: '2026-02-01' },
+      estado: () => 'disponible',
+      pdf,
+    } as never);
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(toast.errorHttp).toHaveBeenCalledWith(error, expect.stringContaining('PDF'));
+    const botones = Array.from(
+      fixture.nativeElement.querySelectorAll('button'),
+    ) as HTMLButtonElement[];
+    expect(botones.every((b) => !b.disabled)).toBe(true);
   });
 
   it('la celda sin envío o sin permiso muestra texto', () => {

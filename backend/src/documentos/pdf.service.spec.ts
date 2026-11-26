@@ -10,6 +10,9 @@ describe('PdfService', () => {
     setContent: jest.fn(),
     pdf: jest.fn(),
     close: jest.fn(),
+    setJavaScriptEnabled: jest.fn(),
+    setRequestInterception: jest.fn(),
+    on: jest.fn(),
   };
   const navegador = {
     connected: true,
@@ -28,8 +31,30 @@ describe('PdfService', () => {
     pagina.setContent.mockResolvedValue(undefined);
     pagina.pdf.mockResolvedValue(new Uint8Array([0x25, 0x50, 0x44, 0x46]));
     pagina.close.mockResolvedValue(undefined);
+    pagina.setJavaScriptEnabled.mockResolvedValue(undefined);
+    pagina.setRequestInterception.mockResolvedValue(undefined);
     lanzar.mockResolvedValue(navegador);
     servicio = new PdfService();
+  });
+
+  it('apaga JavaScript y solo deja pasar data URIs', async () => {
+    await servicio.generar('<p>x</p>', { formato: 'A4' });
+    expect(pagina.setJavaScriptEnabled).toHaveBeenCalledWith(false);
+    expect(pagina.setRequestInterception).toHaveBeenCalledWith(true);
+    const llamadas = pagina.on.mock.calls as [string, (p: unknown) => void][];
+    const manejador = llamadas.find((c) => c[0] === 'request')![1];
+    const peticion = (url: string) => ({
+      url: () => url,
+      continue: jest.fn().mockResolvedValue(undefined),
+      abort: jest.fn().mockResolvedValue(undefined),
+    });
+    const datos = peticion('data:image/png;base64,AAAA');
+    const externa = peticion('http://169.254.169.254/');
+    manejador(datos);
+    manejador(externa);
+    expect(datos.continue).toHaveBeenCalled();
+    expect(externa.abort).toHaveBeenCalled();
+    expect(externa.continue).not.toHaveBeenCalled();
   });
 
   it('genera el PDF con las opciones y cierra la pestaña', async () => {

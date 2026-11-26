@@ -25,9 +25,12 @@ export class PlantillasService {
   // Carpetas hermanas de este módulo (src/ en desarrollo y pruebas, dist/ compilado).
   private readonly raiz = path.resolve(__dirname, '..');
 
-  /** Contenido de la plantilla `src/plantillas/<nombre>.html`, en caché. */
+  /**
+   * Contenido de la plantilla `src/plantillas/<nombre>.html`, en caché. El nombre
+   * puede llevar una subcarpeta y puntos en el archivo ("declaracion/index.blade").
+   */
   cargar(nombre: string): string {
-    if (!/^[\w-]+$/.test(nombre)) {
+    if (!/^[\w-]+(\/[\w-]+(\.[\w-]+)*)?$/.test(nombre)) {
       throw new Error(`Nombre de plantilla no válido: ${nombre}`);
     }
     let contenido = this.plantillas.get(nombre);

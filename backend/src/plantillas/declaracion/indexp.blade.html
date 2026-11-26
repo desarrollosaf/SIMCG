@@ -1,0 +1,3673 @@
+<style>
+    /*
+     * Adaptación a Chromium del bloque <style> original (TCPDF): los px de TCPDF
+     * equivalen a pt (72 dpi), y se agregan las reglas que TCPDF aplica por omisión
+     * a las tablas (borde fino, celdas alineadas arriba, th heredando la alineación).
+     */
+    body {
+        font-family: helvetica, Arial, 'Liberation Sans', sans-serif;
+        font-size: 7.7pt;
+        line-height: 1.25;
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 12pt;
+        font-weight: bold;
+    }
+
+    th {
+        font-weight: bold;
+        background-color: #d2d3d5;
+        text-align: inherit;
+    }
+
+    h5 {
+        font-size: 11pt;
+        font-weight: bold;
+        text-align: justify;
+    }
+
+    .texta {
+        font-weight: bold;
+        text-align: justify;
+        color: #960048;
+        font-size: 8pt;
+    }
+
+    span {
+        font-size: 10pt;
+        font-weight: bold;
+        text-align: justify;
+    }
+
+    ol {
+        text-align: justify;
+        font-size: 8pt;
+        padding-left: 8mm;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    table, td, th {
+        border: 0.57pt solid #000;
+    }
+
+    td, th {
+        vertical-align: top;
+        padding: 2pt;
+        height: 9.6pt;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+</style>
+
+<body>
+
+<ol><span>CONTRALOR DEL PODER LEGISLATIVO <br>DEL ESTADO DE MÉXICO</span><br>
+
+    <div align="justify">
+        @if(!session('intereses'))
+
+            En cumplimiento a lo dispuesto por los artículos 7 fracciones I y IX; 9 fracción IX; 
+            10 párrafo segundo; 32, 33, 34 fracción  @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2) I @elseif($declaracion->tipo_movimiento_id == 3) II  @elseif($declaracion->tipo_movimiento_id == 4) III  @endif, 35, 39, 40, 44, 45, 46 y 50 fracción IV
+            de la Ley de Responsabilidades Administrativas del Estado de México y Municipios; así como los 
+            numerales 94 fracción III y 96 de la Ley Orgánica del Poder Legislativo del Estado Libre y Soberano 
+            de México; 153 y 155 fracciones VI y XVIII del Reglamento del Poder Legislativo del Estado Libre y Soberano de México; 
+            1, 4, 6 fracción II inciso A, 8 fracciones XIX y XXVI, 10 fracción II, 22 fracción II, 23 y 24 fracción IV del Reglamento 
+            Interno de la Contraloría del Poder Legislativo del Estado Libre y Soberano de México; de la Contraloría las funciones cuatro y cinco, 
+            de la Dirección de Situación Patrimonial; función doce, del Departamento de Control de Declaraciones y de Entrega-Recepción; 
+            funciones uno, dos y cuatro del Manual de Organización de la Contraloría del Poder Legislativo y 
+            BAJO PROTESTA DE DECIR VERDAD presento mi Declaración 
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                <strong>INICIAL</strong>,
+            @elseif($declaracion->tipo_movimiento_id == 3)
+                por <strong>MODIFICACIÓN</strong>, 
+            @elseif($declaracion->tipo_movimiento_id == 4)
+                por <strong>CONCLUSIÓN</strong>,
+            @endif 
+            otorgando mi pleno consentimiento para que 
+            la autoridad competente me solicite mayor información o aclaraciones que estime necesarias y compruebe 
+            los datos que a continuación declaro.
+        @else
+            En cumplimiento a lo dispuesto por los artículos 7 fracciones II, y IX; 9 fracción IX; 10 párrafo segundo; 32, 33, 46,
+            tercer párrafo y 50 fracción IV de la Ley de Responsabilidades Administrativas del Estado de México y Municipios, transitorio noveno 
+            último párrafo, del Decreto 207, publicado en el Periódico Oficial "Gaceta del Gobierno" del Estado de México el 30 de mayo de 2017; 
+            así como los numerales 94 fracción III y 96 de la Ley Orgánica del Poder Legislativo del Estado Libre y Soberano de México; 153 y 155 
+            fracciones V y XVII del Reglamento del Poder Legislativo del Estado Libre y Soberano de México; y BAJO PROTESTA DE DECIR VERDAD presento 
+            mi Declaración de INTERESES, otorgando mi pleno consentimiento para que la autoridad competente me solicite mayor información o aclaraciones 
+            que estime necesarias y compruebe los datos que a continuación declaro.
+        @endif
+    </div>
+
+
+    @if(!session('intereses'))<br><span style="text-align: center">DECLARACIÓN DE SITUACIÓN PATRIMONIAL</span>@endif
+</ol>
+@if(!session('intereses'))
+<ol>
+    <li><span>
+        
+        DATOS GENERALES DEL DECLARANTE</span><br>
+
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+    @if ($servidor)
+    <br>
+    <table width="99%" border="1" cellpadding="2">
+        <tbody>
+        <tr>
+            <th width="33%">Nombre (s):</th>
+            <th width="33%">Primer Apellido:</th>
+            <th width="33%">Segundo Apellido:</th>
+        </tr>
+        <tr>
+
+
+            <td>{{mb_strtoupper($servidor->nombre)}}</td>
+            <td>{{mb_strtoupper($servidor->primer_apellido)}}</td>
+            <td>{{mb_strtoupper($servidor->segundo_apellido)}}</td>
+        </tr>
+        <tr>
+            <th>CURP:</th>
+            <th>RFC:</th>
+            <th>Homoclave:</th>
+        </tr>
+        <tr>
+            <td>CONFIDENCIAL</td>
+            <td>CONFIDENCIAL</td>
+            <td>CONFIDENCIAL</td>
+        </tr>
+            <tr>
+                <th>Correo institucional:</th>
+                <th>Correo personal:</th>
+                <th>Núm. telefónico de casa:</th>
+            </tr>
+            <tr>
+                <td>{{$declaracion->correo_institucional}}</td>
+                <td>CONFIDENCIAL</td>
+                <td>CONFIDENCIAL</td>
+            </tr>
+            <tr>
+                <th>Núm. celular personal:</th>
+                <th>Estado Civil / Situación personal:</th>
+                <th>Régimen matrimonial:</th>
+            </tr>
+            <tr>
+                <td>CONFIDENCIAL </td>
+                <td>CONFIDENCIAL</td>
+                <td>CONFIDENCIAL</td>
+            </tr>
+            <tr>
+                <th>País de nacimiento:</th>
+                <th>Nacionalidad:</th>
+
+
+                @if($declaracion->tipo_movimiento_id == 3)
+                    <th>
+                        ¿Te desempeñaste como servidor público el año inmediato anterior?
+                    </th>
+                @else
+                    <td></td>
+                @endif
+
+
+            </tr>
+            <tr>
+                <td>CONFIDENCIAL</td>
+                <td>CONFIDENCIAL</td>
+                <td>
+                    @if($declaracion->tipo_movimiento_id == 3)
+
+                        @if($declaracion->respuesta_id == 1)
+                            SÍ
+                        @else
+                            NO
+                        @endif
+                    @endif
+                </td>
+            </tr>
+
+
+            <tr>
+                <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+            </tr>
+            <tr>
+                <td colspan="3">CONFIDENCIAL</td>
+            </tr>
+            </tbody>
+        </table>
+    @else
+
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+
+    @endif
+
+
+    <li><span>
+        
+        DOMICILIO DEL DECLARANTE</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">CONFIDENCIAL</th>
+            </tr>
+            </tbody>
+        </table>
+
+
+
+    <li><span>
+        
+        DATOS CURRICULARES DEL DECLARANTE</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->datos_curriculares))
+        @foreach($declaracion->datos_curriculares as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+
+                <tr>
+                    <th width="33%">Carrera o área de conocimiento:</th>
+                    <td width="66%" colspan="2">{{$item->carrera_area}}</td>
+                </tr>
+
+
+                <tr>
+                    <th width="33%">Nivel:</th>
+                    <th width="33%">Institución educativa:</th>
+                    <th width="33%">Estatus:</th>
+                </tr>
+                <tr>
+                    <td>@if (!empty($item->nivel->valor)){{$item->nivel->valor}}@endif</td>
+                    <td>{{$item->institucion_educativa}}</td>
+                    <td>@if (!empty($item->estatus->valor)){{$item->estatus->valor}}@endif</td>
+                </tr>
+                <tr>
+                    <th>Documento obtenido:</th>
+                    <th>Fecha de obtención de documento:</th>
+                    <th>Lugar donde se ubica:</th>
+                </tr>
+                <tr>
+                    <td>@if (!empty($item->documento->valor)){{$item->documento->valor}}@endif</td>
+                    <td>{{$item->fecha_documento}}</td>
+                    <td>@if (!empty($item->LugarUbicacionInstitucion->valor)){{$item->LugarUbicacionInstitucion->valor}}@endif</td>
+                </tr>
+
+
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+
+        @endforeach
+
+    @else
+
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+
+    @endif
+
+
+    <li><span>
+        
+
+            @if($declaracion->tipo_movimiento_id == 1 ||  $declaracion->tipo_movimiento_id == 2)
+                DATOS DEL EMPLEO, CARGO O COMISIÓN QUE INICIA</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        DATOS DEL EMPLEO, CARGO O COMISIÓN</span><br>
+    @else
+        DATOS DEL EMPLEO, CARGO O COMISIÓN QUE CONCLUYE</span><br>
+    @endif
+
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if($declaracion->datos_empleo_Declarante)
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th width="33%">Nivel / Orden de gobierno:</th>
+                <th width="33%">Ámbito público:</th>
+                <th width="33%">Nombre del Ente Público:</th>
+            </tr>
+            <tr>
+                <td>ESTATAL</td>
+                <td>LEGISLATIVO</td>
+                <td>PODER LEGISLATIVO DEL ESTADO DE MÉXICO</td>
+            </tr>
+            <tr>
+                <th>Área de adscripción:</th>
+                <th>Empleo, cargo o comisión:</th>
+                <th>¿Está contratado por honorarios?</th>
+            </tr>
+            <tr>
+                <td>{{mb_strtoupper($servidor->nombreDependencia->nombre)}}</td>
+                <td>{{mb_strtoupper($declaracion->cargo)}}</td>
+                <td>@if($servidor->honorarios == 1 )SÍ @else NO @endif</td>
+            </tr>
+
+            <tr>
+                <th>Nivel del empleo, cargo o comisión:</th>
+                <th>Fecha de movimiento:</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>{{$declaracion->nivel_cargo}}</td>
+                <td>{{$declaracion->fecha_declaracion}}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Especifique función principal:</th>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="3">{{$declaracion->datos_empleo_Declarante->funcion_principal}}</td>
+            </tr>
+            <tr>
+                <th>Teléfono de oficina y extensión:</th>
+                <td colspan="2">{{$declaracion->datos_empleo_Declarante->telefono_oficina}}
+                    Ext. {{$declaracion->datos_empleo_Declarante->extension}}</td>
+            </tr>
+            <tr>
+                <th colspan="3" align="center"> Domicilio del empleo, cargo o comisión</th>
+            </tr>
+            <tr>
+                <th>Calle:</th>
+                <th>Número exterior:</th>
+                <th>Número interior / Piso:</th>
+            </tr>
+            <tr>
+                <td>{{$declaracion->datos_empleo_Declarante->calle}}</td>
+                <td>{{$declaracion->datos_empleo_Declarante->numero_exterior}}</td>
+                <td>{{$declaracion->datos_empleo_Declarante->numero_interior_piso}}</td>
+            </tr>
+            <tr>
+                <th>Entidad Federativa:</th>
+                <th>Municipio / Alcaldía:</th>
+                <th>Colonia / Localidad</th>
+            </tr>
+            <tr>
+                <td>{{mb_strtoupper($declaracion->datos_empleo_Declarante->entidades->entidad)}}</td>
+                <td>{{mb_strtoupper($declaracion->datos_empleo_Declarante->municipios->municipio)}}</td>
+                <td>{{$declaracion->datos_empleo_Declarante->colonia_localidad}}</td>
+            </tr>
+            <tr>
+                <th>Código Postal:</th>
+                <td colspan="2">{{$declaracion->datos_empleo_Declarante->codigo_postal}}</td>
+            </tr>
+
+
+            @if($declaracion->datos_empleo_Declarante->experiencia_laboral)
+                @if($declaracion->tipo_movimiento_id == 3)
+                    <tr>
+                        <th colspan="3" align="center">¿Cuenta con otro empleo, cargo o comisión en el servicio público
+                            distinto
+                            al declarado?
+                            CONFIDENCIAL
+
+                        </th>
+                    </tr>
+
+
+                    <tr>
+                        <th width="33%">Ámbito / Sector en el que laboraste:</th>
+
+
+                        <td width="66%" colspan="2">
+                            @if ($declaracion->datos_empleo_Declarante->experiencia_laboral->ambito_sectores)
+                                {{$declaracion->datos_empleo_Declarante->experiencia_laboral->ambito_sectores->valor}}
+                            @endif
+                        </td>
+
+
+                    </tr>
+                    <!-- Público -->
+
+                    <tr>
+                        <th width="33%">Nivel / Orden de Gobierno:</th>
+                        <th width="33%">Ámbito público:</th>
+                        <th width="33%">Nombre del Ente Público:</th>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            @if ($declaracion->datos_empleo_Declarante->experiencia_laboral->Nivelordengobiernos)
+                                {{$declaracion->datos_empleo_Declarante->experiencia_laboral->Nivelordengobiernos->valor}}
+                            @endif
+                        </td>
+
+                        <td>
+                            @if ($declaracion->datos_empleo_Declarante->experiencia_laboral->ambitoPublicos)
+                                {{$declaracion->datos_empleo_Declarante->experiencia_laboral->ambitoPublicos->valor}}
+                            @endif
+                        </td>
+                        <td>{{$declaracion->datos_empleo_Declarante->experiencia_laboral->ente_publico}}</td>
+                    </tr>
+                    <tr>
+                        <th>Especifique función principal:</th>
+                        <td colspan="2"></td>
+
+                    </tr>
+                    <tr>
+                        <td colspan="3">{{$declaracion->datos_empleo_Declarante->experiencia_laboral->funcion_pricipal}}</td>
+                    </tr>
+                    <tr>
+                        <th>Área de adscripción:</th>
+                        <th>Empleo, cargo o comisión:</th>
+                        <th>Fecha de ingreso al puesto:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$declaracion->datos_empleo_Declarante->experiencia_laboral->area_adscripcion}}</td>
+                        <td>{{$declaracion->datos_empleo_Declarante->experiencia_laboral->cargo_comision}}</td>
+                        <td>{{$declaracion->datos_empleo_Declarante->experiencia_laboral->fecha_ingreso}}</td>
+                    </tr>
+
+
+
+                    <tr>
+                        <th width="33%">Calle:</th>
+                        <th width="33%">Número exterior:</th>
+                        <th width="33%">Número interior / Piso:</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{$declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->calle}}
+                        </td>
+                        <td>{{$declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->num_ext}}</td>
+                        <td>
+                            {{$declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->num_int}}
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <th>Colonia / Localidad:</th>
+                        <th>Entidad Federativa:</th>
+                        <th>Municipio / Alcaldía:</th>
+
+                    </tr>
+                    <tr>
+                        <td>{{mb_strtoupper($declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->colonia)}}</td>
+                        <td>{{mb_strtoupper($declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->entidad_domicilio->entidad)}}</td>
+                        <td>{{mb_strtoupper($declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->municipio_domicilio->municipio)}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Código Postal:</th>
+                        <td colspan="2">{{$declaracion->datos_empleo_Declarante->experiencia_laboral->domicilio->codigo_postal}}</td>
+                    </tr>
+                    <!-- Fin Público -->
+
+
+
+                @endif
+            @endif
+
+
+            <tr>
+                <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+            </tr>
+            <tr>
+                <td colspan="3">CONFIDENCIAL</td>
+            </tr>
+            </tbody>
+        </table>
+
+    @else
+
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+
+    @endif
+
+
+    <li><span>
+        
+        EXPERIENCIA LABORAL</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->experiencias_laborales))
+
+        @foreach($declaracion->experiencias_laborales as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Ámbito / Sector en el que laboraste:</th>
+                    <td width="66%" colspan="2">@if ($item->ambito_sectores){{$item->ambito_sectores->valor}}@endif</td>
+                </tr>
+                <!-- Público -->
+                @if($item->ambito_sector_id == 1)
+                    <tr>
+                        <th width="33%">Nivel / Orden de Gobierno:</th>
+                        <th width="33%">Ámbito público:</th>
+                        <th width="33%">Nombre del Ente Público:</th>
+                    </tr>
+                    <tr>
+                        <td>@if ($item->Nivelordengobiernos){{$item->Nivelordengobiernos->valor}}@endif</td>
+                        <td>@if ($item->ambitoPublicos){{$item->ambitoPublicos->valor}}@endif</td>
+                        <td>{{$item->ente_publico}}</td>
+                    </tr>
+                    <tr>
+                        <th>Especifique función principal:</th>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{{$item->funcion_pricipal}}</td>
+                    </tr>
+                    <tr>
+                        <th>Área de adscripción:</th>
+                        <th>Empleo, cargo o comisión:</th>
+                        <th>Fecha de ingreso al puesto:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->area_adscripcion}}</td>
+                        <td>{{$item->cargo_comision}}</td>
+                        <td>{{$item->fecha_ingreso}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Fecha de egreso:</th>
+                        <th>Lugar en donde se ubica:</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>{{$item->fecha_egreso}}</td>
+                        <td>@if ($item->LugarUbicaciones){{$item->LugarUbicaciones->valor}}@endif</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">CONFIDENCIAL</td>
+                    </tr>
+                    <!-- Fin Público -->
+
+                    <!-- Inicio Privado-->
+                @elseif($item->ambito_sector_id == 2 ||  $item->ambito_sector_id == 3)
+                    <tr>
+                        <th>Tipo de empleador:</th>
+                        <th>Nombre del empleador:</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+                        <td>@if ($item->regimen_fiscal){{$item->regimen_fiscal->valor}}@endif</td>
+                        <td>{{$item->nombre_empresa}}</td>
+                        <td>{{$item->rfc}}</td>
+                    </tr>
+                    <tr>
+                        <th>Área:</th>
+                        <th>Puesto:</th>
+                        <th>Sector al que pertenece:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->area}}</td>
+                        <td>{{$item->puesto}}</td>
+                        <td>@if ($item->sectores){{$item->sectores->valor}}@endif {{$item->especifique_otro_sector}}</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de ingreso al puesto:</th>
+                        <th>Fecha de egreso:</th>
+                        <th>Lugar en donde se ubica:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->fecha_ingreso}}</td>
+                        <td>{{$item->fecha_egreso}}</td>
+
+                        <td>@if ($item->LugarUbicaciones){{$item->LugarUbicaciones->valor}}@endif</td>
+
+                    </tr>
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">CONFIDENCIAL</td>
+                    </tr>
+                    <!-- Termina Privado-->
+                @endif
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+        
+        DATOS DE LA PAREJA</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    
+
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">CONFIDENCIAL</th>
+            </tr>
+            </tbody>
+        </table>
+
+    <li><span>
+         DATOS DEL DEPENDIENTE ECONÓMICO</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">CONFIDENCIAL</th>
+            </tr>
+            </tbody>
+        </table>
+
+
+
+
+
+        <li><span>
+        @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2) 
+                INGRESOS NETOS DEL DECLARANTE, PAREJA Y/O DEPENDIENTES ECONÓMICOS (SITUACIÓN ACTUAL)
+            @elseif($declaracion->tipo_movimiento_id == 3)
+                INGRESOS NETOS DEL DECLARANTE, PAREJA Y/O DEPENDIENTES ECONÓMICOS (ENTRE EL 1 DE ENERO AL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)
+            @elseif($declaracion->tipo_movimiento_id == 4)
+                INGRESOS NETOS DEL AÑO EN CURSO A LA FECHA DE CONCLUSIÓN DEL EMPLEO, CARGO O COMISIÓN DEL DECLARANTE, PAREJA Y/O DEPENDIENTES ECONÓMICOS
+            @endif</span><br></span><br>
+        <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+        </li>
+        <br>
+
+        @if($declaracion->ingresos)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+{{--                    @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 4)--}}
+{{--                                        <th colspan="2" width="85%">I. REMUNERACIÓN MENSUAL NETA DEL DECLARANTE POR SU CARGO PÚBLICO (POR--}}
+{{--                                            CONCEPTO DE SUELDOS,--}}
+{{--                                            HONORARIOS, COMPENSACIONES, BONOS Y OTRAS PRESTACIONES)--}}
+{{--                    @else--}}
+{{--                        <th colspan="2" width="85%">I. REMUNERACIÓN ANUAL NETA DEL DECLARANTE POR SU CARGO PÚBLICO (POR--}}
+{{--                            CONCEPTO DE SUELDOS,--}}
+{{--                            HONORARIOS, COMPENSACIONES, BONOS Y OTRAS PRESTACIONES)--}}
+{{--                    @endif--}}
+                    @if($declaracion->tipo_movimiento_id == 3)
+                        @php($tipoDeclaracion = "ANUAL")
+                    @else
+                        @php($tipoDeclaracion = "MENSUAL")
+                    @endif
+                    @if($declaracion->tipo_movimiento_id == 4)
+                        <th colspan="2" width="85%">I. REMUNERACIÓN NETA DEL AÑO EN CURSO A LA FECHA DE CONCLUSIÓN DEL
+                            EMPLEO, CARGO O COMISIÓN DEL DECLARANTE POR SU CARGO PÚBLICO (POR CONCEPTO DE SUELDOS,
+                            HONORARIOS,
+                            COMPENSACIONES, BONOS Y OTRAS PRESTACIONES)
+                            <br>(Cantidades netas después de impuestos).
+                        </th>
+                    @else
+                        <th colspan="2" width="85%">
+                            I. REMUNERACIÓN {{$tipoDeclaracion}} NETA DEL DECLARANTE POR SU CARGO PÚBLICO (POR CONCEPTO DE
+                            SUELDOS, HONORARIOS,
+                            COMPENSACIONES, BONOS Y OTRAS PRESTACIONES)
+                            <br>(Cantidades netas después de impuestos).
+                        </th>
+                    @endif
+                    <td width="15%" align="center">
+                        ${{ number_format($declaracion->ingresos->ingreso_mensual_publico, 2) }}</td>
+                </tr>
+                <tr>
+                    <th colspan="3">II. OTROS INGRESOS DEL DECLARANTE
+                        @if($declaracion->tipo_movimiento_id == 3 || $declaracion->tipo_movimiento_id == 4)
+                            <br>(SUMA DEL II.1 al II.5)
+                        @else
+                            <br>(SUMA DEL II.1 al II.4)
+                        @endif
+
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;II.1. Por actividad industrial, comercial y/o empresarial:
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                    </th>
+                    <td align="center"> ${{ number_format($declaracion->ingresos->ingreso_por_actividad_ice, 2) }}</td>
+                </tr>
+                <tr>
+                    <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Nombre o Razón Social:</th>
+                    <td width="55%" colspan="2">{{$declaracion->ingresos->nombre_razon_social}}</td>
+                </tr>
+                <tr>
+                    <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de negocio:</th>
+                    <td width="55%" colspan="2">{{$declaracion->ingresos->tipo_de_negocio}}</td>
+                </tr>
+                <tr>
+                    <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.2. Por actividad financiera (rendimientos o
+                        ganancias):
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                    </th>
+                    <td width="15%" align="center">
+                        ${{ number_format($declaracion->ingresos->ingreso_por_actividad_financiera, 2) }}</td>
+                </tr>
+                <tr>
+                    <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de instrumento que generó el rendimiento o ganancia:
+                    </th>
+                    <td width="55%"
+                        colspan="2">@if($declaracion->ingresos->tipoInstrumentos){{$declaracion->ingresos->tipoInstrumentos->valor}}@endif</td>
+                </tr>
+
+                <tr>
+                    <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.3. Por servicios profesionales, consejos,
+                        consultorías
+                        y/o asesorías:
+                        <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                    </th>
+                    <td width="15%" align="center">
+                        ${{ number_format($declaracion->ingresos->ingreso_por_servicios_profesionales, 2) }}</td>
+                </tr>
+                <tr>
+                    <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de servicio prestado:</th>
+                    <td width="55%" colspan="2">{{$declaracion->ingresos->tipo_de_servicio}}</td>
+                </tr>
+
+
+                @if($declaracion->tipo_movimiento_id == 3 || $declaracion->tipo_movimiento_id == 4)
+
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.4. Por enajenacón de bienes:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->ingresos->ingreso_enajenacion, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Especificar tipo de ingreso:</th>
+                        <td width="55%" colspan="2">
+                            @if($declaracion->ingresos->tipoEnajenaciones)
+                                {{$declaracion->ingresos->tipoEnajenaciones->valor}}
+                            @endif
+
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.5. Otros ingresos no considerados a los
+                            anteriores:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->ingresos->ingreso_otros, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Especificar tipo de ingreso (Arrendamiento, regalía, sorteos, concursos, donaciones, seguros de vida, etc.):</th>
+                        <td width="55%" colspan="2">{{$declaracion->ingresos->tipo_de_ingreso}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%" style="text-align: right">&nbsp;&nbsp;&nbsp;&nbsp;Suma de otros
+                            ingresos
+                            del
+                            declarante del II.1 al II.5
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->ingresos->ingreso_mensual_suma, 2) }}</td>
+                    </tr>
+
+
+                @else
+
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.4. Otros ingresos no considerados a los
+                            anteriores:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->ingresos->ingreso_otros, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Especificar tipo de ingreso:</th>
+                        <td width="55%" colspan="2">{{$declaracion->ingresos->tipo_de_ingreso}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" width="85%" style="text-align: right">&nbsp;&nbsp;&nbsp;&nbsp;Suma de otros
+                            ingresos
+                            del
+                            declarante del II.1 al II.4
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->ingresos->ingreso_mensual_suma, 2) }}</td>
+                    </tr>
+
+                @endif
+
+
+                <tr>
+{{--                    @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 4)--}}
+{{--                        <th colspan="2" width="85%">A. INGRESO MENSUAL NETO DEL DECLARANTE:--}}
+{{--                            <br>(Suma del I y II)--}}
+{{--                        </th>--}}
+{{--                    @else--}}
+{{--                        <th colspan="2" width="85%">A. INGRESO ANUAL NETO DEL DECLARANTE:--}}
+{{--                            <br>(Suma del I y II)--}}
+{{--                        </th>--}}
+{{--                    @endif--}}
+
+                    @if($declaracion->tipo_movimiento_id == 4)
+                        <th colspan="2" width="85%">A. INGRESOS DEL DECLARANTE DEL AÑO EN CURSO A LA FECHA DE CONCLUSIÓN DEL
+                            EMPLEO, CARGO O COMISIÓN:
+                            <br>(Suma del I y II)
+                        </th>
+                    @else
+                        <th colspan="2" width="85%">A. INGRESO {{$tipoDeclaracion}} NETO DEL DECLARANTE:
+                            <br>(Suma del numeral I y II)
+                        </th>
+                    @endif
+                    <td align="center" width="15%">
+                        ${{ number_format($declaracion->ingresos->ingreso_mensual_neto, 2) }}</td>
+                </tr>
+
+
+                <tr>
+{{--                    @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 4)--}}
+{{--                        <th colspan="2" width="85%">B. INGRESO MENSUAL NETO DE LA PAREJA Y/O DEPENDIENTES ECONÓMICOS:--}}
+{{--                            <br>(Después de impuestos).--}}
+{{--                        </th>--}}
+{{--                    @else--}}
+{{--                        <th colspan="2" width="85%">B. INGRESO ANUAL NETO DE LA PAREJA Y/O DEPENDIENTES ECONÓMICOS:--}}
+{{--                            <br>(Después de impuestos).--}}
+{{--                        </th>--}}
+{{--                    @endif--}}
+
+                    @if($declaracion->tipo_movimiento_id == 4)
+                        <th colspan="2" width="85%">B. INGRESOS DEL AÑO EN CURSO A LA FECHA DE CONCLUSIÓN DEL EMPLEO, CARGO O
+                            COMISIÓN DE LA PAREJA Y / O DEPENDIENTES ECONÓMICOS:
+                            <br>(Después de impuestos).
+                        </th>
+                    @else
+                        <th colspan="2" width="85%">B. INGRESO {{$tipoDeclaracion}} NETO DE LA PAREJA Y / O DEPENDIENTES ECONÓMICOS:
+                            <br>(Después de impuestos).
+                        </th>
+                    @endif
+                    <td align="center" width="15%">
+                        CONFIDENCIAL</td>
+                </tr>
+
+                <tr>
+{{--                    @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 4)--}}
+{{--                        <th colspan="2">C. TOTAL DE INGRESOS MENSUALES NETOS PERCIBIDOS POR EL DECLARANTE, PAREJA Y/O--}}
+{{--                            DEPENDIENTES--}}
+{{--                            ECONÓMICOS:--}}
+{{--                            <br>(Suma de A y B)--}}
+{{--                        </th>--}}
+{{--                    @else--}}
+{{--                        <th colspan="2">C. TOTAL DE INGRESOS ANUALES NETOS PERCIBIDOS POR EL DECLARANTE, PAREJA Y/O--}}
+{{--                            DEPENDIENTES--}}
+{{--                            ECONÓMICOS:--}}
+{{--                            <br>(Suma de A y B)--}}
+{{--                        </th>--}}
+{{--                    @endif--}}
+
+                    @if($declaracion->tipo_movimiento_id == 4)
+                        <th colspan="2">C. TOTAL DE INGRESOS NETOS DEL AÑO EN CURSO A LA FECHA DE CONCLUSIÓN DEL EMPLEO, CARGO O
+                            COMISIÓN PERCIBIDOS POR EL DECLARANTE, PAREJA Y / O DEPENDIENTES ECONÓMICOS:
+                            <br>(Suma de A y B)
+                        </th>
+                    @else
+                        <th colspan="2">C. TOTAL DE INGRESOS NETOS {{$tipoDeclaracion."ES"}} PERCIBIDOS POR EL DECLARANTE, PAREJA Y / O DEPENDIENTES ECONÓMICOS:
+                            <br>(Suma de A y B)
+                        </th>
+                    @endif
+                    <td align="center">
+                        ${{ number_format($declaracion->ingresos->total_ingresos_declarante_pareja, 2) }}</td>
+                </tr>
+
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @else
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th align="center" width="99%">No se registró información en este apartado</th>
+                </tr>
+                </tbody>
+            </table>
+
+        @endif
+
+
+        <li><span>
+        COMPROBANTE DE DECLARACIÓN FISCAL</span><br>
+        <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+        </li>
+        <br>
+        <br>
+
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+
+            @if($declaracion->DocumentoSat)
+
+                <tr>
+                    <th width="99%" align="center">
+
+                        {{$declaracion->DocumentoSat && $declaracion->DocumentoSat->requiere_cargar_evidencia ? "Declara bajo protesta de decir verdad que SI soy sujeto obligado a presentar la declaración fiscal." : "Declara bajo protesta de decir verdad que NO soy sujeto obligado a presentar la declaración fiscal."}}
+
+                    </th>
+                </tr>
+            @else
+                <tr>
+                    <th align="center" width="99%">No se registró información en este apartado</th>
+                </tr>
+            @endif
+
+            </tbody>
+        </table>
+
+
+
+
+    @if($declaracion->tipo_movimiento_id != 3 )
+
+        <li><span>
+         ¿TE DESEMPEÑASTE COMO SERVIDOR PÚBLICO EN EL AÑO INMEDIATO ANTERIOR?</span><br>
+        <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+        </li>
+        <br>
+
+
+        @if($declaracion->fueServidorPublico)
+            @if($declaracion->fueServidorPublico->fue_servidor_publico == 1)
+                <br>
+                <table width="99%" border="1" cellpadding="2">
+                    <tbody>
+
+                    <tr>
+                        <th>¿Te desempéñaste como servidor público el año inmediato anterior?</th>
+                        <th>Fecha de inicio:</th>
+                        <th>Fecha de conclusión:</th>
+                    </tr>
+
+                    <tr>
+                        <td align="center">SÍ</td>
+                        <td align="center">{{$declaracion->fueServidorPublico->fecha_inicio}}</td>
+                        <td align="center">{{$declaracion->fueServidorPublico->fecha_conclusion}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">I. REMUNERACIÓN NETA DEL DECLARANTE, RECIBIDA DURANTE EL TIEMPO EN EL QUE SE DESEMPEÑÓ COMO SERVIDOR PÚBLICO
+                            EN EL AÑO INMEDIATO ANTERIOR (POR CONCEPTO DE SUELDOS, HONORARIOS,
+                            COMPENSACIONES, BONOS Y OTRAS PRESTACIONES)
+                            <br>(Cantidades netas después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->remuneracion_neta, 2) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="3">II. OTROS INGRESOS DEL DECLARANTE RECIBIDOS DURANTE EL TIEMPO EN EL QUE SE DESEMPEÑÓ COMO SERVIDOR PÚBLICO EN EL AÑO INMEDIATO ANTERIOR
+                            <br>(SUMA DEL II.1 AL II.5).
+                        </th>
+
+                    </tr>
+                    <tr>
+                        <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;II.1. Por actividad industrial, comercial y/o
+                            empresarial:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_por_actividad_ice, 2) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Nombre o Razón Social:</th>
+                        <td width="55%" colspan="2">{{$declaracion->fueServidorPublico->nombre_razon_social}}</td>
+
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de negocio:</th>
+                        <td width="55%" colspan="2">{{$declaracion->fueServidorPublico->tipo_de_negocio}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.2. Por actividad financiera (rendimientos
+                            o
+                            ganancias):
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_por_actividad_financiera, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de instrumento que generó el rendimiento o
+                            ganancia:
+                        </th>
+
+                        <td width="55%"
+                            colspan="2">@if ($declaracion->fueServidorPublico->TipoInstrumentosInve){{$declaracion->fueServidorPublico->TipoInstrumentosInve->valor}}@endif
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.3. Por servicios profesionales, consejos,
+                            consultorías y/o
+                            asesorías:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_por_servicios_profesionales, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de servicio prestado:</th>
+                        <td width="55%" colspan="2">{{$declaracion->fueServidorPublico->tipo_de_servicio}}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.4. Por enajenación de bienes:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_por_enajenacion_bienes, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Tipo de bien enajenado:</th>
+                        <td width="55%"
+                            colspan="2">@if ($declaracion->fueServidorPublico->TipoBien) {{$declaracion->fueServidorPublico->TipoBien->valor}} @endif</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">&nbsp;&nbsp;&nbsp;&nbsp;II.5. Otros ingresos no considerados a los
+                            anteriores:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_otros_no_considerados, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th width="45%">&nbsp;&nbsp;&nbsp;&nbsp;Especificar tipo de ingreso(Arrendamiento, regalía, sorteos, concursos, donaciones, seguros de vida, etc.)</th>
+                        <td width="55%"
+                            colspan="2">{{$declaracion->fueServidorPublico->tipo_de_ingreso_no_considerado}}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" width="85%" style="text-align: right">&nbsp;&nbsp;&nbsp;&nbsp;Suma de otros
+                            ingresos
+                            del
+                            declarante del II.1 al II.5
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->otros_ingresos_total, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" width="85%">A. INGRESO NETO DEL DECLARANTE PERCIBIDOS DURANTE EL AÑO INMEDIATO
+                            ANTERIOR:
+                            <br>(Suma del I y II)
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_neto, 2) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2" width="85%">B. INGRESO NETO DE LA PAREJA Y/O DEPENDIENTES ECONÓMICOS PERCIBIDOS
+                            DURANTE EL AÑO INMEDIATO ANTERIOR:
+                            <br>(Después de impuestos).
+                        </th>
+                        <td align="center" width="15%">
+                            ${{ number_format($declaracion->fueServidorPublico->ingreso_neto_pareja, 2) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="2">C. TOTAL DE INGRESOS NETOS PERCIBIDOS POR EL DECLARANTE, PAREJA Y/O DEPENDIENTES
+                            ECONÓMICOS EL AÑO INMEDIATO ANTERIOR:
+                            <br>(Suma de A y B)
+                        </th>
+                        <td align="center">
+                            ${{ number_format($declaracion->fueServidorPublico->total_ingresos_declarante_pareja, 2) }}</td>
+                    </tr>
+
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{{mb_strtoupper($declaracion->fueServidorPublico->observaciones)}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            @elseif($declaracion->fueServidorPublico->fue_servidor_publico == 0)
+                <br>
+                <table width="99%" border="1" cellpadding="2">
+                    <tbody>
+                    <tr>
+                        <th width="99%" align="center"> NO</th>
+                    </tr>
+                    </tbody>
+                </table>
+            @endif
+
+
+
+        @else
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th align="center" width="99%">No se registró información en este apartado</th>
+                </tr>
+                </tbody>
+            </table>
+
+        @endif
+
+
+    @else
+
+
+    <!-- SE TRATA DE UNA ANUALIDAD Y NO SE IMPRIME ESTA SECCION-->
+
+
+    @endif
+
+
+    <li><span>
+         BIENES INMUEBLES @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->bienes_inmuebles))
+        @foreach($declaracion->bienes_inmuebles as $item)
+
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                @if($item->tipo_operacion_id == 4)
+                    <tr>
+                        <th width="33%" bgcolor="#adadad">Estado:</th>
+                        <td width="66%" colspan="2" bgcolor="#adadad"  align="justify" >Baja  <br>{{$item->motivo_baja}} </td>
+                    </tr>
+                @endif
+                <tr>
+                    <th width="33%">Tipo de inmueble:</th>
+                    <th colspan="2" width="66%">Titular del inmueble:</th>
+                </tr>
+                <tr>
+                    <td>@if($item->tipoInmueble) {{$item->tipoInmueble->valor}} @endif @if($item->tipo_inmueble)
+                            - {{$item->tipo_inmueble}} @endif</td>
+                    <td colspan="2"
+                        width="66%"> CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Tipo de tercero:</th>
+                    <th>Nombre o Razón Social del tercero:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td> @if($item->tipo_tercero_id == 1) PERSONA FÍSICA @elseif($item->tipo_tercero_id == 2) PERSONA
+                        MORAL @else @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+
+
+                <tr>
+                    <th>Porcentaje de propiedad del Declarante conforme a escrituración o contrato:</th>
+                    <th>Superficie del terreno:</th>
+                    <th>Superficie de construcción:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->porcentaje_propiedad}}%</td>
+                    <td>{{$item->superficie_terreno}}
+
+                        @if($item->unidad_medida_terreno_id == 1)
+                            M2
+                        @elseif($item->unidad_medida_terreno_id == 2)
+                            HA
+                        @else
+                            KM2
+                        @endif
+                    </td>
+                    <td>{{$item->superficie_construccion}}
+
+
+                        @if($item->tipo_inmueble_id != "8")
+                            @if($item->unidad_medida_construccion_id == 1)
+                                M2
+                            @elseif($item->unidad_medida_construccion_id == 2)
+                                HA
+                            @else
+                                KM2
+                            @endif
+                        @else
+
+                        @endif
+
+                    </td>
+                </tr>
+                <tr>
+                    <th>Forma de Adquisición:</th>
+                    <th>Forma de pago:</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{{$item->formaAdquisicion->valor}}</td>
+                    <td>@if ($item->formaPago) {{$item->formaPago->valor}} @endif</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Tipo de transmisor de la propiedad:</th>
+                    <th>Nombre del transmisor:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoTransmisor) {{$item->tipoTransmisor->valor}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Relación del transmisor de la propiedad con el titular:</th>
+                    <th>Valor de adquisición:</th>
+                    <th>El valor es conforme a:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->relacionTransmisor) {{$item->relacionTransmisor->valor}} {{$item->relacion_transmisor}}@endif</td>
+                    <td>${{ number_format($item->valor_adquisicion, 2) }}</td>
+                    <td>{{$item->valorConforme->valor}}</td>
+                </tr>
+                <tr>
+                    <th>Tipo de moneda:</th>
+                    <th>Fecha de adquisición del inmueble:</th>
+                    <th>Datos del Registro Público de la Propiedad, folio real u otro dato que permita su
+                        identificación:
+                    </th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoMoneda) {{mb_strtoupper($item->tipoMoneda->valor)}} @endif</td>
+                    <td>{{$item->fecha_adquisicion}}</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Ubicación del inmueble</th>
+                </tr>
+
+                <tr>
+                    <th>Ubicación:</th>
+                    <td colspan="2">CONFIDENCIAL</td>
+                </tr>
+
+
+                <tr>
+                    <th>Calle:</th>
+                    <th>Número exterior:</th>
+                    <th>Número interior / Piso:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->domicilio->calle}}</td>
+                    <td>{{$item->domicilio->num_ext}}</td>
+                    <td>{{$item->domicilio->num_int}}</td>
+                </tr>
+
+                @if($item->ubicacion_inmueble_id == 1)
+                    <!-- MÉXICO -->
+                    <tr>
+                        <th>Entidad Federativa:</th>
+                        <th>Municipio / Alcaldía:</th>
+                        <th>Colonia / Localidad:</th>
+                    </tr>
+                    <tr>
+                        <td>{{mb_strtoupper($item->domicilio->entidad_domicilio->entidad)}}</td>
+                        <td>{{mb_strtoupper($item->domicilio->municipio_domicilio->municipio)}}</td>
+                        <td>{{$item->domicilio->colonia}}</td>
+                    </tr>
+                    <tr>
+                        <th>Código Postal:</th>
+                        <td colspan="2">{{$item->domicilio->codigo_postal}}</td>
+
+                    </tr>
+                    <!-- FIN MÉXICO -->
+                @elseif($item->ubicacion_inmueble_id == 2)
+                    <!-- EXTRANJERO -->
+                    <tr>
+                        <th>País:</th>
+                        <th>Ciudad / Localidad:</th>
+                        <th>Estado / Provincia:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->domicilio->pais}}</td>
+                        <td>{{$item->domicilio->entidad}}</td>
+                        <td>{{$item->domicilio->colonia}}</td>
+                    </tr>
+                    <tr>
+                        <th>Código Postal:</th>
+                        <td colspan="2">{{$item->domicilio->codigo_postal}}</td>
+
+                    </tr>
+                    <!-- FIN EXTRANJERO -->
+                @endif
+
+
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         VEHÍCULOS
+        @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->vehiculos))
+        @foreach($declaracion->vehiculos as $item)
+
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Tipo de vehículo:</th>
+                    <th colspan="2" width="66%">Titular del vehículo:</th>
+
+                </tr>
+                <tr>
+                    <td>@if ($item->tipo_vehiculo) {{$item->tipo_vehiculo->valor}} {{$item->otroVehiculo}}@endif</td>
+                    <td colspan="2" width="66%"> @if ($item->Titulares) {{$item->titularBien->valor}} @endif</td>
+                </tr>
+                @if($item->tipoPersonaTercero == 1)
+                    <tr>
+                        <th>Tipo de tercero:</th>
+                        <th>Nombre o Razón Social del tercero:</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+
+
+                        <td> {{$item->tipoPersonaTercero== 1 ? "PERSONA FÍSICA" : "PERSONA MORAL"}} </td>
+                        <td>{{$item->bieniTerceroNombreF}}</td>
+                        <td>{{$item->bieniTerceroRfcF}}</td>
+                    </tr>
+                @elseif($item->tipoPersonaTercero == 2)
+                    <tr>
+                        <th>Tipo de tercero:</th>
+                        <th>Nombre o Razón Social del tercero:</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+                        <td> @if ($item->regimen) {{$item->regimen->valor}} @endif</td>
+                        <td>CONFIDENCIAL</td>
+                        <td>CONFIDENCIAL</td>
+                    </tr>
+                @endif
+                @if($item->tipoDePersona == 1)
+                    <tr>
+                        <th>Tipo de transmisor de la propiedad:</th>
+                        <th>Nombre o Razón Social del transmisor:</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+
+                        <td>@if ($item->regimen) {{$item->regimen->valor}}@endif</td>
+                        <td>CONFIDENCIAL</td>
+                        <td>CONFIDENCIAL</td>
+                    </tr>
+                @elseif($item->tipoDePersona == 2)
+                    <tr>
+                        <th>Tipo de transmisor de la propiedad:</th>
+                        <th>Nombre o Razón Social del transmisor:</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+                        <td>@if ($item->regimen) {{$item->regimen->valor}} @endif</td>
+                        <td>{{$item->v_nombreMoral}}</td>
+                        <td>{{$item->v_rfcMoral}}</td>
+                    </tr>
+                @endif
+                <tr>
+                    <th>Relación del transmisor de la propiedad con el titular:</th>
+                    <th>Marca:</th>
+                    <th>Modelo - Año:</th>
+
+                </tr>
+                <tr>
+
+                    <td>@if ($item->relacion) {{$item->relacion->valor}} {{$item->relacion_id_otro}} @endif</td>
+                    <td>{{$item->v_marca}}</td>
+                    <td>{{$item->v_modelo}} - {{$item->v_ano}}</td>
+
+                </tr>
+                <tr>
+                    <th>Número de serie o registro:</th>
+                    <th>¿Dónde se encuentra registrado?</th>
+                    <th>Entidad Federativa / País:</th>
+                </tr>
+                <tr>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+
+                    @if($item->lugar_registro == 1)
+                        <td>{{mb_strtoupper($item->entidades->entidad)}} </td>
+                    @else
+                        <td>{{mb_strtoupper($item->paises->valor)}}</td>
+                    @endif
+                </tr>
+                <tr>
+                    <th>Forma de adquisición:</th>
+                    <th>Forma de pago:</th>
+                    <th>Valor de adquisición del vehículo:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoAdquisicion) {{$item->tipoAdquisicion->valor}} @endif </td>
+                    <td>@if ($item->pago) {{$item->pago->valor}} @endif</td>
+                    <td>${{ number_format($item->v_valor, 2) }}</td>
+                </tr>
+                <tr>
+                    <th>Tipo de moneda:</th>
+                    <th>Fecha de adquisición del vehículo:</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoMonedas) {{mb_strtoupper($item->tipoMonedas->valor)}} @endif</td>
+                    <td>{{$item->v_fecha}}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         BIENES MUEBLES
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->BienesMuebles))
+        @foreach($declaracion->BienesMuebles as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+
+                <tr>
+                    <th width="33%">Titular del bien:</th>
+                    <th width="66%" colspan="2">Tipo de bien:</th>
+                </tr>
+                <tr>
+                    <td> @if ($item->TitularBien) {{$item->TitularBien->valor}} @endif</td>
+                    <td colspan="2"> @if ($item->TipoBien) {{$item->TipoBien->valor}} {{$item->especifique}} @endif</td>
+                </tr>
+
+                <tr>
+                    <th width="33%">Transmisor de la propiedad:</th>
+                    <th width="33%">Nombre, denominacion o Razón Social del transmisor:</th>
+                    <th width="33%">RFC:</th>
+                </tr>
+                <tr>
+                    <td> @if ($item->TransmisorPropiedad) {{$item->TransmisorPropiedad->valor}} @endif</td>
+                    <td>CONFIDENCIAL </td>
+                    <td>CONFIDENCIAL </td>
+                </tr>
+                <tr>
+                    <th width="33%">Relación del transmisor del mueble con el titular:</th>
+                    <th width="33%">Forma de adquisición:</th>
+                    <th width="33%">Forma de pago:</th>
+                </tr>
+                <tr>
+                    <td> CONFIDENCIAL</td>
+                    <td> @if ($item->FormaAdquisicion) {{$item->FormaAdquisicion->valor}} @endif</td>
+                    <td> @if ($item->FormaPago) {{$item->FormaPago->valor}} @endif</td>
+                </tr>
+
+
+                <tr>
+                    <th width="33%">Descripción del bien:</th>
+                    <td colspan="2" width="66%"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">{{$item->descripcion_bien}}</td>
+                </tr>
+
+
+                <tr>
+                    <th width="33%">Valor de adquisición del mueble:</th>
+                    <th width="33%">Tipo de moneda</th>
+                    <th width="33%">Fecha de adquisición del mueble:</th>
+                </tr>
+                <tr>
+                    <td>${{ number_format($item->valor_adquisicion, 2) }}</td>
+
+                    <td> @if ($item->TipoMoneda) {{mb_strtoupper($item->TipoMoneda->valor)}} @endif
+                    </td>
+                    <td>{{$item->fecha_adquisicion}}</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+
+    @endif
+
+
+    <li><span>
+         INVERSIONES, CUENTAS BANCARIAS Y OTRO TIPO DE VALORES / ACTIVOS
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->inversiones_cuentas))
+        @foreach($declaracion->inversiones_cuentas as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Tipo de inversión / activo:</th>
+                    <th width="33%">Fondo de inversión:</th>
+                    <th width="33%">Titular de la inversión, cuenta bancaria y otros tipos de valores:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->tipoInversion) {{$item->tipoInversion->valor}} @endif</td>
+                    <td>@if ($item->subTipoInversiones) {{$item->subTipoInversiones->valor}} @endif</td>
+                    <td>@if ($item->nombreTitular) {{$item->nombreTitular->valor}} @endif
+                    </td>
+
+
+                </tr>
+                @if (empty($item->tipoTercero->valor))
+                @else
+                    <tr>
+                        <th>Tipo de tercero:</th>
+                        <th>Nombre o Razón Social del tercero :</th>
+                        <th>RFC:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->tipoTercero->valor}}</td>
+                        <td>{{$item->nombre_del_tercero}}</td>
+                        <td>{{$item->rfc_tercero}}</td>
+                    </tr>
+                @endif
+                <tr>
+                    <th>¿Dónde se localiza la inversión, cuenta bancaria y otro tipo de valores / activos?</th>
+                    <th>Institución o Razón Social:</th>
+                    <th>RFC / País dónde se localiza:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->ubicacionInversion) {{$item->ubicacionInversion->valor}} @endif
+                    </td>
+
+                    <td>{{$item->institucion_razon_social}}</td>
+                    <td>{{$item->pais_ubicacion_cuenta_id}} {{$item->rfc_titular}}</td>
+                </tr>
+                <tr>
+                    <th>Número de cuenta, contrato o póliza:</th>
+                    <th>Tipo de moneda:</th>
+                    <th>Saldo a la fecha de ingreso:</th>
+                </tr>
+                <tr>
+                    <td>CONFIDENCIAL</td>
+                    <td>@if ($item->tipoMoneda) {{mb_strtoupper($item->tipoMoneda->valor)}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+
+
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         ADEUDOS / PASIVOS
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->adeudos_pasivos))
+        @foreach($declaracion->adeudos_pasivos as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular del adeudo:</th>
+                    <th width="33%">Tipo de adeudo:</th>
+                    <th width="33%">Plazo en meses:</th>
+                </tr>
+                <tr>
+
+                    <td>CONFIDENCIAL</td>
+                    <td>@if ($item->tipoAdeudo){{$item->tipoAdeudo->valor}} {{$item->especifique_adeudo}}@endif</td>
+                    <td>{{$item->plazo_meses}} MESES</td>
+                </tr>
+                <tr>
+                    <th>Número de cuenta o contrato:</th>
+                    <th>Fecha de adquisición del adeudo / pasivo:</th>
+                    <th>Monto original del adeudo / pasivo:</th>
+                </tr>
+                <tr>
+                    <td>CONFIDENCIAL</td>
+                    <td>{{$item->fecha_adquisicion}}</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Tipo de moneda:</th>
+                    <th>Saldo insoluto
+                        @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                            (a la fecha de ingreso):
+                        @elseif($declaracion->tipo_movimiento_id == 3)
+                            (al 31 de diciembre del año inmediato anterior):
+                        @else
+                            (situación actual):
+                        @endif
+                    </th>
+                    <th>Otorgante del crédito:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->tipoMoneda) {{mb_strtoupper($item->tipoMoneda->valor)}}@endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+
+                </tr>
+                <tr>
+                    <th>Nombre, Institución o Razón Social del otorgante:</th>
+                    <th>RFC:</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>Codeudor:</th>
+                    <th>Nombre del codeudor:</th>
+                    <th>RFC del codeudor:</th>
+                </tr>
+                <tr>
+
+
+                    <td>
+                        @if ($item->codeudor_id)
+                            @if ($item->codeudor_id == 1)
+                                FÍSICA
+                            @elseif ($item->codeudor_id == 2)
+                                MORAL
+                            @else
+
+                            @endif
+
+                        @endif
+                    </td>
+
+                    <td>{{$item->nombre_codeudor}}</td>
+                    <td>{{$item->rfc_codeudor}}</td>
+                </tr>
+                <tr>
+                    <th>Localización del adeudo:</th>
+                    <th>Entidad Federativa / País:</th>
+                    <td></td>
+                </tr>
+                <tr>
+
+
+                    <td>@if ($item->LugarUbicacion) {{$item->LugarUbicacion->valor}}@endif</td>
+                    @if($item->ubicacion_adeudo_id == 1)
+                        <td>{{mb_strtoupper($item->entidades->entidad)}}</td>
+                    @else
+                        <td>{{$item->paises->valor}}</td>
+                    @endif
+                    <td></td>
+
+
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    <li><span>
+         PRÉSTAMO O COMODATO POR TERCEROS
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                (A LA FECHA DE INGRESO)</span><br>
+    @elseif($declaracion->tipo_movimiento_id == 3)
+        (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+        @else
+            (SITUACIÓN ACTUAL)</span><br>
+    @endif
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->prestamosComodato))
+        @foreach($declaracion->prestamosComodato as $item)
+
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Tipo de bien en préstamo:</th>
+                    <td width="66%" colspan="2"> @if ($item->tipoBien) {{$item->tipoBien->valor}} @endif</td>
+                </tr>
+                @if($item->tipo_bien_id == 3)
+                    <!--  INICIO - Estructura para vehiculo -->
+                    <tr>
+                        <th width="33%">Tipo de vehículo:</th>
+                        <th width="33%">Marca:</th>
+                        <th width="33%">Modelo - Año :</th>
+                    </tr>
+                    <tr>
+
+                        <td>@if ($item->vehiculos->tipo_vehiculo) {{$item->vehiculos->tipo_vehiculo->valor}} {{$item->vehiculos->otroVehiculo}} @else @endif</td>
+                        <td>{{$item->vehiculos->v_marca}}</td>
+                        <td>{{$item->vehiculos->v_modelo}} - {{$item->vehiculos->v_ano}}</td>
+                    </tr>
+                    <tr>
+                        <th>Número de serie o registro:</th>
+                        <th>¿Dónde se encuentra registrado?</th>
+                        <th>Dueño o titular:</th>
+                    </tr>
+                    <tr>
+                        <td>CONFIDENCIAL</td>
+                        <td>@if ($item->vehiculos->registro) {{$item->vehiculos->registro->valor}} @endif</td>
+                        <td>CONFIDENCIAL</td>
+                    </tr>
+                    <tr>
+                        <th>Nombre del dueño / titular:</th>
+                        <th>RFC:</th>
+                        <th>Relación con el dueño o el títular:</th>
+                    </tr>
+                    <tr>
+
+                        <td>CONFIDENCIAL</td>
+                        <td>CONFIDENCIAL</td>
+                        <td>CONFIDENCIAL</td>
+                    </tr>
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">CONFIDENCIAL</td>
+                    </tr>
+                    <!--  FIN - Estructura para vehiculo -->
+
+                @elseif($item->tipo_bien_id == 2)
+                    <!--  INICIO - Estructura para inmueble -->
+                    <tr>
+                        <th>Tipo de inmueble:</th>
+                        <th>Ubicación del inmueble:</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td> @if ($item->inmuebles->tipoInmueble) {{$item->inmuebles->tipoInmueble->valor}} @endif</td>
+                        <td> CONFIDENCIAL</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th>Calle:</th>
+                        <th>Número exterior:</th>
+                        <th>Número interior / Piso:</th>
+                    </tr>
+                    <tr>
+                        <td>{{$item->inmuebles->domicilio->calle}}</td>
+                        <td>{{$item->inmuebles->domicilio->num_ext}}</td>
+                        <td>{{$item->inmuebles->domicilio->num_int}}</td>
+                    </tr>
+
+
+                    @if($item->inmuebles->ubicacionInmueble->valor == "MÉXICO")
+                        <!-- MÉXICO -->
+                        <tr>
+                            <th>Entidad Federativa:</th>
+                            <th>Municipio / Alcaldía:</th>
+                            <th>Colonia / Localidad:</th>
+                        </tr>
+
+                        <tr>
+                            <td>{{mb_strtoupper($item->inmuebles->domicilio->entidad_domicilio->entidad)}}</td>
+                            <td>{{mb_strtoupper($item->inmuebles->domicilio->municipio_domicilio->municipio)}}</td>
+                            <td>{{mb_strtoupper($item->inmuebles->domicilio->colonia)}}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Código Postal:</th>
+                            <td colspan="2">{{$item->inmuebles->domicilio->codigo_postal}}</td>
+                        </tr>
+
+
+
+
+                        <!-- FIN MÉXICO -->
+                    @else
+                        <!-- EXTRANJERO -->
+                        <tr>
+                            <th>País:</th>
+                            <th>Estado / Provincia:</th>
+                            <th>Código Postal:</th>
+                        </tr>
+                        <tr>
+                            <td>{{$item->inmuebles->domicilio->pais}}</td>
+                            <td>{{$item->inmuebles->domicilio->entidad}}</td>
+                            <td>{{$item->inmuebles->domicilio->codigo_postal}}</td>
+                        </tr>
+                        <!-- FIN EXTRANJERO -->
+                    @endif
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">CONFIDENCIAL</td>
+                    </tr>
+
+                    <!--  FIN - Estructura para inmueble -->
+                @endif
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+</ol>
+@endif
+<ol>
+    <h1 align="center">DECLARACIÓN DE INTERESES</h1><br>
+
+    <!--
+    <div align="justify">El que suscribe <strong>NOMBRE</strong>, en mi car&aacute;cter de
+    <strong>CARGO, PUESTO O COMISIÓN</strong>, en t&eacute;rmino de lo dispuesto por los art&iacute;culos 3 fraccion
+    V; 33, 44, 45, 46, 50 fracci&oacute;n IV; 52 fracciones IV, V, VII, IX y X; 55, 58, 61, 63 y 64 de la Ley de
+    Responsabilidades Administrativas del Estado de M&eacute;xico y Municipios;
+    <strong>DECLARO</strong> que con motivo del empleo, cargo o comisi&oacute;n
+    <strong>NO</strong> tengo Intereses o ninguna situaci&oacute;n de Conflicto de Intereses o de otro tipo en y/u otra
+    relaci&oacute;n con un tercero, que pueda tener un inter&eacute;s personal o comercial en los asuntos o tr&aacute;mites
+    propios de mi empleo cargo o comisi&oacute;n.
+    <br>
+</div>
+
+- Estructura para inmueble -->
+</ol>
+<ol>
+
+     <li><span>
+         PARTICIPACIÓN ECONÓMICA O FINANCIERA EN EMPRESAS, SOCIEDADES Y ASOCIACIONES DEL DECLARANTE, CONCUBINA,
+    CONCUBINARIO, FAMILIARES CONSANGUÍNEOS HASTA EL CUARTO GRADO, POR AFINIDAD O CIVIL Y/O DEPENDIENTES ECONÓMICOS (HASTA
+    LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->participacion_empresas))
+        @foreach($declaracion->participacion_empresas as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular de la participación:</th>
+                    <th width="33%">Nombre de la Empresa, Sociedad, Asociación Civil, Organizaciones, Consejos y
+                        Consultorías:
+                    </th>
+                    <th width="33%">RFC:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->RelacionTransmisor) {{$item->RelacionTransmisor->valor}}@endif {{$item->participacion_otro}}</td>
+                    <td>{{$item->nombre_empresa}}</td>
+                    <td>{{$item->rfc_empresa}}</td>
+                </tr>
+                <tr>
+                    <th>Porcentaje de participación:
+                    </th>
+                    <th>Tipo de participación:</th>
+                    <th>Tipo de sociedad:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->porcentaje}}%</td>
+                    <td>@if ($item->tipoParticipacion) {{$item->tipoParticipacion->valor}} @endif</td>
+                    <td>@if ($item->tipoSociedad){{$item->tipoSociedad->valor}} @endif</td>
+                </tr>
+                <tr>
+                    <th>Especifique sociedad:</th>
+                    <th>Modalidad de la participación:</th>
+                    <th>¿Recibe remuneración por su participación?</th>
+                </tr>
+                <tr>
+                    <td>{{$item->especifique_sociedad}}</td>
+                    <td>@if ($item->tipoModalidad) {{$item->tipoModalidad->valor}} @endif</td>
+                    <td>{{mb_strtoupper($item->tipoRespuesta->respuesta)}}</td>
+                </tr>
+                <tr>
+                    <th>Monto mensual neto:</th>
+                    <th>Lugar donde se ubica:</th>
+                    <th>Entidad Federativa:</th>
+                </tr>
+                <tr>
+                    <td>${{ number_format($item->monto_mensual, 2) }} </td>
+                    <td>@if ($item->lugarUbica) {{$item->lugarUbica->valor}} @endif</td>
+                    <td> @if ($item->Entidad) {{mb_strtoupper($item->Entidad->entidad)}} @endif</td>
+                </tr>
+
+                <tr>
+                    <th>Sector productivo al que pertenece:</th>
+                    <td colspan="2">@if ($item->tipoSector) {{$item->tipoSector->valor}} {{$item->espec_sector}}@endif</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         ¿PARTICIPA EN LA TOMA DE DECISIONES DE ALGUNA DE ESTAS INSTITUCIONES? (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->participacion))
+        @foreach($declaracion->participacion as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular de la participación:</th>
+                    <th width="33%">Tipo de Institución:</th>
+                    <th width="33%">Nombre de la Institución:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoRelaciones) {{$item->tipoRelaciones->valor}}@endif</td>
+                    <td> @if ($item->tipoInstituciones) {{$item->tipoInstituciones->valor}}@endif</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th width="33%">RFC:</th>
+                    <th width="33%">Puesto / rol:</th>
+                    <th width="33%">Fecha de inicio de participación:</th>
+                </tr>
+                <tr>
+                    <td>CONFIDENCIAL</td>
+                    <td>{{$item->puesto_rol}}</td>
+                    <td>{{$item->fecha_inicio}}</td>
+                </tr>
+                <tr>
+                    <th width="33%">¿Recibe remuneración por su participación?</th>
+                    <th width="33%">Monto mensual neto:</th>
+                    <th width="33%">Lugar donde se ubica:</th>
+                </tr>
+                <tr>
+                    <td>@if($item->remuneracion == 1) SÍ @else NO @endif</td>
+                    <td>${{ number_format($item->monto_mensual, 2) }}</td>
+                    <td>@if ($item->LugarUbicaciones) {{$item->LugarUbicaciones->valor}} @endif</td>
+                </tr>
+                <tr>
+                    <th width="33%">Entidad Federativa / País:</th>
+                    @if($item->lugares_ubicacion_id == 1)
+                        <td colspan="2">{{mb_strtoupper($item->Entidades->entidad)}}</td>
+                    @else
+                        <td colspan="2">{{mb_strtoupper($item->Paises->valor)}}</td>
+                    @endif
+
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         APOYOS O BENEFICIOS PÚBLICOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->apoyo_beneficio))
+        @foreach($declaracion->apoyo_beneficio as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular del apoyo o beneficio:</th>
+                    <th width="33%">Nombre del programa:</th>
+                    <th width="33%">Institución que otorga el apoyo:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoBeneficiario){{$item->tipoBeneficiario->valor}} {{$item->especifique_titular}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th width="33%">Nivel u orden de Gobierno:</th>
+                    <th width="33%">Tipo de apoyo:</th>
+                    <th width="33%">Forma de recepción del beneficio:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->nivelGobierno) {{$item->nivelGobierno->valor}} @endif</td>
+                    <td>@if ($item->tipoApoyo) {{$item->tipoApoyo->valor}}{{$item->especifique_apoyo}} @endif</td>
+                    <td>@if ($item->formaRecepcion) {{$item->formaRecepcion->valor}} @endif </td>
+                </tr>
+                <tr>
+                    <th>Especifique especie:</th>
+                    <th>Tipo de moneda:</th>
+                    <th>Monto mensual aproximado del beneficio:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->especifique_especie}}</td>
+                    <td> @if ($item->tipoMoneda) {{mb_strtoupper($item->tipoMoneda->valor)}} @endif</td>
+                    <td>${{ number_format($item->monto_mensual, 2) }}</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         REPRESENTACIÓN (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->representacion))
+        @foreach($declaracion->representacion as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular de la representación:</th>
+                    <th width="33%">Tipo de representación:</th>
+                    <th width="33%">Fecha de inicio de la representación:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->titular) {{$item->titular->valor}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>{{$item->fecha_representacion}}</td>
+                </tr>
+                <tr>
+                    <th>Representante / Representado:</th>
+                    <th>Nombre o Razón Social del representante o representado:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoRegimen) {{$item->tipoRegimen->valor}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>¿Recibe remuneración por su representación?</th>
+                    <th>Monto mensual neto de su representación:</th>
+                    <th>Sector productivo al que pertenece:</th>
+
+                </tr>
+                <tr>
+                    <td>@if (!is_null($item->respuesta_id)) {{mb_strtoupper($item->tipoRespuesta->respuesta)}} @endif</td>
+                    <td>${{ number_format($item->monto_mensual, 2) }}</td>
+                    <td>@if ($item->tipoSector) {{$item->tipoSector->valor}} {{$item->especifique}} @endif</td>
+                </tr>
+                <tr>
+                    <th>Lugar donde se ubica:</th>
+                    <th>Entidad Federativa / País donde se localiza:</th>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>@if ($item->lugarUbicacion) {{$item->lugarUbicacion->valor}} @endif</td>
+                    @if($item->lugar_ubica_id == 1)
+                        <td>{{mb_strtoupper($item->entidades->entidad)}}</td>
+                    @else
+                        <td>{{mb_strtoupper($item->paises->valor)}}</td>
+                    @endif
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         CLIENTES PRINCIPALES</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->clientes))
+        @foreach($declaracion->clientes as $item)
+            @if($item->respuestas_id == 2)
+                <br>
+                <table width="99%" border="1" cellpadding="2">
+                    <tbody>
+                    <tr>
+                        <th width="66%">¿Realiza alguna actividad lucrativa independiente al empleo, cargo o comisión?
+                        </th>
+                        <td width="33%" colspan="2">NO</td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+            @else
+                <br>
+                <table width="99%" border="1" cellpadding="2">
+                    <tbody>
+                    <tr>
+                        <th width="66%">¿Realiza alguna actividad lucrativa independiente al empleo, cargo o comisión?
+                        </th>
+                        <td width="33%" colspan="2">SÍ</td>
+                    </tr>
+                    <tr>
+                        <th width="33%">Títular de la actividad lucrativa:</th>
+                        <th width="33%">Nombre de la empresa o del servicio que proporciona:</th>
+                        <th width="33%">RFC:</th>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            @if ($item->tipo_relaciones_id == 1)
+                                DECLARANTE
+                            @elseif ($item->tipo_relaciones_id == 2)
+                                PAREJA
+                            @else
+                                DEPENDIENTE ECONÓMICO
+                            @endif
+                        </td>
+
+                        <td>CONFIDENCIAL</td>
+                        <td>CONFIDENCIAL</td>
+                    </tr>
+                    <tr>
+                        <th>Tipo de cliente principal:</th>
+                        <th>Nombre o Razón Social del cliente principal:</th>
+                        <th>RFC:</th>
+                    </tr>
+
+                    <tr>
+                        <td>@if ($item->RegimenFiscal) {{$item->RegimenFiscal->valor}} @endif</td>
+                        <td>{{$item->nombre_cliente}}{{$item->nombre_cliente_moral}}</td>
+                        <td>{{$item->rfc_cliente}}{{$item->rfc_cliente_moral}}</td>
+                    </tr>
+                    <tr>
+                        <th>Sector productivo al que pertenece:</th>
+                        <th>Monto aproximado del beneficio o ganancia mensual que obtiene del cliente principal:</th>
+                        <th>Lugar donde se ubica:</th>
+                    </tr>
+                    <tr>
+                        <td>@if ($item->sectores) {{$item->sectores->valor}} {{$item->sector_especifique}} @endif</td>
+                        <td>${{ number_format($item->monto_beneficio, 2) }}</td>
+                        <td>@if ($item->lugarDondeReside) {{$item->lugarDondeReside->valor}} @endif </td>
+
+                    </tr>
+                    <tr>
+                        <th width="33%">Entidad Federativa / País donde se localiza:</th>
+                        @if($item->lugar_donde_resides_id == 1)
+                            <td>{{mb_strtoupper($item->Entidades->entidad)}}</td>
+                        @else
+                            <td>{{mb_strtoupper($item->pais)}}</td>
+                        @endif
+                    </tr>
+                    <tr>
+                        <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                    </tr>
+                    <tr>
+                        <td colspan="3">CONFIDENCIAL</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            @endif
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    <li><span>
+         BENEFICIOS PRIVADOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->beneficios_privados))
+        @foreach($declaracion->beneficios_privados as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Tipo de beneficio:</th>
+                    <th width="33%">Beneficiario:</th>
+                    <th width="33%">Sector productivo al que pertenece:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->tipoBeneficio->valor}} {{$item->tipo_beneficio}}</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>{{$item->sectoresP->valor}}</td>
+                </tr>
+                <tr>
+                    <th>Otorgante:</th>
+                    <th>Nombre o Razón Social del otorgante:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->RegimenFiscal) {{$item->RegimenFiscal->valor}} @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Forma de recepción del beneficio:</th>
+                    <th>Tipo de moneda:</th>
+                    <th>Especifique el beneficio:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->formaRecepcion) {{$item->formaRecepcion->valor}} @endif</td>
+                    @if($item->forma_recepcion_id == 1)
+                        <td>{{mb_strtoupper($item->tipoMonedas->valor)}}</td>
+                        <td></td>
+                    @else
+                        <td></td>
+                        <td>{{$item->especie}}</td>
+                    @endif
+                </tr>
+                <tr>
+                    <th width="33%">Monto mensual aproximado del beneficio:</th>
+                    <td colspan="2" width="66%">${{ number_format($item->monto_mensual, 2) }}</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">{{mb_strtoupper($item->aclaraciones)}}</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         FIDEICOMISOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->fideicomisos))
+        @foreach($declaracion->fideicomisos as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Titular de la participación:</th>
+                    <th width="33%">Tipo de fideicomiso:</th>
+                    <th width="33%">Tipo de participación:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoRelaciones) {{$item->tipoRelaciones->valor}} @endif</td>
+                    <td>@if ($item->tipoFideicomisos) {{$item->tipoFideicomisos->valor}} @endif</td>
+                    <td>@if ($item->tipoParticipacionFideicomisos) {{$item->tipoParticipacionFideicomisos->valor}} @endif</td>
+                </tr>
+                <tr>
+                    <th>Tipo de persona del fideicomiso:</th>
+                    <th>Nombre o Razón Social de la persona:</th>
+                    <th>RFC:</th>
+                </tr>
+
+
+                <tr>
+                    <td>@if($item->tipo_persona_fideicomiso == 1) FÍSICA @else MORAL @endif</td>
+                    <td>{{$item->nombre_persona_fisica}}{{$item->nombre_persona_moral}}</td>
+                    <td>{{$item->rfc_persona_fisica}}{{$item->rfc_persona_moral}}</td>
+                </tr>
+                <tr>
+                    <th>Fideicomitente:</th>
+                    <th>Nombre o Razón Social del fideicomitente:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if($item->tipo_persona_fideicomitente == 1) FÍSICA @else MORAL @endif
+                    </td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Fiduciario:</th>
+                    <th>Nombre o Razón Social del fiduciario:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if($item->tipo_persona_fiduciario == 1) FÍSICA @else MORAL @endif</td>
+                    <td>{{$item->nombre_fiduciario_fisica}}{{$item->nombre_fiduciario_moral}}</td>
+                    <td>{{$item->rfc_fiduciario_fisica}}{{$item->rfc_fiduciario_moral}}</td>
+                </tr>
+                <tr>
+                    <th>Fideicomisario:</th>
+                    <th>Nombre o Razón Social del fideicomisario:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if($item->tipo_persona_fideicomisario == 1) FÍSICA @else MORAL @endif</td>
+                    <td>CONFIDENCIAL</td>
+                    <td>CONFIDENCIAL</td>
+                </tr>
+                <tr>
+                    <th>Sector al que pertenece:</th>
+                    <th>¿Dónde se localiza el fideicomiso?</th>
+                    <th>Entidad Federativa / País:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->sectores->valor}} {{$item->especifique_sector}}</td>
+                    <td>{{$item->LugarUbicaciones->valor}}</td>
+
+                    @if($item->lugares_ubicacion_id == 1)
+                        <td>{{mb_strtoupper($item->Entidades->entidad)}}</td>
+                    @else
+                        <td>{{mb_strtoupper($item->Paises->valor)}}</td>
+                    @endif
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">CONFIDENCIAL</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         DONATIVOS</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->donativos))
+        @foreach($declaracion->donativos as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Tipos de donativos:</th>
+                    <th width="33%">Titular que los realizó:</th>
+                    <th width="33%">Forma de recepción del donativo:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->tipo_donativos) {{$item->tipo_donativos->valor}} @endif
+                    </td>
+
+                    <td>{{$item->tipo_titular->valor}} {{$item->especifique_fundacion}}</td>
+                    <td>{{$item->tipo_recepcion->valor}} {{$item->especifique_otro}}</td>
+                </tr>
+                <tr>
+                    <th>Especifique el donativo:</th>
+                    <th>Monto aproximado del donativo:</th>
+                    <th>Tipo de moneda:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->especifique_otro}} {{$item->especifique_donativo}}</td>
+                    <td>${{ number_format($item->monto_donativo, 2) }}</td>
+                    <td>{{mb_strtoupper($item->moneda->valor)}}</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">{{mb_strtoupper($item->observaciones)}}</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         INTERESES PERSONALES</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+
+    @if(count($declaracion->intereses))
+        @foreach($declaracion->intereses as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Nombre (s):</th>
+                    <th width="33%">Primer Apellido:</th>
+                    <th width="33%">Segundo Apellido:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->nombre}}</td>
+                    <td>{{$item->primer_apellido}}</td>
+                    <td>{{$item->segundo_apellido}}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de nacimiento:</th>
+                    <th>RFC:</th>
+                    <th>Parentesco o relación con el declarante:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->fecha_nacimiento}}</td>
+                    <td>{{$item->rfc}}</td>
+                    <td>{{$item->Parentesco->valor}}</td>
+                </tr>
+                <tr>
+                    <th>¿Es ciudadano extranjero?</th>
+                    <th>CURP:</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>{{mb_strtoupper($item->respuesta->respuesta)}}</td>
+                    <td>{{$item->curp}}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th align="center" colspan="3">Actividad laboral pública</th>
+                </tr>
+                <!-- Público -->
+                <tr>
+                    <th width="33%">Nivel / Orden de Gobierno:</th>
+                    <th width="33%">Ámbito público:</th>
+                    <th width="33%">Nombre del Ente Público:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->experienciaLaboral->Nivelordengobiernos->valor}}</td>
+                    <td>{{$item->experienciaLaboral->ambitoPublicos->valor}}</td>
+                    <td>{{$item->experienciaLaboral->ente_publico}}</td>
+                </tr>
+                <tr>
+                    <th>Área de adscripción:</th>
+                    <th>Empleo, cargo o comisión:</th>
+                    <th>Especifique función principal:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->experienciaLaboral->area_adscripcion}}</td>
+                    <td>{{$item->experienciaLaboral->cargo_comision}}</td>
+                    <td>{{$item->experienciaLaboral->funcion_pricipal}}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de ingreso al empleo:</th>
+                    <td colspan="32">{{$item->experienciaLaboral->fecha_ingreso}}</td>
+                </tr>
+                <!-- Fin Público -->
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">{{$item->observaciones}}</td>
+                </tr>
+
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         PARTICIPACIONES</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->participaciones))
+        @foreach($declaracion->participaciones as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Nombre (s):</th>
+                    <th width="33%">Primer Apellido:</th>
+                    <th width="33%">Segundo Apellido:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->nombre}}</td>
+                    <td>{{$item->primer_apellido}}</td>
+                    <td>{{$item->segundo_apellido}}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de nacimiento:</th>
+                    <th>RFC:</th>
+                    <th>Participaciones económicas:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->fecha_nacimiento}}</td>
+                    <td>{{$item->rfc}}</td>
+                    <td>{{$item->participacion_economica->valor}}</td>
+                </tr>
+                <tr>
+                    <th>Institución en la que participa:</th>
+                    <th>Naturaleza del vínculo:</th>
+                    <th>Frecuencia anual:</th>
+                </tr>
+                <tr>
+                    <td>{{mb_strtoupper($item->institucion->nombre)}}</td>
+                    <td>@if($item->naturaleza_vinculo) {{$item->naturaleza_vinculo->valor}} @endif</td>
+                    <td>{{$item->frecuencia_anual}}</td>
+                </tr>
+                <tr>
+                    <th>Tipo de persona jurídica colectiva:</th>
+                    <th>Tipo de colaboración:</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>{{mb_strtoupper($item->tipo_persona_juridica->nombre)}}</td>
+                    <td>{{mb_strtoupper($item->tipo_colaboracion->tipo_colaboracion)}}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">{{$item->observaciones}}</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+
+    <li><span>
+         VIAJES</span><br>
+    <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatus !!}</strong>
+    </li>
+    <br>
+
+    @if(count($declaracion->viajes))
+        @foreach($declaracion->viajes as $item)
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    <th width="33%">Nombre del beneficiario del viaje:</th>
+                    <th width="33%">Primer Apellido:</th>
+                    <th width="33%">Segundo Apellido:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->nombre_pariente}}</td>
+                    <td>{{$item->primer_apellido}}</td>
+                    <td>{{$item->segundo_apellido}}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de nacimiento:</th>
+                    <th>RFC:</th>
+                    <th>Relación con el declarante o el declarante:</th>
+                </tr>
+                <tr>
+                    <td>{{$item->cumpleaños_pariente}}</td>
+                    <td>{{$item->rfc_pariente}}</td>
+                    <td>@if($item->responsableConflicto) {{$item->responsableConflicto->valor}}@endif</td>
+                </tr>
+                <tr>
+                    <th>Tipo de tercero:</th>
+                    <th>Nombre o Razón Social del tercero:</th>
+                    <th>RFC:</th>
+                </tr>
+                <tr>
+                    <td>@if ($item->tipoTercero) {{$item->tipoTercero->valor}}@endif</td>
+                    <td>{{$item->nombre_tercero}} {{$item->razon_social_tercero}}</td>
+                    <td>{{$item->rfc_tercero}} </td>
+                </tr>
+                <tr>
+                    <th>Ámbito al que pertenece el tercero:</th>
+                    <td colspan="2">{{$item->ambitoTercero->valor}} {{$item->especifique_ambito}}</td>
+                </tr>
+                @if($item->ambito_tercero_id == 1)
+                    <!-- INICIO PÚBLICO -->
+                    <tr>
+                        <th>Nivel / Orden de gobierno:</th>
+                        <th>Nombre del Ente Público:</th>
+                        <th>Nombre de adscripción:</th>
+                    </tr>
+                    <tr>
+                        <td>@if ($item->nivelAmbito) {{$item->nivelAmbito->valor}} @endif</td>
+                        <td>@if ($item->entePublico) {{mb_strtoupper($item->entePublico->valor)}} @endif</td>
+                        <td>{{$item->nombre_adscripcion}}</td>
+                    </tr>
+                    <tr>
+                        <th>Empleo, cargo o comisión:</th>
+                        <td colspan="2">{{$item->empleo_cargo}}</td>
+                    </tr>
+                    <!-- FIN PÚBLICO -->
+                @elseif($item->ambito_tercero_id == 2)
+                    <!-- INICIO PRIVADO -->
+                    <tr>
+                        <th>Sector productivo al que pertenece:</th>
+                        <td colspan="2">{{$item->SectorProductivo->valor}} {{$item->especifique_sector}}</td>
+                    </tr>
+                    <!-- FIN PRIVADO -->
+                @endif
+                <tr>
+                    <th>Lugar del viaje:</th>
+                    <th>Motivo del viaje:</th>
+                    <th>Monto del viaje:</th>
+                </tr>
+                <tr>
+
+                    <td>@if ($item->lugarviaje) {{$item->lugarviaje->valor}} @endif</td>
+                    <td>@if($item->motivo_viaje) {{$item->motivo_viaje->valor}} {{$item->especifique_otro_motivo}} @endif
+                    </td>
+                    <td>${{ number_format($item->monto_viaje, 2) }}</td>
+                </tr>
+                <tr>
+                    <th>Tipo moneda:</th>
+                    <td colspan="2">{{mb_strtoupper($item->tipoMoneda->valor)}}</td>
+                </tr>
+                <tr>
+                    <th colspan="3" align="center">Aclaraciones / Observaciones:</th>
+                </tr>
+                <tr>
+                    <td colspan="3">{{$item->observaciones_viajes}}</td>
+                </tr>
+                </tbody>
+            </table>
+        @endforeach
+    @else
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <th align="center" width="99%">No se registró información en este apartado</th>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+</ol>
+@if($declaracion->fecha_envio_aclaracion)
+<ol>
+    <h1 align="center">ACLARACIONES</h1>
+</ol>
+<ol>
+    
+        <ol>
+            <h1 align="center">DECLARACIÓN DE SITUACIÓN PATRIMONIAL</h1><br>
+            
+        </ol>
+        <div align="justify">Con fundamento en el artículo 27 de los Lineamientos de funcionamiento del Sistema Declaralegisnet para la presentación 
+            de las Declaraciones de Situación Patrimonial y de Intereses de los Servidores Públicos del Poder Legislativo del Estado de México, 
+            publicado en la Gaceta del Gobierno del Estado de México, el doce de mayo del año dos mil veintiuno, hago uso de mi derecho a solicitar la 
+            rectificación u omisión de los datos declarados en mi Declaración de Situación Patrimonial y de Interés, por única vez, y BAJO PROTESTA DE DECIR VERDAD, 
+            lo realizo en el siguiente tenor.
+        </div>
+    @foreach ($aclaraciones as $key => $data)
+        <!--    1    -->
+        
+        @if($key == "DATOS GENERALES")
+            <li><span>
+                 DATOS GENERALES DEL DECLARANTE</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+        <!--    2    -->
+        @if($key == "DOMICILIO DECLARANTE")
+            <li><span>
+                
+                DOMICILIO DEL DECLARANTE</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+        <!--    3    -->
+        @if($key == "DATOS CURRICULARES")
+            <li><span>
+                
+                DATOS CURRICULARES DEL DECLARANTE</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    4    -->
+        @if($key == "DATOS EMPLEO")
+            <li><span>
+                
+                DATOS DEL EMPLEO, CARGO O COMISIÓN</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    5    -->
+        @if($key == "EXPERIENCIA LABORAL")
+            <li><span>
+                
+                EXPERIENCIA LABORAL</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    6    -->
+        @if($key == "DATOS DE LA PAREJA")
+            <li><span>
+                
+                DATOS DE LA PAREJA</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    7    -->
+        @if($key == "DATOS DE LOS DEPENDIENTES")
+            <li><span>
+                
+                DATOS DEL DEPENDIENTE ECONÓMICO</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    8    -->
+        @if($key == "INGRESOS NETOS")
+            <li><span>
+                
+                INGRESOS NETOS DEL DECLARANTE, PAREJA Y/O DEPENDIENTES ECONÓMICOS (ENTRE EL 1 DE ENERO AL 31 DE DICIEMBRE DEL AÑO
+                INMEDIATO ANTERIOR) </span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    9    -->
+        @if($key == "DECLARACION FISCAL")
+            <li><span>
+                
+                COMPROBANTE DE DECLARACIÓN FISCAL</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    10    -->
+        @if($key == "BIENES INMUEBLES")
+            <li><span>
+                
+                BIENES INMUEBLES (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    11    -->
+        @if($key == "VEHICULOS")
+            <li><span>
+                
+                VEHÍCULOS (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    12    -->
+        @if($key == "BIENES MUEBLES")
+            <li><span>
+                
+                BIENES MUEBLES (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    13    -->
+        @if($key == "INVERSIONES, CUENTAS BANCARIAS")
+            <li><span>
+                
+                INVERSIONES, CUENTAS BANCARIAS Y OTRO TIPO DE VALORES / ACTIVOS (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO
+                ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    14    -->
+        @if($key == "ADEDUOS / PASIVOS")
+            <li><span>
+                
+                ADEUDOS / PASIVOS (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    15    -->
+        @if($key == "PRESTAMO O COMODATOS A TERCEROS")
+            <li><span>
+                
+                PRÉSTAMO O COMODATO POR TERCEROS (ENTRE EL 1 DE ENERO Y EL 31 DE DICIEMBRE DEL AÑO INMEDIATO ANTERIOR)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+        @endforeach
+
+        <br><br>
+        <div align="justify">Articulo27. Las Declaraciones presentadas en el Sistema, seran definitivas y el usuario solo podra hacer uso de su derecho a solicitar
+            la rectificación de sus datos cuando sean inexactos, incompletos, desactualizados, inadecuados o excesivos, por unica vez en cada modalidad, siempre que no
+            se haya iniciado una verificación de la evolución de su patrimonio o una investigación por presunta responsabilidad administrativa.
+        </div>
+    </ol>
+    
+        <br>
+        <ol>
+            <h1 align="center">DECLARACIÓN DE INTERESES</h1><br>
+        </ol>
+        <br>
+    <ol>
+        @foreach ($aclaraciones as $key => $data)
+        
+        <!--ESTA PARTE ES PARA LA DECLARACION DE INTERESES-->
+        <!--    1   -->
+        @if($key == "PARTICIPACION ECONOMICA O FINANCIERA EN EMPRESAS")
+            <li><span>
+                
+                PARTICIPACIÓN ECONÓMICA O FINANCIERA EN EMPRESAS, SOCIEDADES Y ASOCIACIONES DEL DECLARANTE, CONCUBINA, CONCUBINARIO,
+                FAMILIARES CONSANGUÍNEOS HASTA EL CUARTO GRADO, POR AFINIDAD O CIVIL Y/O DEPENDIENTES ECONÓMICOS (HASTA LOS ÚLTIMOS DOS
+                AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    2   -->
+        @if($key == "PARTICIPA EN LA TOMA DE DECISIONES DE ALGUNAS DE ESTAS INSTITUCIONES")
+            <li><span>
+                
+                ¿PARTICIPA EN LA TOMA DE DECISIONES DE ALGUNA DE ESTAS INSTITUCIONES? (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    3   -->
+        @if($key == "APOYO O BENEFICIOS PUBLICOS")
+            <li><span>
+                
+                APOYOS O BENEFICIOS PÚBLICOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    4   -->
+        @if($key == "REPRESENTACION")
+            <li><span>
+                
+                REPRESENTACIÓN (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    5   -->
+        @if($key == "CLIENTES PRINCIPALES")
+            <li><span>
+                
+                CLIENTES PRINCIPALES</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    6   -->
+        @if($key == "BENEFICIOS PRIVADOS")
+            <li><span>
+                
+                BENEFICIOS PRIVADOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    7   -->
+        @if($key == "FIDEICOMISOS")
+            <li><span>
+                
+                FIDEICOMISOS (HASTA LOS ÚLTIMOS DOS AÑOS)</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    8   -->
+        @if($key == "DONATIVOS")
+            <li><span>
+                
+                DONATIVOS</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    9   -->
+        @if($key == "INTERESES PERSONALES")
+            <li><span>
+                
+                INTERESES PERSONALES</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    10   -->
+        @if($key == "PARTICIPACIONES")
+            <li><span>
+                
+                PARTICIPACIONES</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+        <!--    11   -->
+        @if($key == "VIAJES")
+            <li><span>
+                
+                VIAJES</span><br>
+            <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+            </li>
+            <br>
+            <br>
+            <table width="99%" border="1" cellpadding="2">
+                <tbody>
+                <tr>
+                    @if($data)
+                        <th width="33%" >Observaciones</th>
+                        <td width="66%" colspan="2">{{ $data }}</td>
+                    @else
+                        <th align="center" width="99%">No se registró información en este apartado</th>
+                    @endif
+                </tr>
+                </tbody>
+            </table>
+        @endif
+
+    @endforeach
+    
+</ol>
+@endif
+<ol>
+
+    @if ($declaracion->estatus_declaracion->estatus == "EnviadaS")
+        <br><br>
+        <br>
+        <table width="99%" border="1" cellpadding="2">
+            <tbody>
+            <tr>
+                <td><strong>Cadena Original:</strong><br>UG9yIGVsIHByZXNlbnRlIHNlIGhhY2UgY29uc3RhciBxdWUgTk9NQlJFICwgcHJlc2Vuw7MgYW50ZSBsYSBDb250cmFsb3LDrWEgZGVsIFBvZGVyIExlZ2lzbGF0aXZvIGRlbCBFc3RhZG8gZGUgTcOpeGljbyB1dGlsaXphbmRvIGVsIERlY2xAcmEgTGVnaXMgTkVULCBkZQphY3VlcmRvIGEgbG9zIGFydMOtY3Vsb3MgMywgZnJhY2Npb25lcyBWIHkgVklJSSwgNywgZnJhY2Npb25lcyBJSSB5IElYLCA5LCBmcmFjY2nDs24gSVgsIDI5LCAzMCwgMzMsIDM0LCBmcmFjY2nDs24gSUksIDM1LCAzNywgMzgsIDM5LCA0MCwgNDQsIDQ1IHkgNDYgZGUgbGEgTGV5IGRlClJlc3BvbnNhYmlsaWRhZGVzIEFkbWluaXN0cmF0aXZhcyBkZWwgRXN0YWRvIGRlIE3DqXhpY28geSBNdW5pY2lwaW9zOyBzdSBEZWNsYXJhY2nDs24gZGUgU2l0dWFjw7NuIFBhdHJpbW9uaWFsIHkgZGUgSW50ZXJlc2VzIHBvciBUSVBPIERFCk1PVklNSUVOVE8uIA==
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    @endif
+
+
+    <h1 align="center">PROTESTO LO NECESARIO</h1><br>
+    <div align="justify"> 
+        @if(!session('intereses'))
+            Por el presente se hace constar que
+            <b> {{mb_strtoupper($declaracion->servidor_publico->nombre)}} {{mb_strtoupper($declaracion->servidor_publico->primer_apellido)}} {{mb_strtoupper($declaracion->servidor_publico->segundo_apellido)}}</b>,
+            presentó ante la Contraloría del Poder Legislativo del Estado de México utilizando el Decl@ra Legis
+            NET, de acuerdo a los artículo 3, fracciones V y VIII; 7 fracciones II y IX; 9 fracción IX; 29, 30, 33, 34
+            fracci&oacute;n  @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2) I @elseif($declaracion->tipo_movimiento_id == 3) II  @elseif($declaracion->tipo_movimiento_id == 4) III  @endif; 35, 37, 38, 39, 40, 44, 45 y 46 de la Ley de Responsabilidades Administrativas del Estado de
+            México y Municipios; su
+            <strong>Declaración de Situación Patrimonial y de Intereses  
+            @if($declaracion->tipo_movimiento_id == 1 || $declaracion->tipo_movimiento_id == 2)
+                <strong>INICIAL</strong>,
+            @elseif($declaracion->tipo_movimiento_id == 3)
+                por <strong>MODIFICACIÓN</strong>,
+            @elseif($declaracion->tipo_movimiento_id == 4)
+                por <strong>CONCLUSIÓN</strong>,
+            @elseif($declaracion->tipo_movimiento_id == 5)
+                por <strong>INTERESES</strong>,
+            @endif
+        
+        @else   
+            Por el presente se hace constar que
+            <b> {{mb_strtoupper($declaracion->servidor_publico->nombre)}} {{mb_strtoupper($declaracion->servidor_publico->primer_apellido)}} {{mb_strtoupper($declaracion->servidor_publico->segundo_apellido)}}</b>,
+            presentó ante la Contraloría del Poder Legislativo del Estado de México utilizando el Decl@ra Legis presentó ante la Contraloría 
+            del Poder Legislativo del Estado de México utilizando el Decl@ra Legis NET, de acuerdo a los artículo 3, fracciones V y VIII; 
+            7 fracciones II y IX; 9 fracción IX; 29, 32, 40, 44, 45 y 46, tercer párrafo de la Ley de Responsabilidades Administrativas del 
+            Estado de México y Municipios; su Declaración de Situación Patrimonial y de Intereses por INTERESES.
+        @endif 
+
+    </div>
+
+    <h1>CADENA ORIGINAL</h1>
+    <h1 align="center">
+        <hr>
+    </h1>
+    <div align="justify">
+        <strong>|| {!! $declaracion->tipo_movimiento->valor !!}:@if(!session('intereses')){{$declaracion->id}}@else {{$declaracion->folioIntereses->folio}}-D.INT.@endif |
+            FOLIO:@if(!session('intereses')){{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}}@else {{str_pad($declaracion->folioIntereses->folio, 10, "0", STR_PAD_LEFT)}}-D.INT. @endif | RFC:{{$servidor->rfc}}
+            | PRIMER APELLIDO:{{$servidor->primer_apellido}} | SEGUNDO
+            APELLIDO:{{$servidor->segundo_apellido}} |
+            NOMBRE:{{$servidor->nombre}}
+            | DEPENDENCIA:{{mb_strtoupper($servidor->nombreDependencia->nombre)}} |
+            DIRECCIÓN: {{mb_strtoupper($servidor->nombreDireccion->nombre)}}
+            | DEPARTAMENTO: {{mb_strtoupper($servidor->nombreDepartamento->nombre)}} |
+            CARGO: {{mb_strtoupper($servidor->cargo)}}
+            | FECHA DEL MOVIMIENTO: {{\Carbon\Carbon::create($declaracion->fecha_declaracion)->format("d-m-Y")}} | FECHA
+            DE
+            ENTREGA: {{ $declaracion->fecha_envio ? \Carbon\Carbon::create($declaracion->fecha_envio)->format("d-m-Y") : "ENTREGA PENDIENTE"}}
+            @if($declaracion->ingresos)
+                |
+                INGRESO {{$declaracion->tipo_movimiento_id == 3 || $declaracion->tipo_movimiento_id == 4 ? "ANUAL" : "MENSUAL"}}
+                DECLARANTE: $ {{number_format($declaracion->ingresos->ingreso_mensual_neto, 2)}}
+            @endif
+
+            @if(count($declaracion->intereses))
+                @foreach($declaracion->intereses as $item)
+                    | INTERESES PERSONALES: {{count($declaracion->intereses) ? "SI" : "NO"}}
+                    | PERSONA QUE CAUSA CONFLICTO DE
+                    INTERES: {{$item->nombre}} {{$item->primer_apellido}} {{$item->segundo_apellido}}
+                @endforeach
+            @endif
+            | PRESENTA DECLARACIÓN
+            FISCAL: {{$declaracion->DocumentoSat && $declaracion->DocumentoSat->requiere_cargar_evidencia ? "SI" : "NO"}}
+            || ACLARACIÓNES: {{$declaracion->fecha_envio_aclaracion  ? "SI || FECHA ENVIO ACLARACIÓN: ".$declaracion->fecha_envio_aclaracion : "NO"}}
+        </strong>
+    </div>
+</ol>
+
+<table width="99%" border="0" align="right">
+
+    <tr>
+        <td align="right">Fecha de entrega: <strong>
+                @if ($declaracion->fecha_envio)
+                    {{$declaracion->fecha_envio}}
+                @else
+                    PENDIENTE DE ENTREGAR
+                @endif
+            </strong></td>
+    </tr>
+
+</table>
+</body>
+</body>
+

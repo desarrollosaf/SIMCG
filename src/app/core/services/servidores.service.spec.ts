@@ -65,6 +65,21 @@ describe('ServidoresService', () => {
     req.flush({ mensaje: 'ok' });
   });
 
+  it('pide el PDF de la declaración pública y privada como blob', () => {
+    let blob: Blob | undefined;
+    servicio.pdfDeclaracion(5, 21, false).subscribe((b) => (blob = b));
+    const publica = http.expectOne('/api/servidores/5/declaraciones/21/pdf');
+    expect(publica.request.method).toBe('GET');
+    expect(publica.request.responseType).toBe('blob');
+    publica.flush(new Blob(['%PDF']));
+    expect(blob).toBeInstanceOf(Blob);
+
+    servicio.pdfDeclaracion(5, 21, true).subscribe();
+    const privada = http.expectOne('/api/servidores/5/declaraciones/21/pdf-privada');
+    expect(privada.request.responseType).toBe('blob');
+    privada.flush(new Blob(['%PDF']));
+  });
+
   it('crea un movimiento para el servidor', () => {
     servicio.crearMovimiento(5, 3).subscribe();
 

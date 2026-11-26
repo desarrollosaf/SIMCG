@@ -44,6 +44,17 @@ export class PdfService implements OnModuleDestroy {
     const navegador = await this.obtenerNavegador();
     const pagina = await navegador.newPage();
     try {
+      // Las plantillas no necesitan JS ni red: las imágenes van en data URI.
+      await pagina.setJavaScriptEnabled(false);
+      await pagina.setRequestInterception(true);
+      pagina.on('request', (peticion) => {
+        const url = peticion.url();
+        if (url.startsWith('data:') || url === 'about:blank') {
+          void peticion.continue();
+        } else {
+          void peticion.abort();
+        }
+      });
       await pagina.setContent(html, { waitUntil: 'load' });
       const conCabeceras = !!(opciones.encabezadoHtml || opciones.pieHtml);
       const pdf = await pagina.pdf({

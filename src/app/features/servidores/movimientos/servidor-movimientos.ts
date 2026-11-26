@@ -216,6 +216,8 @@ export class ServidorMovimientos {
       cellRenderer: CeldaPdf,
       cellRendererParams: {
         estado: (m: Movimiento) => estadoPdf(m, this.puedeVerPdf()),
+        pdf: (m: Movimiento, privada: boolean) =>
+          this.servidoresService.pdfDeclaracion(this.servidorId(), m.id, privada),
       },
     },
     columnaAcciones(this.acciones),

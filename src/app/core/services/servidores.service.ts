@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TipoMovimiento } from './catalogos.service';
+import { leerErrorDeBlob } from './reportes.service';
 
 export type EstatusServidor = 'obligado' | 'no_obligado' | 'baja' | 'sin_movimiento';
 
@@ -164,6 +165,16 @@ export class ServidoresService {
       `${environment.apiUrl}/movimientos/${movimientoId}/obligado`,
       { obligado, motivoNoObligadoId },
     );
+  }
+
+  /** PDF de la declaración (pública o privada) del movimiento, para abrirlo en una pestaña. */
+  pdfDeclaracion(servidorId: number, declaracionId: number, privada: boolean): Observable<Blob> {
+    const ruta = privada ? 'pdf-privada' : 'pdf';
+    return this.http
+      .get(`${this.base}/${servidorId}/declaraciones/${declaracionId}/${ruta}`, {
+        responseType: 'blob',
+      })
+      .pipe(leerErrorDeBlob());
   }
 
   eliminarMovimiento(movimientoId: number): Observable<{ mensaje: string }> {
