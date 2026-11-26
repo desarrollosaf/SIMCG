@@ -78,8 +78,11 @@ export class ReportesController {
   }
 
   @Post('preventivos/:declaracionId/correo')
-  async correoPreventivo(@Param('declaracionId', ParseIntPipe) id: number) {
-    await this.oficios.enviarCorreoPreventivo(id);
+  async correoPreventivo(
+    @Param('declaracionId', ParseIntPipe) id: number,
+    @Req() req: Request,
+  ) {
+    await this.oficios.enviarCorreoPreventivo(id, usuarioId(req));
     return { ok: true };
   }
 

@@ -2,7 +2,6 @@ import { ColDef, SortChangedEvent } from 'ag-grid-community';
 import { FilaReporte } from '../../core/services/reportes.service';
 import { CeldaDosNiveles } from '../../shared/ag-grid/celda-dos-niveles';
 import { CeldaEstatus } from '../../shared/ag-grid/celda-estatus';
-import { formatearFecha } from '../../shared/utils/descarga';
 import {
   ClaveOrden,
   Orden,
@@ -72,7 +71,7 @@ export function columnasReporte(mayusculas: boolean): ColDef<FilaReporte>[] {
       headerName: 'F. DE MOVIMIENTO',
       minWidth: 130,
       flex: 0.9,
-      valueGetter: (p) => formatearFecha(p.data?.fechaDeclaracion),
+      valueGetter: (p) => (p.data?.fechaDeclaracion ?? ''),
     }),
     ordenable({
       colId: 'envio',

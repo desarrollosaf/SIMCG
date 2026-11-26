@@ -307,8 +307,12 @@ export class OficiosService {
     return existsSync(ruta) ? ruta : null;
   }
 
-  async enviarCorreoPreventivo(declaracionId: number): Promise<void> {
+  async enviarCorreoPreventivo(
+    declaracionId: number,
+    usuarioId: number,
+  ): Promise<void> {
     const contexto = await this.cargarContexto(declaracionId);
+    const envia = await this.servidorDelUsuario(usuarioId);
     const usuario = await this.userModel.findOne({
       where: { servidorPublicoId: contexto.servidorId },
     });
@@ -372,7 +376,7 @@ export class OficiosService {
       adjuntos,
     });
 
-    // Igual que el viejo: id_servidor_realizo es el propio servidor destinatario.
+    // id_servidor_realizo: el servidor público del usuario que envía el correo.
     const existente = await this.envioCorreoModel.findOne({
       where: {
         servidorPublicoId: contexto.servidorId,
@@ -383,7 +387,7 @@ export class OficiosService {
     if (existente) {
       await existente.update({
         total: existente.total + 1,
-        idServidorRealizo: String(contexto.servidorId),
+        idServidorRealizo: String(envia.id),
       });
     } else {
       await this.envioCorreoModel.create({
@@ -393,7 +397,7 @@ export class OficiosService {
         tipoCorreo: TIPO_CORREO_PREVENTIVO,
         total: 1,
         totalOficiosGenerados: 0,
-        idServidorRealizo: String(contexto.servidorId),
+        idServidorRealizo: String(envia.id),
       });
     }
   }

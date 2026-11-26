@@ -561,7 +561,11 @@ describe('OficiosService', () => {
     beforeEach(() => {
       declaracionModel.findByPk.mockResolvedValue(declaracion);
       tipoMovimientoModel.findByPk.mockResolvedValue({ valor: 'INGRESO' });
-      servidorModel.findByPk.mockResolvedValue(servidorBd);
+      // El usuario 20 que envía es el servidor 3; el destinatario es el 7.
+      userModel.findByPk.mockResolvedValue({ id: 20, servidorPublicoId: 3 });
+      servidorModel.findByPk.mockImplementation((id: number) =>
+        Promise.resolve(id === 3 ? { ...servidorBd, id: 3 } : servidorBd),
+      );
       userModel.findOne.mockResolvedValue({ email: 'ana@legislativo.mx' });
       envioCorreoModel.findOne.mockResolvedValue(null);
       correo.enviar.mockResolvedValue(undefined);
@@ -569,7 +573,7 @@ describe('OficiosService', () => {
 
     it('422 «Usuario no registrado.» si el servidor no tiene usuario', async () => {
       userModel.findOne.mockResolvedValue(null);
-      await expect(servicio.enviarCorreoPreventivo(55)).rejects.toThrow(
+      await expect(servicio.enviarCorreoPreventivo(55, 20)).rejects.toThrow(
         new UnprocessableEntityException('Usuario no registrado.'),
       );
       expect(correo.enviar).not.toHaveBeenCalled();
@@ -578,7 +582,7 @@ describe('OficiosService', () => {
 
     it('404 si la declaración no existe', async () => {
       declaracionModel.findByPk.mockResolvedValue(null);
-      await expect(servicio.enviarCorreoPreventivo(1)).rejects.toThrow(
+      await expect(servicio.enviarCorreoPreventivo(1, 20)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -589,7 +593,7 @@ describe('OficiosService', () => {
         IMAGEN_CORREO_INICIAL,
         IMAGEN_CORREO_CONCLUSION,
       ]);
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       const mensaje = (correo.enviar.mock.calls as unknown[][])[0][0] as {
         para: string;
         asunto: string;
@@ -619,7 +623,7 @@ describe('OficiosService', () => {
         tipoMovimientoId: 2,
       });
       conImagenes([IMAGEN_ENCABEZADO_CORREO, IMAGEN_CORREO_INICIAL]);
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       const { adjuntos } = (correo.enviar.mock.calls as unknown[][])[0][0] as {
         adjuntos: { filename: string }[];
       };
@@ -634,7 +638,7 @@ describe('OficiosService', () => {
           tipoMovimientoId,
         });
         conImagenes([IMAGEN_ENCABEZADO_CORREO, IMAGEN_CORREO_CONCLUSION]);
-        await servicio.enviarCorreoPreventivo(55);
+        await servicio.enviarCorreoPreventivo(55, 20);
         const { adjuntos } = (
           correo.enviar.mock.calls as unknown[][]
         )[0][0] as {
@@ -649,7 +653,7 @@ describe('OficiosService', () => {
       const warn = jest
         .spyOn((servicio as unknown as { logger: Logger }).logger, 'warn')
         .mockImplementation(() => undefined);
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       const mensaje = (correo.enviar.mock.calls as unknown[][])[0][0] as {
         html: string;
         adjuntos: { filename: string }[];
@@ -675,7 +679,7 @@ describe('OficiosService', () => {
       envioCorreoModel.findOne
         .mockResolvedValueOnce({ noOficio: '0200' })
         .mockResolvedValue(null);
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       const { html } = (correo.enviar.mock.calls as unknown[][])[0][0] as {
         html: string;
       };
@@ -686,7 +690,7 @@ describe('OficiosService', () => {
 
     it('registra el envío en envio_correos filtrando por declaración (crear)', async () => {
       conImagenes([IMAGEN_ENCABEZADO_CORREO, IMAGEN_CORREO_INICIAL]);
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       expect(envioCorreoModel.findOne).toHaveBeenCalledWith({
         where: { servidorPublicoId: 7, tipoCorreo: 1, declaracionId: 55 },
       });
@@ -697,7 +701,7 @@ describe('OficiosService', () => {
         tipoCorreo: 1,
         total: 1,
         totalOficiosGenerados: 0,
-        idServidorRealizo: '7',
+        idServidorRealizo: '3',
       });
     });
 
@@ -705,10 +709,10 @@ describe('OficiosService', () => {
       conImagenes([IMAGEN_ENCABEZADO_CORREO, IMAGEN_CORREO_INICIAL]);
       const update = jest.fn();
       envioCorreoModel.findOne.mockResolvedValue({ total: 2, update });
-      await servicio.enviarCorreoPreventivo(55);
+      await servicio.enviarCorreoPreventivo(55, 20);
       expect(update).toHaveBeenCalledWith({
         total: 3,
-        idServidorRealizo: '7',
+        idServidorRealizo: '3',
       });
       expect(envioCorreoModel.create).not.toHaveBeenCalled();
     });
@@ -716,7 +720,9 @@ describe('OficiosService', () => {
     it('si el correo falla no se registra el envío', async () => {
       conImagenes([IMAGEN_ENCABEZADO_CORREO, IMAGEN_CORREO_INICIAL]);
       correo.enviar.mockRejectedValue(new Error('smtp'));
-      await expect(servicio.enviarCorreoPreventivo(55)).rejects.toThrow('smtp');
+      await expect(servicio.enviarCorreoPreventivo(55, 20)).rejects.toThrow(
+        'smtp',
+      );
       expect(envioCorreoModel.create).not.toHaveBeenCalled();
     });
   });

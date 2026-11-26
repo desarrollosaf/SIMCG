@@ -1,6 +1,5 @@
 import { FilaReporte } from '../../core/services/reportes.service';
 import { EstadoVisual } from '../../shared/ag-grid/estado-celda';
-import { formatearFecha } from '../../shared/utils/descarga';
 
 export const TAMANOS_PAGINA_REPORTE = [10, 20, 50, 100];
 
@@ -38,9 +37,9 @@ export function adscripcionSecundaria(f: FilaReporte, mayusculas = false): strin
   return mayusculas ? texto.toUpperCase() : texto;
 }
 
-/** Columna ENVÍO: «ENVIADA EL: dd/mm/aaaa» o «SIN ENVIO». */
+/** Columna ENVÍO: «ENVIADA EL: aaaa-mm-dd» o «SIN ENVIO». */
 export function envioFila(f: FilaReporte): string {
-  return f.fechaEnvio ? `ENVIADA EL: ${formatearFecha(f.fechaEnvio)}` : 'SIN ENVIO';
+  return f.fechaEnvio ? `ENVIADA EL: ${(f.fechaEnvio ?? '')}` : 'SIN ENVIO';
 }
 
 /** Etiqueta de color del estado del servidor público. */

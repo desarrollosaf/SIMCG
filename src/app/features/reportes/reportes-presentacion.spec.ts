@@ -41,7 +41,7 @@ describe('reportes-presentacion', () => {
 
   it('columna ENVÍO: «ENVIADA EL: …» o «SIN ENVIO»', () => {
     expect(envioFila(fila())).toBe('SIN ENVIO');
-    expect(envioFila(fila({ fechaEnvio: '2026-03-05' }))).toBe('ENVIADA EL: 05/03/2026');
+    expect(envioFila(fila({ fechaEnvio: '2026-03-05' }))).toBe('ENVIADA EL: 2026-03-05');
   });
 
   it('etiqueta de color por estatus', () => {
