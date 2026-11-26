@@ -48,7 +48,7 @@
   </header>
 
   <div class="cuerpo">
-    <aside class="lateral" [class.col]="colapsado()">
+    <aside class="lateral" [class.col]="colapsado() || movil()">
       @if (!colapsado() && !movil()) {
         <nav class="exp" aria-label="Menú principal">
           <div class="exp-cab">
@@ -118,7 +118,7 @@
           </ul>
         </nav>
       } @else {
-        <nav class="isla" aria-label="Menú principal">
+        <nav class="isla" aria-label="Menú principal" [style.--cols-isla]="columnasIsla()">
           @if (!movil()) {
             <button
               type="button"

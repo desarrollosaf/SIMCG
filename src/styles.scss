@@ -434,3 +434,15 @@ kbd {
   align-items: center;
   min-height: 100%;
 }
+
+// Sin barras de desplazamiento visibles en toda la app: se sigue desplazando
+// con rueda, teclado, touchpad o dedo, pero sin pintar la barra.
+html,
+body,
+.scroll {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

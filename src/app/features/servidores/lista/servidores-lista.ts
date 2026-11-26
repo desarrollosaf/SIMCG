@@ -338,7 +338,7 @@ export class ServidoresLista implements OnDestroy {
       {
         colId: 'nombre',
         headerName: 'Servidor público',
-        minWidth: 240,
+        minWidth: 170,
         flex: 2,
         sortable: true,
         sort: inicial.ordenar === 'nombre' ? inicial.direccion : undefined,
@@ -354,7 +354,7 @@ export class ServidoresLista implements OnDestroy {
       {
         colId: 'dependencia',
         headerName: 'Dependencia / dirección',
-        minWidth: 200,
+        minWidth: 150,
         flex: 1.7,
         sortable: true,
         sort: inicial.ordenar === 'dependencia' ? inicial.direccion : undefined,
@@ -380,8 +380,8 @@ export class ServidoresLista implements OnDestroy {
       {
         colId: 'estatus',
         headerName: 'Estatus',
-        width: 150,
-        minWidth: 130,
+        width: 120,
+        minWidth: 110,
         sortable: false,
         cellRenderer: CeldaEstatus,
         cellRendererParams: { estatus: estatusServidor },

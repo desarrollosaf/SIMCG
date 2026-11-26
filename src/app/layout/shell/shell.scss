@@ -615,6 +615,11 @@ button {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .content {
@@ -698,28 +703,20 @@ button {
   }
 
   .isla {
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: space-between;
+    // Todos los módulos a la vista: si no caben en un renglón, se reparten en dos pisos.
+    display: grid;
+    grid-template-columns: repeat(var(--cols-isla, 4), minmax(0, 1fr));
     gap: 4px;
     width: auto;
     margin: 10px 12px 0;
     padding: 6px;
     border-radius: 18px;
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
   }
 
   .mod {
-    // La barra se desliza de lado: cada botón mide lo que su nombre corto, sin recortarlo.
-    flex: 0 0 auto;
     width: auto;
-    min-width: 64px;
-    padding: 6px 8px;
+    min-width: 0;
+    padding: 6px 4px;
     font-size: 1.15rem;
 
     span {

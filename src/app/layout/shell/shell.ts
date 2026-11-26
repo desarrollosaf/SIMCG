@@ -78,7 +78,7 @@ export class Shell {
   protected readonly colapsado = signal(leerColapsado());
   /** Celular: siempre la isla (horizontal), sin menú expandido. */
   protected readonly movil = signal(esMovil());
-  /** Grupos desplegados en el lateral expandido (pueden ser varios). */
+  /** Grupos desplegados en el lateral expandido (solo uno a la vez). */
   protected readonly expandidos = signal<ReadonlySet<string>>(new Set());
   /** Grupo cuyo panel flotante está abierto en el modo colapsado. */
   protected readonly panelGrupo = signal<MenuGrupo | null>(null);
@@ -86,6 +86,11 @@ export class Shell {
   protected readonly usuarioAbierto = signal(false);
 
   protected readonly esGrupo = esGrupo;
+  /** Celular: la barra de módulos se reparte en dos pisos si no cabe en uno. */
+  protected readonly columnasIsla = computed(() => {
+    const n = this.menu().length;
+    return n > 5 ? Math.ceil(n / 2) : n;
+  });
 
   constructor() {
     // El grupo con la ruta activa queda desplegado.
@@ -97,7 +102,7 @@ export class Shell {
       if (grupo) {
         untracked(() => {
           if (!this.expandidos().has(grupo.etiqueta)) {
-            this.expandidos.update((s) => new Set(s).add(grupo.etiqueta));
+            this.expandidos.set(new Set([grupo.etiqueta]));
           }
         });
       }
@@ -135,11 +140,10 @@ export class Shell {
   }
 
   protected alternarGrupo(grupo: MenuGrupo): void {
-    this.expandidos.update((s) => {
-      const nuevo = new Set(s);
-      if (!nuevo.delete(grupo.etiqueta)) nuevo.add(grupo.etiqueta);
-      return nuevo;
-    });
+    // Acordeón: abrir un grupo cierra los demás.
+    this.expandidos.update((s) =>
+      s.has(grupo.etiqueta) ? new Set<string>() : new Set([grupo.etiqueta]),
+    );
   }
 
   protected alternarPanel(grupo: MenuGrupo, evento: Event): void {
@@ -181,6 +185,8 @@ export class Shell {
   @HostListener('window:resize')
   protected alRedimensionar(): void {
     this.movil.set(esMovil());
+    // Al achicar la ventana el lateral pasa solo a modo isla (sin guardar la preferencia).
+    if (window.innerWidth < ANCHO_ANGOSTO) this.colapsado.set(true);
     this.cerrarPaneles();
   }
 
