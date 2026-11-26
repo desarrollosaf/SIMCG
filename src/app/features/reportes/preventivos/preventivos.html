@@ -1,0 +1,111 @@
+<section class="reportes-page">
+  <div class="card">
+    <app-barra-acciones
+      titulo="Servidores Públicos Preventivo"
+      subtitulo="Declaraciones en tiempo (obligación vigente)"
+    >
+      @if (yaCargo()) {
+        <span barra-acciones class="chip-total">{{ filas().length }} registros</span>
+      }
+      <button
+        barra-acciones
+        type="button"
+        class="btn btn--outline"
+        title="Exportar a Excel"
+        aria-label="Exportar correos a Excel"
+        (click)="modalExcel.set(true)"
+      >
+        <app-icono nombre="descargar" />
+        Excel
+      </button>
+    </app-barra-acciones>
+
+    <div class="cuerpo">
+      @if (conError()) {
+        <app-estado-error
+          titulo="No se pudo consultar el reporte"
+          mensaje="Revisa tu conexión e intenta de nuevo."
+          (reintentar)="cargar()"
+        />
+      } @else if (cargando()) {
+        <div class="tabla-skeleton" aria-busy="true" aria-label="Consultando preventivos">
+          <div class="tabla-skeleton__header"></div>
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <div class="tabla-skeleton__row"></div>
+          }
+        </div>
+      } @else if (filas().length === 0) {
+        <app-estado-vacio titulo="Sin registros" />
+      } @else {
+        <div class="tabla-header__busqueda busqueda">
+          <app-icono nombre="buscar" />
+          <input
+            type="text"
+            placeholder="Buscar en los resultados"
+            aria-label="Buscar en los resultados"
+            autocomplete="off"
+            [value]="textoBusqueda()"
+            (input)="alEscribir($event)"
+          />
+        </div>
+
+        @if (total() === 0) {
+          <app-estado-vacio
+            icono="buscar"
+            titulo="Sin resultados"
+            mensaje="Ningún registro coincide con la búsqueda."
+          />
+        } @else if (esMovil()) {
+          <app-lista-tarjetas
+            etiqueta="Servidores públicos preventivo"
+            [filas]="filasPagina()"
+            [acciones]="acciones"
+            [id]="idTarjeta"
+            [titulo]="tituloTarjeta"
+            [subtitulo]="subtituloTarjeta"
+            [detalle]="detalleTarjeta"
+            [estatus]="estatusTarjeta"
+          />
+        } @else {
+          <ag-grid-angular
+            class="grid"
+            [theme]="gridTheme"
+            [defaultColDef]="columnaBase"
+            [localeText]="localeText"
+            [rowData]="filasPagina()"
+            [columnDefs]="columnas"
+            [getRowId]="obtenerIdFila"
+            [rowHeight]="56"
+            [domLayout]="'autoHeight'"
+            [enableCellTextSelection]="true"
+            [ensureDomOrder]="true"
+            [suppressMovableColumns]="true"
+            [suppressDragLeaveHidesColumns]="true"
+            [suppressMultiSort]="true"
+            (sortChanged)="alOrdenar($event)"
+          />
+        }
+
+        @if (total() > 0) {
+          <app-paginador
+            class="pie-paginador"
+            [pagina]="pagina()"
+            [total]="total()"
+            [limite]="limite()"
+            [tamanos]="tamanosPagina"
+            (paginaCambiada)="pagina.set($event)"
+            (limiteCambiado)="cambiarLimite($event)"
+          />
+        }
+      }
+    </div>
+  </div>
+</section>
+
+@if (oficioFila(); as fila) {
+  <app-oficio-preventivo-modal [fila]="fila" (cerrar)="oficioFila.set(null)" />
+}
+
+@if (modalExcel()) {
+  <app-reporte-correos-modal tipo="PREVENTIVO" (cerrar)="modalExcel.set(false)" />
+}

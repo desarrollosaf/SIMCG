@@ -1,0 +1,22 @@
+@use '../reportes';
+
+:host {
+  display: block;
+}
+
+.reportes-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.busqueda {
+  margin-bottom: 1rem;
+}
+
+.tabla-header__busqueda app-icono {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 17px;
+  color: var(--brand-muted);
+  pointer-events: none;
+}

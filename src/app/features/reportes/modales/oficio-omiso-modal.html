@@ -1,0 +1,92 @@
+<app-modal
+  tamano="lg"
+  titulo="Generar oficio"
+  [subtitulo]="nombre()"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar.emit()"
+>
+  <p class="hint">Los campos con * son obligatorios.</p>
+
+  <form id="form-oficio-omiso" [formGroup]="form" (ngSubmit)="generar()" novalidate>
+    <div class="rejilla rejilla--cuatro">
+      <div class="campo">
+        <label for="om-folio">Oficio consecutivo: *</label>
+        <input
+          id="om-folio"
+          type="text"
+          cdkFocusInitial
+          formControlName="folio"
+          placeholder="P. EJ. 0001"
+          autocomplete="off"
+          [readonly]="folioBloqueado()"
+          [attr.aria-invalid]="invalido('folio')"
+        />
+        <span class="ayuda">{{ prefijo }}…/año</span>
+        @if (invalido('folio')) {
+          <span class="error">Captura el oficio consecutivo.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="om-folio-dadp">Oficio de la DADP: *</label>
+        <input
+          id="om-folio-dadp"
+          type="text"
+          formControlName="folioDadp"
+          placeholder="P. EJ. 0001"
+          autocomplete="off"
+          [attr.aria-invalid]="invalido('folioDadp')"
+        />
+        @if (invalido('folioDadp')) {
+          <span class="error">Captura el oficio de la DADP.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="om-fecha-dadp">Fecha DADP: *</label>
+        <input
+          id="om-fecha-dadp"
+          type="date"
+          formControlName="fechaOficio"
+          [attr.aria-invalid]="invalido('fechaOficio')"
+        />
+        @if (invalido('fechaOficio')) {
+          <span class="error">Selecciona la fecha.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="om-fecha-padron">Fecha del padrón: *</label>
+        <input
+          id="om-fecha-padron"
+          type="date"
+          formControlName="fechaPadron"
+          [attr.aria-invalid]="invalido('fechaPadron')"
+        />
+        @if (invalido('fechaPadron')) {
+          <span class="error">Selecciona la fecha.</span>
+        }
+      </div>
+      <div class="campo campo--completo">
+        <label for="om-soporte">Documentación soporte: *</label>
+        <textarea
+          id="om-soporte"
+          rows="3"
+          formControlName="soporte"
+          [attr.aria-invalid]="invalido('soporte')"
+        ></textarea>
+        @if (invalido('soporte')) {
+          <span class="error">Captura la documentación soporte.</span>
+        }
+      </div>
+    </div>
+  </form>
+
+  <div modal-pie>
+    <button type="submit" form="form-oficio-omiso" class="btn btn--primary" [disabled]="guardando()">
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Generando…</span>
+      } @else {
+        <span>Generar oficio</span>
+      }
+    </button>
+  </div>
+</app-modal>

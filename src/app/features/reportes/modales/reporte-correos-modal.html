@@ -1,0 +1,54 @@
+<app-modal
+  tamano="md"
+  titulo="Reporte correos preventivos"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar.emit()"
+>
+  <p class="hint">Los campos con * son obligatorios.</p>
+
+  <form id="form-reporte-correos" [formGroup]="form" (ngSubmit)="generar()" novalidate>
+    <div class="rejilla">
+      <div class="campo">
+        <label for="rc-inicio">Fecha inicio: *</label>
+        <input
+          id="rc-inicio"
+          type="date"
+          cdkFocusInitial
+          formControlName="fechaInicio"
+          [attr.aria-invalid]="invalido('fechaInicio')"
+        />
+        @if (invalido('fechaInicio')) {
+          <span class="error">Selecciona la fecha.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="rc-fin">Fecha fin: *</label>
+        <input
+          id="rc-fin"
+          type="date"
+          formControlName="fechaFin"
+          [attr.aria-invalid]="invalido('fechaFin')"
+        />
+        @if (invalido('fechaFin')) {
+          <span class="error">Selecciona la fecha.</span>
+        }
+      </div>
+    </div>
+  </form>
+
+  <div modal-pie>
+    <button
+      type="submit"
+      form="form-reporte-correos"
+      class="btn btn--primary"
+      [disabled]="guardando()"
+    >
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Generando…</span>
+      } @else {
+        <span>Generar</span>
+      }
+    </button>
+  </div>
+</app-modal>

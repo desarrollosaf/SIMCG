@@ -1,0 +1,59 @@
+<app-modal
+  tamano="md"
+  titulo="Generar oficio"
+  [subtitulo]="nombre()"
+  [bloqueado]="guardando()"
+  (cerrar)="cerrar.emit()"
+>
+  <p class="hint">Los campos con * son obligatorios.</p>
+
+  <form id="form-oficio-preventivo" [formGroup]="form" (ngSubmit)="generar()" novalidate>
+    <div class="rejilla">
+      <div class="campo">
+        <label for="pv-folio">Oficio consecutivo: *</label>
+        <input
+          id="pv-folio"
+          type="text"
+          cdkFocusInitial
+          formControlName="folio"
+          placeholder="P. EJ. 0001"
+          autocomplete="off"
+          [readonly]="folioBloqueado()"
+          [attr.aria-invalid]="invalido('folio')"
+        />
+        <span class="ayuda">{{ prefijo }}…/año</span>
+        @if (invalido('folio')) {
+          <span class="error">Captura el oficio consecutivo.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="pv-fecha">Fecha oficio: *</label>
+        <input
+          id="pv-fecha"
+          type="date"
+          formControlName="fechaOficio"
+          [attr.aria-invalid]="invalido('fechaOficio')"
+        />
+        @if (invalido('fechaOficio')) {
+          <span class="error">Selecciona la fecha.</span>
+        }
+      </div>
+    </div>
+  </form>
+
+  <div modal-pie>
+    <button
+      type="submit"
+      form="form-oficio-preventivo"
+      class="btn btn--primary"
+      [disabled]="guardando()"
+    >
+      @if (guardando()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Generando…</span>
+      } @else {
+        <span>Generar oficio</span>
+      }
+    </button>
+  </div>
+</app-modal>

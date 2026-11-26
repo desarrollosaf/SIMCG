@@ -1,0 +1,51 @@
+@use '../reportes';
+
+:host {
+  display: block;
+}
+
+.reportes-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+
+  .campo {
+    flex: 1 1 180px;
+    max-width: 260px;
+  }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+}
+
+.busqueda {
+  margin-bottom: 1rem;
+}
+
+.tabla-header__busqueda app-icono {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 17px;
+  color: var(--brand-muted);
+  pointer-events: none;
+}
+
+@media (max-width: 767.98px) {
+  .filtros .campo {
+    max-width: none;
+  }
+}

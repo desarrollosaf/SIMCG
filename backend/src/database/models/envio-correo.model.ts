@@ -29,6 +29,14 @@ export class EnvioCorreo extends Model {
   @Column({ type: DataType.INTEGER, allowNull: false })
   declare total: number;
 
+  // Oficios generados (PDF) para esta declaración; null en registros antiguos.
+  @Column({ type: DataType.INTEGER })
+  declare totalOficiosGenerados: number | null;
+
   @Column({ type: DataType.STRING })
   declare noOficio: string | null;
+
+  // Id del servidor público que generó el oficio o envió el correo (varchar en BD).
+  @Column({ type: DataType.STRING })
+  declare idServidorRealizo: string | null;
 }

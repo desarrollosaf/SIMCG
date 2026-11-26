@@ -1,0 +1,11 @@
+@use '../reportes';
+
+.rejilla--cuatro {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 767.98px) {
+  .rejilla--cuatro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

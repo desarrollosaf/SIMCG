@@ -1,0 +1,134 @@
+<section class="reportes-page">
+  <div class="card">
+    <app-barra-acciones
+      titulo="Servidores Públicos Omisos, Extemporáneos y No Obligados"
+      subtitulo="Búsqueda por rango de fechas"
+      [contador]="yaBusco() ? filas().length : null"
+    />
+
+    <form class="filtros" (submit)="$event.preventDefault(); buscar()" novalidate>
+      <div class="campo">
+        <label for="omisos-inicio">Fecha de inicio *</label>
+        <input
+          id="omisos-inicio"
+          type="date"
+          required
+          [value]="fechaInicio()"
+          (input)="alCambiarFecha('inicio', $event)"
+        />
+      </div>
+      <div class="campo">
+        <label for="omisos-fin">Fecha de término *</label>
+        <input
+          id="omisos-fin"
+          type="date"
+          required
+          [value]="fechaFin()"
+          (input)="alCambiarFecha('fin', $event)"
+        />
+      </div>
+      <div class="filtros__acciones">
+        <button type="submit" class="btn btn--primary" [disabled]="cargando()">
+          <app-icono nombre="buscar" />
+          Buscar
+        </button>
+        <button
+          type="button"
+          class="btn btn--outline"
+          title="Exportar a Excel"
+          [disabled]="exportando()"
+          (click)="exportar()"
+        >
+          <app-icono nombre="descargar" />
+          Exportar
+        </button>
+      </div>
+    </form>
+
+    <div class="cuerpo">
+      @if (conError()) {
+        <app-estado-error
+          titulo="No se pudo consultar el reporte"
+          mensaje="Revisa tu conexión e intenta de nuevo."
+          (reintentar)="buscar()"
+        />
+      } @else if (cargando()) {
+        <div class="tabla-skeleton" aria-busy="true" aria-label="Consultando omisos">
+          <div class="tabla-skeleton__header"></div>
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <div class="tabla-skeleton__row"></div>
+          }
+        </div>
+      } @else if (yaBusco()) {
+        @if (filas().length === 0) {
+          <app-estado-vacio titulo="Sin registros" />
+        } @else {
+          <div class="tabla-header__busqueda busqueda">
+            <app-icono nombre="buscar" />
+            <input
+              type="text"
+              placeholder="Buscar en los resultados"
+              aria-label="Buscar en los resultados"
+              autocomplete="off"
+              [value]="textoBusqueda()"
+              (input)="alEscribir($event)"
+            />
+          </div>
+
+          @if (total() === 0) {
+            <app-estado-vacio
+              icono="buscar"
+              titulo="Sin resultados"
+              mensaje="Ningún registro coincide con la búsqueda."
+            />
+          } @else if (esMovil()) {
+            <app-lista-tarjetas
+              etiqueta="Servidores públicos omisos"
+              [filas]="filasPagina()"
+              [acciones]="acciones"
+              [id]="idTarjeta"
+              [titulo]="tituloTarjeta"
+              [subtitulo]="subtituloTarjeta"
+              [detalle]="detalleTarjeta"
+              [estatus]="estatusTarjeta"
+            />
+          } @else {
+            <ag-grid-angular
+              class="grid"
+              [theme]="gridTheme"
+              [defaultColDef]="columnaBase"
+              [localeText]="localeText"
+              [rowData]="filasPagina()"
+              [columnDefs]="columnas"
+              [getRowId]="obtenerIdFila"
+              [rowHeight]="56"
+              [domLayout]="'autoHeight'"
+              [enableCellTextSelection]="true"
+              [ensureDomOrder]="true"
+              [suppressMovableColumns]="true"
+              [suppressDragLeaveHidesColumns]="true"
+              [suppressMultiSort]="true"
+              (sortChanged)="alOrdenar($event)"
+            />
+          }
+
+          @if (total() > 0) {
+            <app-paginador
+              class="pie-paginador"
+              [pagina]="pagina()"
+              [total]="total()"
+              [limite]="limite()"
+              [tamanos]="tamanosPagina"
+              (paginaCambiada)="pagina.set($event)"
+              (limiteCambiado)="cambiarLimite($event)"
+            />
+          }
+        }
+      }
+    </div>
+  </div>
+</section>
+
+@if (oficioFila(); as fila) {
+  <app-oficio-omiso-modal [fila]="fila" (cerrar)="oficioFila.set(null)" />
+}

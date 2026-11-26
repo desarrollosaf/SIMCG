@@ -1,0 +1,120 @@
+<style>
+  .oficio {
+    display: flex;
+    flex-direction: column;
+    min-height: 22.4cm;
+  }
+  .oficio p {
+    margin: 0;
+    text-align: justify;
+  }
+  .oficio .encabezado {
+    margin: 0 0 1.4em;
+    text-align: right;
+  }
+  .oficio .destinatario {
+    margin: 0 0 1em;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: left;
+  }
+  .oficio .espacio {
+    margin-top: 1.1em;
+  }
+  .oficio .soporte {
+    white-space: pre-line;
+  }
+  .oficio .cierre {
+    margin-top: auto;
+    break-inside: avoid;
+  }
+  .oficio .firma {
+    margin-top: 2.2em;
+    text-align: center;
+    font-weight: bold;
+    break-inside: avoid;
+  }
+  .oficio .copias {
+    margin-top: 1.6em;
+    text-align: left;
+    break-inside: avoid;
+  }
+</style>
+<div class="oficio">
+  <p class="encabezado">
+    Toluca, Estado de México, {{ fecha }}<br />
+    Oficio de remisión de omisos núm. {{ numero }}
+  </p>
+
+  <h2 class="destinatario">
+    L.C. Osiel Sánchez Villanueva <br />
+    Autoridad Investigadora de la <br />
+    Dirección de Situación Patrimonial de la Contraloría <br />
+    Del Poder Legislativo
+  </h2>
+
+  <p>
+    Con fundamento en lo dispuesto en los artículos 94, fracción III, y 96 de la
+    Ley Orgánica del Poder Legislativo del Estado Libre y Soberano de México;
+    155, fracción VI, y 156 del Reglamento del Poder Legislativo del Estado
+    Libre y Soberano de México; 1, 2, 6, fracción II, inciso A, 22, fracciones
+    XVI, XVIII y XIX y 24, fracción V del Reglamento Interno de la Contraloría
+    del Poder Legislativo del Estado Libre y Soberano de México; hago de su
+    conocimiento que mediante oficio número {{ folioDadp }}, del
+    {{ fechaOficio }}, la Directora de Administración y Desarrollo de Personal
+    de la Secretaría de Administración y Finanzas del Poder Legislativo del
+    Estado de México, remitió a esta Dirección el padrón correspondiente a la
+    relación de los servidores públicos incluyendo legisladores, que se
+    encuentran en ejercicio de un empleo, cargo o comisión en el Poder
+    Legislativo al {{ fechaPadron }}, del que se desprenden los movimientos que
+    fueron registrados en el Sistema Declara Legis net, en términos de los
+    artículos 1, 8, 12, 13 y 14 de los Lineamientos de Funcionamiento del
+    Sistema Declara Legis net para la presentación de las Declaraciones de
+    Situación Patrimonial y de Intereses de los Servidores Públicos del Poder
+    Legislativo del Estado de México, publicado el doce de mayo de dos mil
+    veintiuno.
+  </p>
+
+  <p class="espacio">
+    En ese tenor, y transcurridos los plazos señalados en la Ley de
+    Responsabilidades Administrativas del Estado de México y Municipios, en su
+    artículo 34 fracción {{ fraccion }} se consultó el Módulo de Control de
+    Gestión del Sistema, en el cual se advirtió que la persona servidora pública
+    {{ nombre }}, {{ cargo }}, {{ direccion }}, se presume fue omiso en la
+    presentación de sus Declaraciones de Situación Patrimonial y de Intereses
+    por {{ tipoMovimiento }} dentro del plazo establecido para el cumplimiento
+    de la obligación.
+  </p>
+
+  <p class="espacio">
+    Al efecto, se anexa la documentación soporte en copia cotejada:
+  </p>
+  <p class="espacio soporte">{{ soporte }}</p>
+
+  <p class="espacio">
+    Lo que hago de su conocimiento con el fin de que, en el ámbito de su
+    competencia, se aboque al conocimiento de los hechos, en términos de los
+    numerales 34, fracción {{ fraccionFinal }} 94, 95 fracción I y 99 de la Ley
+    de Responsabilidades Administrativas del Estado de México y Municipios.
+  </p>
+
+  <p class="espacio">
+    Sin otro particular, estoy a sus órdenes para cualquier aclaración al
+    respecto.
+  </p>
+
+  <div class="cierre">
+    <p class="firma">
+      A t e n t a m e n t e <br /><br />
+      L. en D. Frinnett Argelia Delgado Pérez<br />
+      Directora de Situación Patrimonial<br />
+      de la Contraloría del Poder Legislativo del Estado de México
+    </p>
+
+    <p class="copias">
+      c.c.p. <br />
+      Archivo <br />
+      FADP/MPRM/{{ iniciales }}
+    </p>
+  </div>
+</div>

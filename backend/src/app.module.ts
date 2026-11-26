@@ -12,6 +12,7 @@ import { CatalogosModule } from './catalogos/catalogos.module';
 import { ServidoresModule } from './servidores/servidores.module';
 import { CargasModule } from './cargas/cargas.module';
 import { LibrosModule } from './libros/libros.module';
+import { ReportesModule } from './reportes/reportes.module';
 import { DocumentosModule } from './documentos/documentos.module';
 
 interface MysqlConnectionConfig {
@@ -67,6 +68,7 @@ interface MysqlConnectionConfig {
     ServidoresModule,
     CargasModule,
     LibrosModule,
+    ReportesModule,
   ],
 })
 export class AppModule {}

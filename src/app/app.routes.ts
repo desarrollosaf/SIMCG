@@ -82,14 +82,13 @@ export const routes: Routes = [
       {
         path: 'reportes/omisos',
         canActivate: [roleGuard('reportes')],
-        data: { titulo: 'Detección de omisos, extemporáneos y no obligados' },
-        loadComponent: proximamente,
+        loadComponent: () => import('./features/reportes/omisos/omisos').then((m) => m.ReportesOmisos),
       },
       {
         path: 'reportes/preventivos',
         canActivate: [roleGuard('reportes')],
-        data: { titulo: 'Preventivos' },
-        loadComponent: proximamente,
+        loadComponent: () =>
+          import('./features/reportes/preventivos/preventivos').then((m) => m.ReportesPreventivos),
       },
       {
         path: 'reportes/situacion-servidor',
