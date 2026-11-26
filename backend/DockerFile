@@ -1,3 +1,14 @@
+# Navegador y fuentes para generar PDFs con puppeteer-core.
+# Liberation aporta la metrica de Arial.
+# Etapa de desarrollo: la usa docker-compose.yml (codigo y node_modules montados)
+FROM node:26-alpine AS desarrollo
+
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont font-liberation
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+WORKDIR /app
+
 # Etapa de compilacion
 FROM node:26-alpine AS build
 
@@ -14,9 +25,12 @@ RUN npm run build
 # Etapa de produccion: solo dist, dependencias de produccion y migraciones
 FROM node:26-alpine AS production
 
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont font-liberation
+
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY package*.json ./
 
@@ -24,6 +38,7 @@ COPY package*.json ./
 # dentro del contenedor: docker compose -f docker-compose.prod.yml exec backend npm run migrate
 RUN npm ci --omit=dev && npm cache clean --force
 
+# nest build copia src/assets y src/plantillas dentro de dist (ver nest-cli.json)
 COPY --from=build /app/dist ./dist
 
 # sequelize-cli no lee dist/: .sequelizerc y las migraciones viajan tal cual.

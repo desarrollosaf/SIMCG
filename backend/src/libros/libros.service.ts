@@ -3,13 +3,9 @@ import {
   ConflictException,
   Injectable,
   Logger,
-  NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
-import { createReadStream } from 'fs';
-import { access, mkdir, stat, unlink, writeFile } from 'fs/promises';
 import * as path from 'path';
 import {
   Op,
@@ -20,6 +16,7 @@ import {
 } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import type { ArchivoSubido } from '../common/archivo-subido';
+import { ArchivosService } from '../documentos/archivos.service';
 import { Declaracion } from '../database/models/declaracion.model';
 import { Libro } from '../database/models/libro.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
@@ -54,13 +51,6 @@ const TIPO_DE_ACTA: Record<TipoLibro, number> = {
 };
 
 const MAX_BYTES_ACTA = 15 * 1024 * 1024;
-
-const CONTENT_TYPES: Record<string, string> = {
-  '.pdf': 'application/pdf',
-  '.tif': 'image/tiff',
-  '.tiff': 'image/tiff',
-  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-};
 
 // Escapa los comodines de LIKE para que la búsqueda sea literal.
 const escaparLike = (texto: string): string =>
@@ -103,38 +93,8 @@ export class LibrosService {
     private readonly tipoMovimientoModel: typeof TipoMovimientoMcg,
     @InjectModel(Declaracion, 'declaranet')
     private readonly declaracionModel: typeof Declaracion,
-    private readonly config: ConfigService,
+    private readonly archivos: ArchivosService,
   ) {}
-
-  private get directorio(): string {
-    return this.config.get<string>('archivos.dir') ?? '/app/uploads';
-  }
-
-  // Ruta absoluta de un archivo guardado; null si se sale de ARCHIVOS_DIR.
-  private resolverRuta(ruta: string): string | null {
-    const base = path.resolve(this.directorio);
-    const completa = path.resolve(base, ruta);
-    const relativa = path.relative(base, completa);
-    if (
-      relativa === '' ||
-      relativa.startsWith('..') ||
-      path.isAbsolute(relativa)
-    ) {
-      return null;
-    }
-    return completa;
-  }
-
-  private async existe(ruta: string | null | undefined): Promise<boolean> {
-    if (!ruta) return false;
-    const completa = this.resolverRuta(ruta);
-    if (!completa) return false;
-    try {
-      return (await stat(completa)).isFile();
-    } catch {
-      return false;
-    }
-  }
 
   async anios(): Promise<number[]> {
     const enviadas = await this.sequelizeDeclaranet.query<{ anio: number }>(
@@ -321,7 +281,7 @@ export class LibrosService {
   }
 
   private async filaActa(tipo: TipoLibro, anio: number, libro: Libro | null) {
-    const tieneActa = await this.existe(libro?.ruta);
+    const tieneActa = await this.archivos.existe(libro?.ruta);
     return {
       tipo,
       tipoMovimientoId: TIPO_DE_ACTA[tipo],
@@ -329,7 +289,7 @@ export class LibrosService {
       anio,
       tieneActa,
       nombreActa: tieneActa && libro ? path.basename(libro.ruta) : null,
-      tieneSoporte: await this.existe(libro?.rutaSoporte),
+      tieneSoporte: await this.archivos.existe(libro?.rutaSoporte),
       actualizado: libro?.updatedAt
         ? new Date(libro.updatedAt as Date).toISOString()
         : null,
@@ -360,11 +320,13 @@ export class LibrosService {
     }
 
     // El nombre se arma aquí; nunca se usa el nombre que mandó el cliente.
-    const rutaRelativa = `Actas/${dto.anio}/${dto.tipo}-${Date.now()}.${extension}`;
-    const completa = this.resolverRuta(rutaRelativa);
-    if (!completa) throw new BadRequestException('Ruta de archivo no válida');
-    await mkdir(path.dirname(completa), { recursive: true });
-    await writeFile(completa, archivo.buffer);
+    const nombreArchivo = `${dto.tipo}-${Date.now()}.${extension}`;
+    const rutaRelativa = `Actas/${dto.anio}/${nombreArchivo}`;
+    await this.archivos.guardar(
+      `Actas/${dto.anio}`,
+      nombreArchivo,
+      archivo.buffer,
+    );
 
     const tipoMovimientoId = TIPO_DE_ACTA[dto.tipo];
     const transaction = await this.sequelize.transaction();
@@ -389,7 +351,7 @@ export class LibrosService {
       await transaction.commit();
     } catch (error) {
       await transaction.rollback().catch(() => undefined);
-      await unlink(completa).catch(() => undefined);
+      await this.archivos.eliminar(rutaRelativa);
       if (error instanceof UniqueConstraintError) {
         throw new ConflictException(
           'Ya existe un acta de ese tipo y año. Intenta de nuevo.',
@@ -399,8 +361,7 @@ export class LibrosService {
     }
 
     if (anterior && anterior !== rutaRelativa) {
-      const vieja = this.resolverRuta(anterior);
-      if (vieja) await unlink(vieja).catch(() => undefined);
+      await this.archivos.eliminar(anterior);
     }
     // TODO Fase 4: generar el soporte (Excel) del libro; ruta_soporte no se toca aquí.
     this.logger.log(
@@ -415,24 +376,6 @@ export class LibrosService {
   ): Promise<StreamableFile> {
     const libro = await this.libroModel.findByPk(id);
     const ruta = cual === 'acta' ? libro?.ruta : libro?.rutaSoporte;
-    const completa = ruta ? this.resolverRuta(ruta) : null;
-    if (!libro || !completa) {
-      throw new NotFoundException('Archivo no encontrado');
-    }
-    try {
-      await access(completa);
-      if (!(await stat(completa)).isFile()) throw new Error('no es archivo');
-    } catch {
-      throw new NotFoundException('Archivo no encontrado');
-    }
-
-    const nombre = path.basename(completa);
-    const respaldo = nombre.replace(/[^\x20-\x7e]|["\\]/g, '_');
-    return new StreamableFile(createReadStream(completa), {
-      type:
-        CONTENT_TYPES[path.extname(nombre).toLowerCase()] ??
-        'application/octet-stream',
-      disposition: `attachment; filename="${respaldo}"; filename*=UTF-8''${encodeURIComponent(nombre)}`,
-    });
+    return this.archivos.descargar(ruta);
   }
 }

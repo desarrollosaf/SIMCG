@@ -15,6 +15,7 @@ import { Declaracion } from '../database/models/declaracion.model';
 import { Libro } from '../database/models/libro.model';
 import { ServidorPublico } from '../database/models/servidor-publico.model';
 import { TipoMovimientoMcg } from '../database/models/tipo-movimiento-mcg.model';
+import { ArchivosService } from '../documentos/archivos.service';
 import { LibrosService } from './libros.service';
 
 const PDF = Buffer.from('%PDF-1.4 contenido');
@@ -63,6 +64,7 @@ describe('LibrosService', () => {
     const modulo = await Test.createTestingModule({
       providers: [
         LibrosService,
+        ArchivosService,
         { provide: getConnectionToken(), useValue: sequelize },
         {
           provide: getConnectionToken('declaranet'),

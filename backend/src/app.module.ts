@@ -12,6 +12,7 @@ import { CatalogosModule } from './catalogos/catalogos.module';
 import { ServidoresModule } from './servidores/servidores.module';
 import { CargasModule } from './cargas/cargas.module';
 import { LibrosModule } from './libros/libros.module';
+import { DocumentosModule } from './documentos/documentos.module';
 
 interface MysqlConnectionConfig {
   host: string;
@@ -57,6 +58,7 @@ interface MysqlConnectionConfig {
         };
       },
     }),
+    DocumentosModule,
     HealthModule,
     AuthModule,
     RolesModule,

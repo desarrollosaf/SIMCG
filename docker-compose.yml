@@ -32,7 +32,11 @@ services:
     restart: unless-stopped
 
   backend:
-    image: node:26-alpine
+    build:
+      context: ./backend
+      dockerfile: DockerFile
+      target: desarrollo
+    image: simcg-backend-dev
     container_name: simcg-backend
     working_dir: /app
 

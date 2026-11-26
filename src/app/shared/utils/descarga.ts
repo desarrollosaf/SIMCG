@@ -46,3 +46,10 @@ export function formatearFecha(valor: string | null | undefined): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(valor);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : valor;
 }
+
+/** Abre un PDF en una pestana nueva; la URL temporal se revoca pasado un tiempo. */
+export function abrirPdf(blob: Blob): void {
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
