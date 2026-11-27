@@ -357,6 +357,23 @@ function strPad(
   return s + hacer(falta);
 }
 
+/**
+ * Texto visible de un fragmento HTML ya renderizado: sin etiquetas, con las entidades
+ * decodificadas y los espacios colapsados (lo que se lee en el PDF).
+ */
+export function textoPlano(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Subconjunto de Carbon: solo `format` con letras de fecha/hora. */
 export class Fecha {
   constructor(
@@ -529,6 +546,10 @@ function llamar(e: Extract<Expr, { k: 'llamada' }>, ctx: Contexto): unknown {
       return !verdadero(args[0]);
     case 'isset':
       return args.every((a) => a !== null && a !== undefined);
+    case 'base64_encode':
+      return Buffer.from(textoPhp(args[0]), 'utf8').toString('base64');
+    case 'texto_plano':
+      return textoPlano(textoPhp(args[0]));
     case 'is_null':
       return args[0] === null || args[0] === undefined;
   }

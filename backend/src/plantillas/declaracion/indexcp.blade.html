@@ -2737,13 +2737,37 @@
 <ol>
 
 
+    {{-- Cadena original: se arma una sola vez; la imprime el texto y su base64. --}}
+    @capture($cadena)
+    <strong>|| {!! $declaracion->tipo_movimiento->valor !!}:@if(!session('intereses')){{$declaracion->id}}@else {{$declaracion->folioIntereses->folio}}-D.INT.@endif | FOLIO:@if(!session('intereses')){{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}}@else {{str_pad($declaracion->folioIntereses->folio, 10, "0", STR_PAD_LEFT)}}-D.INT. @endif | RFC:{{$servidor->rfc}}
+        | PRIMER APELLIDO:{{$servidor->primer_apellido}} | SEGUNDO APELLIDO:{{$servidor->segundo_apellido}} | NOMBRE:{{$servidor->nombre}}
+        | DEPENDENCIA:{{mb_strtoupper($servidor->nombreDependencia->nombre)}} | DIRECCIÓN: {{mb_strtoupper($servidor->nombreDireccion->nombre)}}
+        | DEPARTAMENTO: {{mb_strtoupper($servidor->nombreDepartamento->nombre)}} | CARGO: {{mb_strtoupper($servidor->cargo)}}
+        | FECHA DEL MOVIMIENTO: {{\Carbon\Carbon::create($declaracion->fecha_declaracion)->format("d-m-Y")}} | FECHA DE ENTREGA: {{ $declaracion->fecha_envio ? \Carbon\Carbon::create($declaracion->fecha_envio)->format("d-m-Y") : "ENTREGA PENDIENTE"}}
+            @if($declaracion->ingresos)
+                | 
+                INGRESO {{$declaracion->tipo_movimiento_id == 3 || $declaracion->tipo_movimiento_id == 4 ? "ANUAL" : "MENSUAL"}}
+                DECLARANTE: $ {{number_format($declaracion->ingresos->ingreso_mensual_neto, 2)}}
+            @endif
+
+        @if(count($declaracion->intereses))
+            @foreach($declaracion->intereses as $item)
+                    | INTERESES PERSONALES: {{count($declaracion->intereses) ? "SI" : "NO"}}
+                | PERSONA QUE CAUSA CONFLICTO DE INTERES: {{$item->nombre}} {{$item->primer_apellido}} {{$item->segundo_apellido}}
+            @endforeach
+        @endif
+        | PRESENTA DECLARACIÓN FISCAL: {{$declaracion->DocumentoSat && $declaracion->DocumentoSat->requiere_cargar_evidencia ? "SI" : "NO"}} ||
+        ACLARACIÓNES: {{$declaracion->fecha_envio_aclaracion  ? "SI || FECHA ENVIO ACLARACIÓN: ".$declaracion->fecha_envio_aclaracion : "NO"}}
+        </strong>
+    @endcapture
+
     @if ($declaracion->estatus_declaracion->estatus == "Enviada")
         <br><br>
         <br>
         <table width="99%" border="1" cellpadding="2">
             <tbody>
             <tr>
-                <td style="word-break: break-all;"><strong>Cadena Original:</strong><br>UG9yIGVsIHByZXNlbnRlIHNlIGhhY2UgY29uc3RhciBxdWUgTk9NQlJFICwgcHJlc2Vuw7MgYW50ZSBsYSBDb250cmFsb3LDrWEgZGVsIFBvZGVyIExlZ2lzbGF0aXZvIGRlbCBFc3RhZG8gZGUgTcOpeGljbyB1dGlsaXphbmRvIGVsIERlY2xAcmEgTGVnaXMgTkVULCBkZQphY3VlcmRvIGEgbG9zIGFydMOtY3Vsb3MgMywgZnJhY2Npb25lcyBWIHkgVklJSSwgNywgZnJhY2Npb25lcyBJSSB5IElYLCA5LCBmcmFjY2nDs24gSVgsIDI5LCAzMCwgMzMsIDM0LCBmcmFjY2nDs24gSUksIDM1LCAzNywgMzgsIDM5LCA0MCwgNDQsIDQ1IHkgNDYgZGUgbGEgTGV5IGRlClJlc3BvbnNhYmlsaWRhZGVzIEFkbWluaXN0cmF0aXZhcyBkZWwgRXN0YWRvIGRlIE3DqXhpY28geSBNdW5pY2lwaW9zOyBzdSBEZWNsYXJhY2nDs24gZGUgU2l0dWFjw7NuIFBhdHJpbW9uaWFsIHkgZGUgSW50ZXJlc2VzIHBvciBUSVBPIERFCk1PVklNSUVOVE8uIA==
+                <td style="word-break: break-all;"><strong>Cadena Original:</strong><br>{{ base64_encode(texto_plano($cadena)) }}
                 </td>
             </tr>
             </tbody>
@@ -2786,26 +2810,7 @@
     <h1>CADENA ORIGINAL</h1>
     <h1 align="center"><hr></h1>
     <div align="justify">
-        <strong>|| {!! $declaracion->tipo_movimiento->valor !!}:@if(!session('intereses')){{$declaracion->id}}@else {{$declaracion->folioIntereses->folio}}-D.INT.@endif | FOLIO:@if(!session('intereses')){{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}}@else {{str_pad($declaracion->folioIntereses->folio, 10, "0", STR_PAD_LEFT)}}-D.INT. @endif | RFC:{{$servidor->rfc}}
-        | PRIMER APELLIDO:{{$servidor->primer_apellido}} | SEGUNDO APELLIDO:{{$servidor->segundo_apellido}} | NOMBRE:{{$servidor->nombre}}
-        | DEPENDENCIA:{{mb_strtoupper($servidor->nombreDependencia->nombre)}} | DIRECCIÓN: {{mb_strtoupper($servidor->nombreDireccion->nombre)}}
-        | DEPARTAMENTO: {{mb_strtoupper($servidor->nombreDepartamento->nombre)}} | CARGO: {{mb_strtoupper($servidor->cargo)}}
-        | FECHA DEL MOVIMIENTO: {{\Carbon\Carbon::create($declaracion->fecha_declaracion)->format("d-m-Y")}} | FECHA DE ENTREGA: {{ $declaracion->fecha_envio ? \Carbon\Carbon::create($declaracion->fecha_envio)->format("d-m-Y") : "ENTREGA PENDIENTE"}}
-            @if($declaracion->ingresos)
-                | 
-                INGRESO {{$declaracion->tipo_movimiento_id == 3 || $declaracion->tipo_movimiento_id == 4 ? "ANUAL" : "MENSUAL"}}
-                DECLARANTE: $ {{number_format($declaracion->ingresos->ingreso_mensual_neto, 2)}}
-            @endif
-
-        @if(count($declaracion->intereses))
-            @foreach($declaracion->intereses as $item)
-                    | INTERESES PERSONALES: {{count($declaracion->intereses) ? "SI" : "NO"}}
-                | PERSONA QUE CAUSA CONFLICTO DE INTERES: {{$item->nombre}} {{$item->primer_apellido}} {{$item->segundo_apellido}}
-            @endforeach
-        @endif
-        | PRESENTA DECLARACIÓN FISCAL: {{$declaracion->DocumentoSat && $declaracion->DocumentoSat->requiere_cargar_evidencia ? "SI" : "NO"}} ||
-        ACLARACIÓNES: {{$declaracion->fecha_envio_aclaracion  ? "SI || FECHA ENVIO ACLARACIÓN: ".$declaracion->fecha_envio_aclaracion : "NO"}}
-        </strong>
+        {!! $cadena !!}
     </div>
 
 </ol>

@@ -9,6 +9,7 @@ import {
 } from './aclaraciones';
 import type { VistaDeclaracion } from './declaracion-pdf.service';
 import { CATALOGO } from './eloquent/catalogo';
+import { textoPlano } from './blade/php';
 
 // Estos specs generan el HTML de cada vista (sin Chromium) para una declaración de
 // ejemplo y comprueban títulos, encabezados de columnas y leyendas tal como están en
@@ -803,7 +804,7 @@ describe('correcciones de errores del sistema anterior', () => {
 
   it('5. la cadena original en base64 sale cuando la declaración está Enviada', () => {
     expect(texto(render('index', declaracion(1)))).toContain(
-      'Cadena Original: UG9yIGVsIHByZXNlbnRl',
+      'Cadena Original: fHwgSU5JQ0lBTDoxMjM',
     );
     for (const vista of ['indexc', 'indexp', 'indexcp'] as const) {
       expect(texto(render(vista, declaracion(1)))).toContain(
@@ -972,5 +973,65 @@ describe('correcciones de errores del sistema anterior', () => {
       );
       expect(t.match(/presentó ante la Contraloría/g)).toHaveLength(1);
     }
+  });
+});
+
+describe('cadena original (texto y base64 de la misma fuente)', () => {
+  const decodificada = (html: string) => {
+    const m = /Cadena Original:<\/strong><br>([A-Za-z0-9+/=]+)/.exec(html);
+    return m ? Buffer.from(m[1], 'base64').toString('utf8') : null;
+  };
+
+  it('el base64 decodifica exactamente la cadena impresa, en las 4 vistas', () => {
+    for (const vista of ['index', 'indexc', 'indexp', 'indexcp'] as const) {
+      const html = render(
+        vista,
+        declaracion(
+          3,
+          { ingresos: ingresos() },
+          { fecha_envio_aclaracion: '2024-04-01' },
+        ),
+      );
+      const cadena = decodificada(html);
+      expect(cadena).toContain(
+        '|| MODIFICACION:123 | FOLIO:0000000123 | RFC:GARS631121 | PRIMER APELLIDO:garcia',
+      );
+      expect(cadena).toContain('INGRESO ANUAL DECLARANTE: $ 12,345.60');
+      expect(cadena).toContain(
+        'ACLARACIÓNES: SI || FECHA ENVIO ACLARACIÓN: 2024-04-01',
+      );
+      expect(cadena?.startsWith('|| ')).toBe(true);
+      // Es el mismo texto que se imprime bajo "CADENA ORIGINAL".
+      const impreso = textoPlano(html);
+      expect(impreso).toContain(`CADENA ORIGINAL ${cadena}`);
+    }
+  });
+
+  it('la variante de intereses lleva el folio de intereses en el texto y en el base64', () => {
+    const html = render(
+      'index',
+      declaracion(5, {
+        folioIntereses: modelo('FoliosIntereses', { folio: 77 }),
+      }),
+      { intereses: true },
+    );
+    const cadena = decodificada(html);
+    expect(cadena).toContain(
+      '|| INTERESES: 77-D.INT. | FOLIO: 0000000077-D.INT. |',
+    );
+    expect(textoPlano(html)).toContain(`CADENA ORIGINAL ${cadena}`);
+  });
+
+  it('el base64 es UTF-8 (acentos y eñes) y no sale si la declaración no está Enviada', () => {
+    const html = render('index', declaracion(1));
+    expect(decodificada(html)).toContain('DIRECCIÓN: DIRECCION X');
+    const pendiente = declaracion(1);
+    pendiente.relaciones.set(
+      'estatus_declaracion',
+      modelo('EstatusDeclaracion', { estatus: 'Terminada' }),
+    );
+    expect(decodificada(render('index', pendiente))).toBeNull();
+    // El texto de la cadena sigue imprimiéndose.
+    expect(texto(render('index', pendiente))).toContain('|| INICIAL:123 |');
   });
 });

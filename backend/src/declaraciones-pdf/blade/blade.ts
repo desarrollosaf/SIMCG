@@ -25,7 +25,8 @@ export type Nodo =
       variable: string;
       cuerpo: Nodo[];
     }
-  | { t: 'php'; expr: Expr };
+  | { t: 'php'; expr: Expr }
+  | { t: 'captura'; variable: string; cuerpo: Nodo[] };
 
 const DIRECTIVAS = new Set([
   'if',
@@ -35,6 +36,8 @@ const DIRECTIVAS = new Set([
   'foreach',
   'endforeach',
   'php',
+  'capture',
+  'endcapture',
 ]);
 
 const esPalabra = (c: string | undefined) => !!c && /[A-Za-z0-9_]/.test(c);
@@ -176,6 +179,13 @@ export function compilarBlade(fuente: string): Nodo[] {
           variable: m[3] ?? m[2],
           cuerpo: r.nodos,
         });
+      } else if (tk.nombre === 'capture') {
+        const m = /^\s*\$(\w+)\s*$/.exec(tk.valor);
+        if (!m) throw new Error(`@capture no soportado: ${tk.valor}`);
+        const r = bloque(['endcapture']);
+        if (!r.fin) throw new Error('@capture sin @endcapture');
+        pos++;
+        nodos.push({ t: 'captura', variable: m[1], cuerpo: r.nodos });
       } else if (tk.nombre === 'php') {
         nodos.push({ t: 'php', expr: parsearExpresion(tk.valor) });
       } else {
@@ -228,6 +238,9 @@ export function renderizarNodos(nodos: Nodo[], ctx: Contexto): string {
       }
       case 'php':
         evaluar(n.expr, ctx);
+        break;
+      case 'captura':
+        ctx.vars[n.variable] = renderizarNodos(n.cuerpo, ctx);
         break;
     }
   }

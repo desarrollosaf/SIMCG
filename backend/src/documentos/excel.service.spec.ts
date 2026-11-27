@@ -23,6 +23,23 @@ describe('ExcelService', () => {
     expect(filas[2][0]).toBe('Luis');
   });
 
+  it('conserva acentos, ñ y signos en encabezados, hoja y celdas', () => {
+    const texto = 'NÚÑEZ PEÑA, DIRECCIÓN ¿SÍ? ¡ü!';
+    const buffer = servicio.generar(
+      'Situación',
+      [{ encabezado: 'T. DE MOVIMIENTO / ENVÍO', campo: 'nombre' }],
+      [{ nombre: texto }],
+    );
+    const libro = XLSX.read(buffer, { type: 'buffer' });
+    expect(libro.SheetNames).toEqual(['Situación']);
+    const filas = XLSX.utils.sheet_to_json<unknown[]>(
+      libro.Sheets['Situación'],
+      { header: 1 },
+    );
+    expect(filas[0]).toEqual(['T. DE MOVIMIENTO / ENVÍO']);
+    expect(filas[1]).toEqual([texto]);
+  });
+
   it('aplica fondo gris y anchos al encabezado', () => {
     const buffer = servicio.generar('Hoja', columnas, []);
     const libro = XLSX.read(buffer, { type: 'buffer', cellStyles: true });

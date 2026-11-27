@@ -79,6 +79,9 @@ export function relacionesUsadas(
         case 'php':
           visitarExpr(n.expr);
           break;
+        case 'captura':
+          visitar(n.cuerpo);
+          break;
         case 'si':
           for (const r of n.ramas) {
             if (r.cond) visitarExpr(r.cond);
