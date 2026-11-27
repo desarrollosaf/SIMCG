@@ -1,6 +1,6 @@
 import type { Nodo } from '../blade/blade';
 import { cadenasDe, Expr } from '../blade/php';
-import { CATALOGO } from './catalogo.generado';
+import { CATALOGO } from './catalogo';
 import type { Arbol } from './tipos';
 
 interface Alcance {

@@ -1776,7 +1776,7 @@
                     @if($item->lugares_ubicacion_id == 1)
                         <td>{{mb_strtoupper($item->Entidades->entidad)}}</td>
                     @else
-                        <td>{{mb_strtoupper($item->Paises->valor)}}</td>
+                        <td>{{mb_strtoupper($item->pais)}}</td>
                     @endif
                 </tr>
                 <tr>
@@ -2350,6 +2350,27 @@
                     </tbody>
                 </table>
             @endif
+    
+            @if($key == "TE DESEMPENASTE COMO SERVIDOR PUBLICO" && $declaracion->tipo_movimiento_id != 3 && !session('intereses'))
+                <li><span>
+                    ¿TE DESEMPEÑASTE COMO SERVIDOR PÚBLICO EN EL AÑO INMEDIATO ANTERIOR?</span><br>
+                <strong>Folio: {{str_pad($declaracion->id, 10, "0", STR_PAD_LEFT)}} {!! $estatusAclaracion !!}</strong>
+                </li>
+                <br>
+                <br>
+                <table width="99%" border="1" cellpadding="2">
+                    <tbody>
+                    <tr>
+                        @if($data)
+                            <th width="33%" >Observaciones</th>
+                            <td width="66%" colspan="2">{{ $data }}</td>
+                        @else
+                            <th align="center" width="99%">No se registró información en este apartado</th>
+                        @endif
+                    </tr>
+                    </tbody>
+                </table>
+            @endif
 
             <!--    10    -->
             @if($key == "BIENES INMUEBLES")
@@ -2768,13 +2789,13 @@
 <ol>
 
 
-    @if ($declaracion->estatus_declaracion->estatus == "EnviadaS")
+    @if ($declaracion->estatus_declaracion->estatus == "Enviada")
         <br><br>
         <br>
         <table width="99%" border="1" cellpadding="2">
             <tbody>
             <tr>
-                <td><strong>Cadena Original:</strong><br>UG9yIGVsIHByZXNlbnRlIHNlIGhhY2UgY29uc3RhciBxdWUgTk9NQlJFICwgcHJlc2Vuw7MgYW50ZSBsYSBDb250cmFsb3LDrWEgZGVsIFBvZGVyIExlZ2lzbGF0aXZvIGRlbCBFc3RhZG8gZGUgTcOpeGljbyB1dGlsaXphbmRvIGVsIERlY2xAcmEgTGVnaXMgTkVULCBkZQphY3VlcmRvIGEgbG9zIGFydMOtY3Vsb3MgMywgZnJhY2Npb25lcyBWIHkgVklJSSwgNywgZnJhY2Npb25lcyBJSSB5IElYLCA5LCBmcmFjY2nDs24gSVgsIDI5LCAzMCwgMzMsIDM0LCBmcmFjY2nDs24gSUksIDM1LCAzNywgMzgsIDM5LCA0MCwgNDQsIDQ1IHkgNDYgZGUgbGEgTGV5IGRlClJlc3BvbnNhYmlsaWRhZGVzIEFkbWluaXN0cmF0aXZhcyBkZWwgRXN0YWRvIGRlIE3DqXhpY28geSBNdW5pY2lwaW9zOyBzdSBEZWNsYXJhY2nDs24gZGUgU2l0dWFjw7NuIFBhdHJpbW9uaWFsIHkgZGUgSW50ZXJlc2VzIHBvciBUSVBPIERFCk1PVklNSUVOVE8uIA==
+                <td style="word-break: break-all;"><strong>Cadena Original:</strong><br>UG9yIGVsIHByZXNlbnRlIHNlIGhhY2UgY29uc3RhciBxdWUgTk9NQlJFICwgcHJlc2Vuw7MgYW50ZSBsYSBDb250cmFsb3LDrWEgZGVsIFBvZGVyIExlZ2lzbGF0aXZvIGRlbCBFc3RhZG8gZGUgTcOpeGljbyB1dGlsaXphbmRvIGVsIERlY2xAcmEgTGVnaXMgTkVULCBkZQphY3VlcmRvIGEgbG9zIGFydMOtY3Vsb3MgMywgZnJhY2Npb25lcyBWIHkgVklJSSwgNywgZnJhY2Npb25lcyBJSSB5IElYLCA5LCBmcmFjY2nDs24gSVgsIDI5LCAzMCwgMzMsIDM0LCBmcmFjY2nDs24gSUksIDM1LCAzNywgMzgsIDM5LCA0MCwgNDQsIDQ1IHkgNDYgZGUgbGEgTGV5IGRlClJlc3BvbnNhYmlsaWRhZGVzIEFkbWluaXN0cmF0aXZhcyBkZWwgRXN0YWRvIGRlIE3DqXhpY28geSBNdW5pY2lwaW9zOyBzdSBEZWNsYXJhY2nDs24gZGUgU2l0dWFjw7NuIFBhdHJpbW9uaWFsIHkgZGUgSW50ZXJlc2VzIHBvciBUSVBPIERFCk1PVklNSUVOVE8uIA==
                 </td>
             </tr>
             </tbody>
@@ -2806,8 +2827,8 @@
         @else   
             Por el presente se hace constar que
             <b> {{mb_strtoupper($declaracion->servidor_publico->nombre)}} {{mb_strtoupper($declaracion->servidor_publico->primer_apellido)}} {{mb_strtoupper($declaracion->servidor_publico->segundo_apellido)}}</b>,
-            presentó ante la Contraloría del Poder Legislativo del Estado de México utilizando el Decl@ra Legis presentó ante la Contraloría 
-            del Poder Legislativo del Estado de México utilizando el Decl@ra Legis NET, de acuerdo a los artículo 3, fracciones V y VIII; 
+            presentó ante la Contraloría del Poder Legislativo del Estado de México utilizando el Decl@ra Legis
+            NET, de acuerdo a los artículo 3, fracciones V y VIII; 
             7 fracciones II y IX; 9 fracción IX; 29, 32, 40, 44, 45 y 46, tercer párrafo de la Ley de Responsabilidades Administrativas del 
             Estado de México y Municipios; su Declaración de Situación Patrimonial y de Intereses por INTERESES.
         @endif 

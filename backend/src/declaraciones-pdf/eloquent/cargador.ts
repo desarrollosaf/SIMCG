@@ -3,7 +3,7 @@ import { InjectConnection } from '@nestjs/sequelize';
 import { QueryTypes } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Coleccion, Modelo } from '../blade/valores';
-import { CATALOGO } from './catalogo.generado';
+import { CATALOGO } from './catalogo';
 import type { Arbol, RelacionMeta } from './tipos';
 
 type Fila = Record<string, unknown>;

@@ -1,7 +1,7 @@
 import { compilarBlade } from '../blade/blade';
 import { Coleccion, Modelo } from '../blade/valores';
 import { CargadorEloquent } from './cargador';
-import { CATALOGO } from './catalogo.generado';
+import { CATALOGO } from './catalogo';
 import { relacionesUsadas, unirArboles } from './uso-relaciones';
 
 type Fila = Record<string, unknown>;

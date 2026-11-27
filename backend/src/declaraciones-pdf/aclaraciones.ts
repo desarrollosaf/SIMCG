@@ -9,12 +9,18 @@ import type { Arbol } from './eloquent/tipos';
 export interface SeccionAclaracion {
   clave: string;
   /**
-   * Relación de la declaración (en minúsculas) cuyo primer registro trae la
-   * aclaración (`aclaracionesDecl`). Null: el sistema anterior consultaba una
-   * relación que no existe, así que la clave siempre queda vacía.
+   * Relación de la declaración (en minúsculas) cuyos registros traen la aclaración
+   * (`aclaracionesDecl`); se toma la del primer registro que la tenga.
+   * Null: la aclaración cuelga directo de `directa`.
    */
   relacion: string | null;
-  /** Tipo con el que se busca la aclaración de respaldo (`App\X`). */
+  /** Ruta de relaciones (en minúsculas) hasta la aclaración misma. */
+  directa?: string[];
+  /**
+   * Tipo (`App\X`) de las aclaraciones que los datos viejos guardaron con el id de la
+   * declaración en lugar del id del registro: se usan si no hay otra y ese id no es
+   * de ningún registro de la tabla del tipo.
+   */
   respaldo?: string;
   /** Solo cuando la situación personal es 2, 5 o 6 (con pareja). */
   soloConPareja?: boolean;
@@ -25,8 +31,12 @@ export interface SeccionAclaracion {
 }
 
 export const SECCIONES_ACLARACION: SeccionAclaracion[] = [
-  { clave: 'DATOS GENERALES', relacion: null },
-  { clave: 'DOMICILIO DECLARANTE', relacion: null },
+  { clave: 'DATOS GENERALES', relacion: null, directa: ['aclaraciones'] },
+  {
+    clave: 'DOMICILIO DECLARANTE',
+    relacion: null,
+    directa: ['domicilio', 'aclaraciones'],
+  },
   {
     clave: 'DATOS CURRICULARES',
     relacion: 'datos_curriculares',
@@ -149,22 +159,36 @@ export function arbolAclaraciones(): Arbol {
   const arbol: Arbol = {};
   for (const s of SECCIONES_ACLARACION) {
     if (s.relacion) arbol[s.relacion] = { aclaracionesdecl: {} };
+    if (s.directa) {
+      let nodo = arbol;
+      for (const paso of s.directa) nodo = nodo[paso] ??= {};
+    }
   }
   return arbol;
 }
 
-/** Aclaración del primer registro de la relación (`first()->aclaracionesDecl`). */
+/** Aclaración del primer registro de la relación que tenga una (`aclaracionesDecl`). */
 function deRelacion(declaracion: Modelo, relacion: string): Modelo | null {
   const valor = declaracion.relaciones.get(relacion);
-  const primero = Array.isArray(valor) ? (valor[0] as unknown) : valor;
-  const aclaracion = propiedad(primero, 'aclaracionesDecl');
-  return aclaracion instanceof Modelo ? aclaracion : null;
+  const registros = Array.isArray(valor) ? (valor as unknown[]) : [valor];
+  for (const registro of registros) {
+    const aclaracion = propiedad(registro, 'aclaracionesDecl');
+    if (aclaracion instanceof Modelo) return aclaracion;
+  }
+  return null;
+}
+
+/** Aclaración que cuelga directo siguiendo una ruta de relaciones desde la declaración. */
+function deRuta(declaracion: Modelo, ruta: string[]): Modelo | null {
+  let actual: unknown = declaracion;
+  for (const paso of ruta) actual = propiedad(actual, paso);
+  return actual instanceof Modelo ? actual : null;
 }
 
 /**
- * Arma el arreglo $aclaraciones del controlador. `respaldo(tipo)` devuelve la
- * observación de la primera aclaración de ese tipo ligada al id de la DECLARACIÓN
- * (el sistema anterior busca así, aunque el tipo sea el de un registro hijo).
+ * Arma el arreglo $aclaraciones del controlador. `respaldo` trae, por tipo, la
+ * observación de las aclaraciones que los datos viejos guardaron con el id de la
+ * declaración (solo si ese id no es de un registro de la tabla del tipo).
  */
 export function armarAclaraciones(
   declaracion: Modelo,
@@ -177,12 +201,14 @@ export function armarAclaraciones(
   const situacion = Number(declaracion.atributos['situacion_personal_id']);
 
   for (const s of SECCIONES_ACLARACION) {
-    if (!s.relacion) continue;
+    if (!s.relacion && !s.directa) continue;
     if (s.soloConPareja && !SITUACIONES_CON_PAREJA.includes(situacion))
       continue;
     if (s.noModificacion && tipoMovimiento === 3) continue;
 
-    const aclaracion = deRelacion(declaracion, s.relacion);
+    const aclaracion = s.relacion
+      ? deRelacion(declaracion, s.relacion)
+      : deRuta(declaracion, s.directa ?? []);
     if (aclaracion) {
       const observaciones = aclaracion.atributos['observaciones'] as
         string | null;

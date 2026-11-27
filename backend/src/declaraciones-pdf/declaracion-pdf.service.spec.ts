@@ -228,6 +228,24 @@ describe('DeclaracionPdfService', () => {
     }
   });
 
+  it('2. el respaldo de aclaraciones solo toma las que no pertenecen a un registro de la tabla del tipo', async () => {
+    prepararDeclaracion(1, '32-1');
+    await servicio.generarHtml(1, 21, false);
+    const sql = consulta.mock.calls
+      .map((c) => c[0])
+      .find((s) => s.includes('NOT EXISTS'));
+    expect(sql).toBeDefined();
+    expect(sql).toContain(
+      'a.aclaracionable_type = :t0 AND NOT EXISTS (SELECT 1 FROM `datos_curriculares` h WHERE h.`id` = a.aclaracionable_id)',
+    );
+    expect(sql).toContain('FROM `vehiculos` h');
+    const llamada = consulta.mock.calls.find((c) => c[0] === sql);
+    expect(llamada?.[1].replacements).toMatchObject({
+      declaracionId: 21,
+      t0: 'App\\DatoCurricular',
+    });
+  });
+
   it('precarga también lo que se necesita para las aclaraciones', async () => {
     prepararDeclaracion(1, '32-1');
     await servicio.generarHtml(1, 21, false);

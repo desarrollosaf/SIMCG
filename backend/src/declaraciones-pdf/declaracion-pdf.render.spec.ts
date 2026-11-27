@@ -8,6 +8,7 @@ import {
   SECCIONES_ACLARACION,
 } from './aclaraciones';
 import type { VistaDeclaracion } from './declaracion-pdf.service';
+import { CATALOGO } from './eloquent/catalogo';
 
 // Estos specs generan el HTML de cada vista (sin Chromium) para una declaración de
 // ejemplo y comprueban títulos, encabezados de columnas y leyendas tal como están en
@@ -646,5 +647,330 @@ describe('armarAclaraciones', () => {
         'DECLARACION FISCAL'
       ],
     ).toBe('TEXTO');
+  });
+});
+
+// Correcciones aprobadas sobre errores del sistema anterior: cada una cambia solo
+// el texto que se indica.
+describe('correcciones de errores del sistema anterior', () => {
+  const acl = (obs: string | null) =>
+    modelo('Aclaraciones', { observaciones: obs });
+  const base = (rels: Rels, attrs = {}) =>
+    modelo(
+      'Declaracion',
+      { id: 9, tipo_movimiento_id: 1, situacion_personal_id: 1, ...attrs },
+      rels,
+    );
+  const sinRespaldo = new Map<string, string | null>();
+
+  it('1. las aclaraciones de DATOS GENERALES y DOMICILIO salen de su propia aclaración', () => {
+    const a = armarAclaraciones(
+      base({
+        aclaraciones: acl('ACL GENERALES'),
+        domicilio: modelo(
+          'Domicilio',
+          {},
+          { aclaraciones: acl('ACL DOMICILIO') },
+        ),
+      }),
+      sinRespaldo,
+    );
+    expect(a['DATOS GENERALES']).toBe('ACL GENERALES');
+    expect(a['DOMICILIO DECLARANTE']).toBe('ACL DOMICILIO');
+    const t = texto(
+      render(
+        'index',
+        declaracion(1, {}, { fecha_envio_aclaracion: '2024-04-01' }),
+        { aclaraciones: a },
+      ),
+    );
+    expect(t).toContain('ACL GENERALES');
+    expect(t).toContain('ACL DOMICILIO');
+  });
+
+  it('1. el catálogo sabe leer esas aclaraciones por su tipo', () => {
+    expect(CATALOGO['Declaracion'].relaciones['aclaraciones']).toMatchObject({
+      tipoValor: 'App\\Declaracion',
+      claveDestino: 'aclaracionable_id',
+    });
+    expect(CATALOGO['Domicilio'].relaciones['aclaraciones'].tipoValor).toBe(
+      'App\\Domicilio',
+    );
+  });
+
+  it('2. toma la aclaración del primer registro que la tenga, no solo del primero', () => {
+    const a = armarAclaraciones(
+      base({
+        vehiculos: lista(
+          modelo('Vehiculo', {}, { aclaracionesDecl: null }),
+          modelo('Vehiculo', {}, { aclaracionesDecl: acl('DEL SEGUNDO') }),
+        ),
+      }),
+      sinRespaldo,
+    );
+    expect(a['VEHICULOS']).toBe('DEL SEGUNDO');
+  });
+
+  it('3. el servidor público anterior imprime su aclaración (no en modificación ni en intereses)', () => {
+    const fila = () => ({
+      'TE DESEMPENASTE COMO SERVIDOR PUBLICO': 'ACL SERVIDOR ANTERIOR',
+    });
+    const conAcl = (tipo: number) =>
+      declaracion(tipo, {}, { fecha_envio_aclaracion: '2024-04-01' });
+    const t4 = texto(render('index', conAcl(4), { aclaraciones: fila() }));
+    expect(t4).toContain('ACL SERVIDOR ANTERIOR');
+    expect(t4).toContain(
+      '¿TE DESEMPEÑASTE COMO SERVIDOR PÚBLICO EN EL AÑO INMEDIATO ANTERIOR? Folio: 0000000123 - Aclaración entregada.',
+    );
+    for (const vista of ['index', 'indexc', 'indexp', 'indexcp'] as const) {
+      expect(
+        texto(render(vista, conAcl(1), { aclaraciones: fila() })),
+      ).toContain('ACL SERVIDOR ANTERIOR');
+    }
+    expect(
+      texto(render('index', conAcl(3), { aclaraciones: fila() })),
+    ).not.toContain('ACL SERVIDOR ANTERIOR');
+    expect(
+      texto(
+        render('index', conAcl(5), { aclaraciones: fila(), intereses: true }),
+      ),
+    ).not.toContain('ACL SERVIDOR ANTERIOR');
+  });
+
+  const otroEmpleo = () =>
+    modelo(
+      'DatoEmpleoDeclarante',
+      {
+        respuesta_id: 1,
+        aclaraciones: 'ACL DEL EMPLEO',
+        funcion_principal: 'F',
+      },
+      {
+        experiencia_laboral: modelo(
+          'ExperienciaLaboral',
+          {
+            ente_publico: 'OTRO ENTE X',
+            cargo_comision: 'OTRO CARGO',
+            fecha_ingreso: '2020-01-01',
+          },
+          {
+            ambito_sectores: cat('PÚBLICO'),
+            domicilio: modelo('Domicilio', {
+              calle: 'CALLE OTRA',
+              num_ext: '77',
+            }),
+          },
+        ),
+      },
+    );
+
+  it('4. el bloque "otro empleo" se muestra en modificación cuando existe y el empleo muestra su aclaración', () => {
+    const t = texto(
+      render(
+        'index',
+        declaracion(3, { datos_empleo_declarante: otroEmpleo() }),
+      ),
+    );
+    expect(t).toContain(
+      '¿Cuenta con otro empleo, cargo o comisión en el servicio público distinto al declarado? (SÍ)',
+    );
+    expect(t).toContain('OTRO ENTE X');
+    expect(t).toContain('OTRO CARGO');
+    expect(t).toContain('CALLE OTRA');
+    expect(t).toContain('ACL DEL EMPLEO');
+    // Solo en modificación, como en la vista original.
+    expect(
+      texto(
+        render(
+          'index',
+          declaracion(4, { datos_empleo_declarante: otroEmpleo() }),
+        ),
+      ),
+    ).not.toContain('OTRO ENTE X');
+    expect(texto(render('index', declaracion(3)))).not.toContain(
+      '¿Cuenta con otro empleo',
+    );
+  });
+
+  it('4. el catálogo cuelga la experiencia laboral del empleo por su tipo', () => {
+    expect(
+      CATALOGO['DatoEmpleoDeclarante'].relaciones['experiencia_laboral'],
+    ).toMatchObject({
+      destino: 'ExperienciaLaboral',
+      tipoValor: 'App\\DatoEmpleoDeclarante',
+    });
+  });
+
+  it('5. la cadena original en base64 sale cuando la declaración está Enviada', () => {
+    expect(texto(render('index', declaracion(1)))).toContain(
+      'Cadena Original: UG9yIGVsIHByZXNlbnRl',
+    );
+    for (const vista of ['indexc', 'indexp', 'indexcp'] as const) {
+      expect(texto(render(vista, declaracion(1)))).toContain(
+        'Cadena Original:',
+      );
+    }
+    const pendiente = declaracion(1);
+    pendiente.relaciones.set(
+      'estatus_declaracion',
+      modelo('EstatusDeclaracion', { estatus: 'Terminada' }),
+    );
+    expect(texto(render('index', pendiente))).not.toContain('Cadena Original:');
+  });
+
+  it('6. los datos que salían en blanco ahora salen', () => {
+    const rel = (clase: string, nombre: string) =>
+      CATALOGO[clase].relaciones[nombre.toLowerCase()];
+    expect(rel('DatoCurricular', 'LugarUbicacionInstitucion')).toMatchObject({
+      destino: 'LugarUbicacion',
+      claveLocal: 'lugar_ubicacion_id',
+    });
+    expect(rel('DependienteEconomico', 'relacionDeclarante')).toMatchObject({
+      destino: 'RelacionTransmisor',
+      claveLocal: 'relacion_transmisor_id',
+    });
+    expect(rel('ExperienciaLaboral', 'regimen_fiscal')).toMatchObject({
+      destino: 'regimenFiscal',
+      claveLocal: 'regimen_fiscal_id',
+    });
+    expect(rel('Representacion', 'titular')).toMatchObject({
+      destino: 'titularBien',
+      claveLocal: 'titular_id',
+    });
+
+    const t = texto(
+      render(
+        'index',
+        declaracion(1, {
+          datos_curriculares: lista(
+            modelo(
+              'DatoCurricular',
+              { carrera_area: 'X' },
+              { LugarUbicacionInstitucion: cat('EXTRANJERO') },
+            ),
+          ),
+          dependienteeconomicos: lista(
+            modelo(
+              'DependienteEconomico',
+              { nombre: 'HIJO', respuesta_id: 1 },
+              { relacionDeclarante: cat('HIJO(A)') },
+            ),
+          ),
+          experiencias_laborales: lista(
+            modelo(
+              'ExperienciaLaboral',
+              { ambito_sector_id: 2, nombre_empresa: 'EMPRESA' },
+              { regimen_fiscal: cat('PERSONA MORAL') },
+            ),
+          ),
+          representacion: lista(
+            modelo(
+              'Representacion',
+              { monto_mensual: 1 },
+              { titular: cat('DECLARANTE REP') },
+            ),
+          ),
+        }),
+      ),
+    );
+    expect(t).toContain('EXTRANJERO');
+    expect(t).toContain('HIJO(A)');
+    expect(t).toContain('PERSONA MORAL');
+    expect(t).toContain('DECLARANTE REP');
+  });
+
+  it('6. el país de un fideicomiso en el extranjero sale de su columna pais', () => {
+    const t = texto(
+      render(
+        'index',
+        declaracion(1, {
+          fideicomisos: lista(
+            modelo('Fideicomiso', { lugares_ubicacion_id: 2, pais: 'francia' }),
+          ),
+        }),
+      ),
+    );
+    expect(t).toContain('FRANCIA');
+  });
+
+  const inmuebleConUnidades = (
+    terreno: string | null,
+    construccion: string | null,
+  ) =>
+    modelo(
+      'BienInmueble',
+      {
+        tipo_inmueble_id: 1,
+        porcentaje_propiedad: 100,
+        superficie_terreno: 714,
+        superficie_construccion: 420,
+      },
+      {
+        unidadDeMedidaTerreno: terreno
+          ? modelo('unidadDeMedida', { clave: terreno })
+          : null,
+        unidadDeMedidaConstruccion: construccion
+          ? modelo('unidadDeMedida', { clave: construccion })
+          : null,
+      },
+    );
+
+  it('7. el porcentaje lleva un solo % y la unidad sale del catálogo (sin KM2 por omisión)', () => {
+    const t = (terreno: string | null, construccion: string | null) =>
+      texto(
+        render(
+          'index',
+          declaracion(1, {
+            bienes_inmuebles: lista(inmuebleConUnidades(terreno, construccion)),
+          }),
+        ),
+      );
+    const completo = t('m2', 'km2');
+    expect(completo).toContain('100% 714 M2 420 KM2');
+    expect(completo).not.toContain('100%%');
+    expect(t('ha', 'ha')).toContain('100% 714 HA 420 HA');
+    const sin = t(null, null);
+    expect(sin).toContain('100% 714 420');
+    expect(sin).not.toContain('KM2');
+  });
+
+  it('8. dependiente en el extranjero: número exterior bajo "Número exterior" e interior bajo "Número interior / Piso"', () => {
+    const html = render(
+      'index',
+      declaracion(1, {
+        dependienteeconomicos: lista(
+          modelo(
+            'DependienteEconomico',
+            { nombre: 'X', respuesta_id: 2, lugar_residencia_id: 2 },
+            {
+              domicilio: modelo('Domicilio', {
+                calle: 'CALLE EXT',
+                num_ext: 'EXT-1',
+                num_int: 'INT-2',
+              }),
+            },
+          ),
+        ),
+      }),
+    );
+    expect(html).toMatch(
+      /<td>CALLE EXT<\/td>\s*<td>EXT-1<\/td>\s*<td>INT-2<\/td>/,
+    );
+  });
+
+  it('9. el texto de la declaración de intereses no repite el párrafo', () => {
+    for (const vista of ['index', 'indexc', 'indexp', 'indexcp'] as const) {
+      const t = texto(
+        render(
+          vista,
+          declaracion(5, { folioIntereses: modelo('F', { folio: 1 }) }),
+          { intereses: true },
+        ),
+      );
+      expect(t).toContain(
+        'utilizando el Decl@ra Legis NET, de acuerdo a los artículo 3, fracciones V y VIII; 7 fracciones II y IX; 9 fracción IX; 29, 32, 40, 44, 45 y 46, tercer párrafo',
+      );
+      expect(t.match(/presentó ante la Contraloría/g)).toHaveLength(1);
+    }
   });
 });

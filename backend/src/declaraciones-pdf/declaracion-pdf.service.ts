@@ -14,6 +14,7 @@ import { compilarBlade, Nodo, renderizarNodos } from './blade/blade';
 import { compararPhp, escaparHtml } from './blade/php';
 import type { Modelo } from './blade/valores';
 import { CargadorEloquent } from './eloquent/cargador';
+import { CATALOGO } from './eloquent/catalogo';
 import type { Arbol } from './eloquent/tipos';
 import { relacionesUsadas, unirArboles } from './eloquent/uso-relaciones';
 
@@ -180,21 +181,34 @@ export class DeclaracionPdfService {
   }
 
   /**
-   * Respaldo del sistema anterior: si el primer registro no trae aclaración, se busca
-   * una de ese tipo ligada al id de la declaración. La primera por tipo.
+   * Los datos viejos guardaron algunas aclaraciones con el id de la declaración en
+   * lugar del id del registro. Se toman solo si ese id no pertenece a ningún registro
+   * de la tabla del tipo (si pertenece, sería la aclaración de otra declaración).
+   * La primera por tipo.
    */
   private async respaldoDeAclaraciones(
     declaracionId: number,
   ): Promise<Map<string, string | null>> {
-    const tipos = SECCIONES_ACLARACION.flatMap((s) =>
-      s.respaldo ? [s.respaldo] : [],
-    );
+    const reemplazos: Record<string, unknown> = { declaracionId };
+    const condiciones: string[] = [];
+    for (const [i, tipo] of [
+      ...new Set(
+        SECCIONES_ACLARACION.flatMap((s) => (s.respaldo ? [s.respaldo] : [])),
+      ),
+    ].entries()) {
+      const meta = CATALOGO[tipo.replace(/^App\\/, '')];
+      if (!meta) continue;
+      reemplazos[`t${i}`] = tipo;
+      condiciones.push(
+        `(a.aclaracionable_type = :t${i} AND NOT EXISTS (SELECT 1 FROM \`${meta.tabla}\` h WHERE h.\`${meta.pk}\` = a.aclaracionable_id))`,
+      );
+    }
     const filas = await this.declaranet.query<{
       aclaracionable_type: string;
       observaciones: string | null;
     }>(
-      'SELECT aclaracionable_type, observaciones FROM aclaraciones WHERE aclaracionable_id = :declaracionId AND aclaracionable_type IN (:tipos) AND deleted_at IS NULL ORDER BY id',
-      { type: QueryTypes.SELECT, replacements: { declaracionId, tipos } },
+      `SELECT a.aclaracionable_type, a.observaciones FROM aclaraciones a WHERE a.aclaracionable_id = :declaracionId AND a.deleted_at IS NULL AND (${condiciones.join(' OR ')}) ORDER BY a.id`,
+      { type: QueryTypes.SELECT, replacements: reemplazos },
     );
     const mapa = new Map<string, string | null>();
     for (const f of filas) {
